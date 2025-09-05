@@ -56,6 +56,50 @@ In fact, the process can be broken down into a kind of algorithm, which will giv
 8. Consider any constraints that you have not been able to implement in the logical model. Identify where you may need to maintain data integrity using **triggers**. Try to minimise their use. Decide if the trigger is run on `INSERT`, `UPDATE`, or `DELETE` of a record. You do not need to write SQL code at this point of the design process. Simply make a note of what will be required.
 
 ::: {.callout-note}
+# GEOMETRY Data Type
+- The Need for Specialized Data Types in Conceptual and Logical Spatial Database Design
+In the context of database design, spatial data cannot be treated as ordinary strings or numbers (conventional attributes) because it carries additional meaning: location, shape, and Spatial Reference System Identifier (SRID). At first glance, it may seem possible to store spatial data in standard PostgreSQL data types, such as TEXT, VARCHAR, or NUMERIC. For example, one might imagine storing a point as “POINT (144.9631 -37.8136)” in a text column or storing latitude and longitude values separately as numeric columns. While this approach technically stores the numbers, PostgreSQL sees the entry as just a string or set of numbers. It does not know that these values represent a POINT, LINE, or POLYGON. Without spatial awareness, the database does not know which coordinate reference system (CRS) is being used. Additionally, if spatial data is stored as plain text or numeric values, many spatial functions (useful for a wide range of spatial analysis and querying tasks) cannot be applied. The database cannot use geometrical and topological functions such as computing distances, checking overlaps, or performing transformations on data as it does not recognise them as geometry.
+- To overcome these limitations, PostGIS introduces specialised data types for storing spatial data. The most used are the GEOMETRY and GEOGRAPHY data types for vectors (POINTS, LINES, or POLYGONS). A GEOMETRY/GEOGRAPHY column stores the spatial representation of an object in a way that PostgreSQL and PostGIS understand, validate, and can use in queries. When a GEOMETRY/GEOGRAPHY column is defined, it carries with it the shape, the coordinates of the vertices, and the CRS identified by its SRID. Hence, geometrical and topological queries can be easily applied.
+- However, the value of a GEOMETRY/GEOGRAPHY column is in Well-Known Binary (WKB) format which is useful to read geometry but not easily interpretable by humans. In this regard, to find out basic but foundational information about GEOMETRY/GEOGRAPHY columns (e.g., geometry type, coordinates of vertices, and SRID), you can use the functions GeometryType (geom), ST_AsText (geom), and ST_SRID (geom) as shown below:
+
+```sql
+SELECT GeometryType(location),
+		ST_AsText(location),
+		ST_SRID(location)
+FROM spatial.us_cities;
+```
+
+- By defining a GEOMETRY/GEOGRAPHY column, the column’s data type and udt_name will be “USER-DEFINED” and “geometry” or “geography” in PostgreSQL, respectively. 
+USER-DEFINED means the column uses a custom data type created by an extension (e.g., PostGIS) or user rather than a built-in SQL type. 
+udt_name tells us the actual spatial data type used in the column.
+
+```sql
+SELECT table_catalog, table_schema, table_name, column_name, is_nullable, data_type, udt_name
+FROM information_schema.columns
+WHERE table_schema = 'spatial' AND table_name = 'victoria_police_stations';
+```
+
+- When designing conceptual and logical data models, it is important to distinguish between descriptive attributes (e.g., name, ID) and spatial attributes (geometry). For spatial entities, these should be mapped into database structures that accurately represent both their descriptive and spatial characteristics. The following example demonstrates how to create a table to achieve this:
+
+```sql
+-- Example: Creating a spatial table in PostGIS
+CREATE TABLE user_schema.land_parcels (
+    parcel_id SERIAL PRIMARY KEY,          -- Descriptive attribute
+    owner_name VARCHAR(100),               -- Descriptive attribute
+    land_use   VARCHAR(50),                -- Descriptive attribute
+    area_m2    NUMERIC,                    -- Descriptive attribute
+    geom       geometry(Polygon, 7855)     -- Spatial attribute (Polygon, SRID 7855 = GDA2020 / MGA Zone 55)
+);
+
+-- Add a spatial index to speed up queries
+CREATE INDEX parcels_geom_idx
+    ON user_schema.land_parcels
+    USING GIST (geom);
+```
+
+:::
+
+::: {.callout-note}
 # Multivalued, composite and derived attributes
 Multivalued, composite and derived attributes are an awkward fit for the traditional table-based model of a relational database. First normal form (1NF) requires that each "cell" of a table contains a single atomic value. 
 
