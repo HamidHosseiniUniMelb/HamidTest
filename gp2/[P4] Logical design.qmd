@@ -1,0 +1,137 @@
+# [P4] Logical design
+
+In last week's practical class, you conducted requirements analysis and conceptual design for a simple company scenario. Now you can progress to a refinement.
+
+In the logical step, you explicitly consider the target type of DBMS (database management system) – in this case, a relational DBMS. You model your data storage structures (relation schemas) in a manner that supports all the requirements for data integrity maintenance.
+
+## From conceptual to logical design
+
+In contrast to conceptual design, logical design is much more of a science than an art. 
+
+In fact, the process can be broken down into a kind of algorithm, which will give good results if you have done your conceptual design properly and thoroughly.
+
+1. Convert **entities to relations** (tables).
+    - <div style="display:inline-block;width:15em;min-height:8em;border:1px black solid;padding:0.2em;vertical-align:text-top">
+    **Employee**
+    </div>
+2. Convert **attributes to columns**. 
+    - Also identify the **data type** for each column.
+    - If a column must always have a value for every row of the table, mark it as "NOT NULL" (a special kind of **domain constraint**).
+    - <div style="display:inline-block;width:15em;min-height:8em;border:1px black solid;padding:0.2em;vertical-align:text-top">
+    **Employee**<br>
+    employeeID *integer NOT NULL*<br>
+    name *text NOT NULL*<br>
+    address *text*<br>
+    ...
+    </div>
+3. If the table already has a clear identifying attribute(s), make it (them) the **primary key** (underlined). Otherwise add a **surrogate key**. 
+    - Remember to impose the **entity integrity constraint** – primary keys can never be null.
+    - <div style="display:inline-block;width:15em;min-height:8em;border:1px black solid;padding:0.2em;vertical-align:text-top">
+    **Employee**<br>
+    employeeID *integer NOT NULL*<br>
+    name *text NOT NULL*<br>
+    address *text*<br>
+    ...
+    </div>
+3. Resolve **relationships** by adding **foreign keys** as described in [the lecture](/13_logical_model.html#foreign-keys). 
+    - For an M:N relationship, create an **associative entity**, a new linking table that contains foreign keys pointing to the tables participating in the relationship. 
+    - Total participation constraints become NOT NULL constraints on the foreign key.
+    - <div style="display:inline-block;white-space:nowrap"><div style="display:inline-block;width:15em;min-height:8em;border:1px black solid;padding:0.2em;vertical-align:text-top">
+    **Employee**<br>
+    <u>employeeID *integer NOT NULL*</u><br>
+    name *text NOT NULL*<br>
+    address *text*<br>
+    [departmentID *integer NOT NULL*]{.udot}<br>
+    ...
+    </div><div style="display:inline-block;width: 2em;min-height:8em;vertical-align:text-top;position:relative"><div style="position:absolute;top:1.7lh;left:0;height:3lh;width:50%;border:black solid;border-width:0 2px 2px 0"></div><div style="position:absolute;top:1.7lh;left:50%;right:0;border-bottom:2px black solid;"></div></div><div style="display:inline-block;width:15em;min-height:8em;border:1px black solid;padding:0.2em;vertical-align:text-top">
+    **Department**<br>
+    <u>departmentID *integer NOT NULL*</u><br>
+    ...
+    </div></div>
+4. Place **relationship attributes** in the same table as the foreign key, or in the associative entity if applicable.
+6. Normalise your tables:
+    a. 1NF - see note below about multivalued attributes
+    b. Tables should already satisfy 2NF and 3NF if you created a clean conceptual model
+7. Identify attributes that are **spatial** data types, and decide as much as possible on the data type (vector, raster), types of geometries (point, line, polygon, ...) and other properties (dimensionality, Spatial Reference System). Some of this will only become clear once you start sourcing data, possibly after this stage of the process.
+8. Consider any constraints that you have not been able to implement in the logical model. Identify where you may need to maintain data integrity using **triggers**. Try to minimise their use. Decide if the trigger is run on `INSERT`, `UPDATE`, or `DELETE` of a record. You do not need to write SQL code at this point of the design process. Simply make a note of what will be required.
+
+::: {.callout-note}
+# geometry Data Type
+- In database design, spatial data cannot be treated as ordinary strings or numbers (conventional attributes) because it carries additional semantics: location, shape, and the spatial reference system identifier (SRID). Without spatial awareness, the database cannot recognise whether the data represents a POINT, LINE, or POLYGON, nor can it identify the coordinate reference system (CRS) in use. Moreover, if spatial data is stored as plain text or numeric values, spatial functions (useful for a wide range of spatial analysis and querying tasks such as computing distances and checking overlaps) cannot be applied.
+- To overcome these limitations, PostGIS introduces specialised data types for storing spatial data. The most used are the `geometry` and `geography` data types for vectors (POINTS, LINES, or POLYGONS). A geometry/geography column stores the spatial representation of an object in a way that PostgreSQL and PostGIS understand. When a geometry/geography column is defined, it carries with it the shape, the coordinates of the vertices, and the CRS identified by its SRID. Hence, geometrical and topological queries can be easily applied.
+- However, the value of a geometry/geography column is in `Well-Known Binary (WKB)` format which is useful to read geometry but not easily interpretable by humans. In this regard, to find out basic but foundational information about geometry/geography columns (e.g., geometry type, coordinates of vertices, and SRID), you can use the functions `GeometryType`, `ST_AsText`, and `ST_SRID` as shown below for us_cities table:
+
+```sql
+SELECT  location,                -- Returns the Well-Known Binary (WKB) representation of the geometry/geography
+        GeometryType(location),  -- Returns the type of the geometry as a string. Eg: 'LINESTRING', 'MULTIPOINT', etc.
+		ST_AsText(location),     -- Returns the Well-Known Text (WKT) representation of the geometry/geography
+		ST_SRID(location)        -- Returns the spatial reference identifier
+FROM spatial.us_cities;
+```
+
+- By defining a geometry/geography column, the column’s `data type` and `udt_name` will be `USER-DEFINED` and `geometry` or `geography` in PostgreSQL, respectively. 
+`USER-DEFINED` means the column uses a custom data type created by an extension (e.g., PostGIS) or user rather than a built-in SQL type. 
+`udt_name` tells us the actual geometry data type used in the column. The following query shows how to find out data type and udt_name oof the columns in the victoria_police_stations table: 
+
+```sql
+SELECT table_name, column_name, data_type, udt_name
+FROM information_schema.columns
+WHERE table_schema = 'spatial' AND table_name = 'victoria_police_stations';
+```
+
+- When designing conceptual and logical data models, it is important to distinguish between descriptive attributes (e.g., name, ID) and spatial attributes (geometry). For spatial entities, these should be mapped into database structures that accurately represent both their descriptive and spatial characteristics. The following example demonstrates how to create a table to achieve this:
+
+```sql
+-- Example: Creating a spatial table in PostGIS
+CREATE TABLE user_schema.land_parcels (
+    parcel_id SERIAL PRIMARY KEY,          -- Descriptive attribute
+    owner_name VARCHAR(100),               -- Descriptive attribute
+    land_use   VARCHAR(50),                -- Descriptive attribute
+    area_m2    NUMERIC,                    -- Descriptive attribute
+    geom       geometry(Polygon, 7855)     -- Spatial attribute (Polygon, SRID 7855 = GDA2020 / MGA Zone 55)
+);
+
+-- Add a spatial index to speed up queries
+CREATE INDEX parcels_geom_idx
+    ON user_schema.land_parcels
+    USING GIST (geom);
+```
+
+:::
+
+::: {.callout-note}
+# Multivalued, composite and derived attributes
+Multivalued, composite and derived attributes are an awkward fit for the traditional table-based model of a relational database. First normal form (1NF) requires that each "cell" of a table contains a single atomic value. 
+
+If you have studied other database subjects, you might have learned to resolve these attributes like this:
+
+- Resolve a multivalued attribute by splitting it into a separate table, associated to the original table with a one-to-many identifying relationship.
+- Resolve a composite attribute by simply adding its component parts to the table as individual columns.
+- Remove derived attributes from the model, as they can be handled in your application layer.
+
+However, Postgres offers additional data types which allow us to store multiple pieces of data in a single field, in a way that is understood by the database query engine. 
+
+Despite technically violating 1NF, these storage methods can nonetheless be very useful. Here is a modern perspective on the above recipe:
+
+- Multivalued attributes could be stored using an [Array data type](https://www.postgresql.org/docs/current/arrays.html) (non-spatial), or as Multi* or GeometryCollection geometry columns (spatial).
+- Composite attributes could, in some situations, be stored using the powerful [`jsonb` data type](https://www.postgresql.org/docs/current/datatype-json.html).
+- Derived attributes can be resolved as generated columns, stored procedures, triggers, or simply removed entirely. You do not need to write SQL code at this point of the design process. Simply make a note of what will be required.
+:::
+
+## 1. The simple scenario
+
+::: {.callout-tip title="Your Turn"}
+Starting from the conceptual design you completed in last week's practical, prepare a logical design for the employee/department/project database scenario.
+:::
+
+For the expression of the model, you can use any drawing technique you wish:
+
+- pen and paper;
+- a diagramming tool such as [draw.io](https://www.drawio.com/)
+- a dedicated ER modelling tool, such as the ERD Tool in PGAdmin [https://www.pgadmin.org/docs/pgadmin4/development/erd_tool.html](https://www.pgadmin.org/docs/pgadmin4/development/erd_tool.html). This uses a different notation than the one used previously for conceptual modelling – this is part of the logical design step, and ties the design of your tables to the creation of table schemas.
+
+## 2. The project
+
+You are expected to present a logical design as part of Assignment 2. It will help you to think of other aspects of the project (look at all the project specification as well Assignments 4 and 5) as some aspects of the logical design would benefit from knowledge/anticipation of subsequent steps.
+
+For the rest of the session, continue working on your group's conceptual model for Assignment 2. Begin the logical model when you think you have completed your conceptual model.
