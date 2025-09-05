@@ -56,22 +56,22 @@ In fact, the process can be broken down into a kind of algorithm, which will giv
 8. Consider any constraints that you have not been able to implement in the logical model. Identify where you may need to maintain data integrity using **triggers**. Try to minimise their use. Decide if the trigger is run on `INSERT`, `UPDATE`, or `DELETE` of a record. You do not need to write SQL code at this point of the design process. Simply make a note of what will be required.
 
 ::: {.callout-note}
-# GEOMETRY Data Type
-- The Need for Specialized Data Types in Conceptual and Logical Spatial Database Design
-In the context of database design, spatial data cannot be treated as ordinary strings or numbers (conventional attributes) because it carries additional meaning: location, shape, and Spatial Reference System Identifier (SRID). At first glance, it may seem possible to store spatial data in standard PostgreSQL data types, such as TEXT, VARCHAR, or NUMERIC. For example, one might imagine storing a point as “POINT (144.9631 -37.8136)” in a text column or storing latitude and longitude values separately as numeric columns. While this approach technically stores the numbers, PostgreSQL sees the entry as just a string or set of numbers. It does not know that these values represent a POINT, LINE, or POLYGON. Without spatial awareness, the database does not know which coordinate reference system (CRS) is being used. Additionally, if spatial data is stored as plain text or numeric values, many spatial functions (useful for a wide range of spatial analysis and querying tasks) cannot be applied. The database cannot use geometrical and topological functions such as computing distances, checking overlaps, or performing transformations on data as it does not recognise them as geometry.
-- To overcome these limitations, PostGIS introduces specialised data types for storing spatial data. The most used are the GEOMETRY and GEOGRAPHY data types for vectors (POINTS, LINES, or POLYGONS). A GEOMETRY/GEOGRAPHY column stores the spatial representation of an object in a way that PostgreSQL and PostGIS understand, validate, and can use in queries. When a GEOMETRY/GEOGRAPHY column is defined, it carries with it the shape, the coordinates of the vertices, and the CRS identified by its SRID. Hence, geometrical and topological queries can be easily applied.
-- However, the value of a GEOMETRY/GEOGRAPHY column is in Well-Known Binary (WKB) format which is useful to read geometry but not easily interpretable by humans. In this regard, to find out basic but foundational information about GEOMETRY/GEOGRAPHY columns (e.g., geometry type, coordinates of vertices, and SRID), you can use the functions GeometryType (geom), ST_AsText (geom), and ST_SRID (geom) as shown below:
+# geometry Data Type
+- In database design, spatial data cannot be treated as ordinary strings or numbers (conventional attributes) because it carries additional semantics: location, shape, and the spatial reference system identifier (SRID). Without spatial awareness, the database cannot recognise whether the data represents a POINT, LINE, or POLYGON, nor can it identify the coordinate reference system (CRS) in use. Moreover, if spatial data is stored as plain text or numeric values, spatial functions (useful for a wide range of spatial analysis and querying tasks such as computing distances and checking overlaps) cannot be applied.
+- To overcome these limitations, PostGIS introduces specialised data types for storing spatial data. The most used are the `geometry` and `geography` data types for vectors (POINTS, LINES, or POLYGONS). A geometry/geography column stores the spatial representation of an object in a way that PostgreSQL and PostGIS understand. When a geometry/geography column is defined, it carries with it the shape, the coordinates of the vertices, and the CRS identified by its SRID. Hence, geometrical and topological queries can be easily applied.
+- However, the value of a geometry/geography column is in `Well-Known Binary (WKB)` format which is useful to read geometry but not easily interpretable by humans. In this regard, to find out basic but foundational information about geometry/geography columns (e.g., geometry type, coordinates of vertices, and SRID), you can use the functions `GeometryType`, `ST_AsText`, and `ST_SRID` as shown below:
 
 ```sql
-SELECT GeometryType(location),
-		ST_AsText(location),
-		ST_SRID(location)
+SELECT  location                    -- Returns the Well-Known Binary (WKB) representation of the geometry/geography
+        GeometryType(location),     -- Returns the type of the geometry as a string. Eg: 'LINESTRING', 'POLYGON', 'MULTIPOINT', etc.
+		ST_AsText(location),        -- Returns the Well-Known Text (WKT) representation of the geometry/geography
+		ST_SRID(location)           -- Returns the spatial reference identifier
 FROM spatial.us_cities;
 ```
 
-- By defining a GEOMETRY/GEOGRAPHY column, the column’s data type and udt_name will be “USER-DEFINED” and “geometry” or “geography” in PostgreSQL, respectively. 
-USER-DEFINED means the column uses a custom data type created by an extension (e.g., PostGIS) or user rather than a built-in SQL type. 
-udt_name tells us the actual spatial data type used in the column.
+- By defining a geometry/geography column, the column’s `data type` and `udt_name` will be `USER-DEFINED` and `geometry` or `geography` in PostgreSQL, respectively. 
+`USER-DEFINED` means the column uses a custom data type created by an extension (e.g., PostGIS) or user rather than a built-in SQL type. 
+`udt_name` tells us the actual spatial data type used in the column.
 
 ```sql
 SELECT table_catalog, table_schema, table_name, column_name, is_nullable, data_type, udt_name
