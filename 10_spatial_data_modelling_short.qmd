@@ -1,0 +1,185 @@
+# Spatial Data Modelling
+
+How do we -- as humans -- perceive the world, and form cognitive models of reality?
+
+::: {.content-visible when-format="revealjs"}
+## Learning Objectives {background-color="lightPink"}
+
+-   Discuss how humans perceive and conceptualise the world;
+-   Appreciate the role of distance and scale for the analysis and representation of spatial phenomena;
+-   Reflect on the need to represent spatio-temporal data in information systems;
+-   Discuss how we operationalise these conceptual models of the physical world into information systems.
+:::
+
+## World conceptualisations
+
+People manipulate *objects* but cultivate *fields* @couclelis2005people
+
+@kuhn2012core introduced the *Core concepts of Spatial Information* that goes beyond object and field (but hold on, under construction).
+
+::: {layout="[8,8,8,8]"}
+
+![Field](./figs/1_part/12_conceptual_model/field.png)
+
+![Object](./figs/1_part/12_conceptual_model/object.png)
+
+![Network](./figs/1_part/12_conceptual_model/network.png)
+
+![Event](./figs/1_part/12_conceptual_model/event.png)
+:::
+
+::: {.content-visible when-format="revealjs"}
+
+## {.unnumbered}
+
+::: callout-tip
+
+## Exercise: Look out of the window
+
+What do you see out there? Discuss in groups and comment.
+
+Go to [pollev.com/martintomko167](https://pollev.com/martintomko167)​
+
+![Parkville](./figs/1_part/10_spatial_data_modeling/parkville_campus.jpg){width="60%"}
+:::
+
+## {.unnumbered}
+
+::: callout-tip
+## Exercise: Look out of the window {.unnumbered}
+::: {.incremental}
+-   What *things* did you name?
+-   Did you describe *where* things are, what *properties* they have?
+-   Did you note something about the World that was not a *thing*?
+-   Did you reflect on anything in the environment that *changes* in time?
+:::
+:::
+:::
+
+## Fields
+
+Continuous scalar- or vector-valued phenomena that have a value definable for any location within the entire domain space.
+
+![Wind and temperature](./figs/1_part/10_spatial_data_modeling/windy_field.png){width="70%," layout="center"}
+
+**Answer to**: What is the value of a phenomenon *here?*
+
+## Objects
+
+- Discrete entities that populate space, but do not fill it;
+- Preserve their identity and can be manipulated 
+- Are bounded, but the boundary is not necessarily *known*
+-   They can be made-up (*fiat*, based on thought) or *bona-fide* (genuine).
+    -   Victoria (spatial political entity) vs Tasmania (island)
+
+![Mug](./figs/1_part/10_spatial_data_modeling/mug.png){width="60%," layout="center"}
+
+## Objects vs Fields
+
+::: callout-tip
+## Exercise: Modelling choices
+
+-   What would you model as a field, and what as an object?
+-   What kind of objects are these?
+
+![](./figs/1_part/10_spatial_data_modeling/landscape.jpg){width="60%," layout="center"}
+:::
+
+## Places
+
+- Places are particular *types* of objects;
+- They are locations enriched with meaning, by people, for people.
+- A significant part of working with geospatial data, as we *refer* to places when we communicate!
+- Often refered to by function (*home*), or toponym (place name) (*Naarm*, *Melbourne*).
+
+**Answer to**: *Where am I?*
+
+## Networks and Events
+
+- **Networks**:  answer questions about connectivity. Emerge from relationships between objects.
+    - *A power cable has been interrupted leading to an outage of electricity supply...*
+- **Events:**  Answer questions about change in locations, neighbourhoods, values of the above concepts. 
+    - *Flooding occured in Melbourne yesterday...*
+
+## Spatial relationships
+
+Give rise to networks. Things relate in space in many ways, not only by *distance*.
+
+-   Qualitative spatial relationships: *near*, *nearer then*, *to the West of*, *touch*, *overlap*, *connecting to, between*
+
+-   Binary vs n-ary: the above are all binary ( between two objects), except *connecting to* and *between*.
+
+## Distance
+
+**Tobler's first law:** *"Everything is related to everything else, but near things are more related than distant things."* @tobler1970computer
+
+## {.unnumbered}
+
+::: callout-tip
+## Exercise: Describe patterns you see
+
+How does distance alter what you expect to see/encounter?
+
+![Image: gbif.org](./figs/1_part/10_spatial_data_modeling/gbif.png){width="70%"}
+:::
+
+## More Geography principles
+
+- **Corollary to the First law:** Spatial heterogeneity (Things are *not* the same everywhere)
+- **Tobler's second law:** *"the phenomenon external to a geographic area of interest affects what goes on inside."*
+- **Granularity/Precision:** The level of detail at which we represent a phenomenon alters the occlusions we can draw about the phenomenon. Closely relates to *scale* of analysis.
+- **Accuracy**: Pertains to *correctness* of a value (attribute, position);
+- **Provenance**: How (and when) the data came to be ( how they were collected, processed, used)
+
+## Further impacts on data handling
+
+- Boundaries of the area described by the data / map;
+- The Modifiable Areal Unit Problem (MAUP)
+
+![MAUP (wikipedia.com)](./figs/1_part/10_spatial_data_modeling/maup.png){width="30%"}
+
+## {.unnumbered}
+
+::: callout-tip
+## Exercise: How do the principles above apply here?
+
+Discuss with neighbour how the boundary problem and scale may influence what we see.
+
+![Flood in QLD (Source: theconversation.com)](./figs/1_part/10_spatial_data_modeling/flood.jpg){width="50%"}
+:::
+
+
+## Spatial Information Systems
+
+
+::: {.content-visible when-format="revealjs"}
+::: callout-tip
+## Exercise: What do you know about spatial information systems?
+
+Discuss in groups what data a public transport system may use, and what analyses it may support.
+
+![](./figs/1_part/10_spatial_data_modeling/exercise1.png){width="80%"}
+:::
+
+## {.unnumbered}
+
+::: callout-tip
+## Exercise: What do you know about spatial information systems?
+::: incremental
+-   What data would you store?
+-   What spatio-temporal data would you store?
+-   What analyses do these data enable?
+-   How would you store such information?
+:::
+:::
+:::
+
+
+
+<!-- end slides -->
+::: {.content-visible when-format="revealjs"}
+## Next: [Requirements analysis](/11_requirements_analysis_short.html)
+
+## References {background-color="lightYellow"}
+:::
+

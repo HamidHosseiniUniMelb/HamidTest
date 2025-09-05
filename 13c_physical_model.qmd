@@ -1,0 +1,69 @@
+# [L4b] Physical DB Design
+
+The last step in the DB design process.
+
+![](./figs/1_part/15_physical_model/1_db_design_process.png)
+
+## Physical DB design process
+
+::: {.incremental}
++ The creation of data structures and filling of *data* into a *specific* *instance* of a database of a *given* type and implemented on a given (file) *system*;
+	- Creation of the database schema and table schemas, 
+	- Definition of constraints 
+	- Insertion of the data into the tables;
+- Optimizing the data organisation (on disk(s)) and access to enhance performance or ease of interaction;
+	- Creation of indexes and fine-tuning DB properties
+	- Creation of views
+- Using the CREATE/UPDATE/DROP statements, possibly system specific dialect of SQL;
+:::
+
+:::{.content-hidden when-format="revealjs"}
+## Schemas: terminology
+
+- In PostgreSQL:
+	- server instance == db *cluster*, running on a *host* computer
+	- database == catalog == single database (postgres is a default)
+	- schema == *namespace* within database, logically grouping content (*tables*). 
+	- user == named account, who can connect to database, own and use objects. Usually associated with a schema	
+	
+	```
+	database_name.schema_name.object_name
+	```
+
+- In Oracle:
+	- server instance == database == catalog 
+	- schema == namespace within database, identical to user account
+	- user ~ schema ~ named account*. But can use objects in other schemas
+	
+	```
+	schema_name.object_name
+	```
+
+- In MySQL:
+	- server instance == set of databases
+	- database == catalog == a namespace within the server.
+	- schema == not used 
+	- user == named account, who can connect to server and objects in one or more databases. 
+	
+	```
+	database_name.object_name
+	```
+
+:::{.callout-note}
+Note: more on Postgres schemas [https://www.crunchydata.com/blog/postgres-databases-and-schemas](https://www.crunchydata.com/blog/postgres-databases-and-schemas)
+:::
+
+:::
+
+## Recap {background-color="lightPink"}
+
+- You understand how the logical structure of the database requires to be further modified in the physical design steps to lead to a usable database.
+- You appreciate why this is tightly coupled to the speciifc database management system used.
+
+<!-- end slides -->
+::: {.content-visible when-format="revealjs"}
+## Next: [14_spatial_data_representation](/14_spatial_data_representation.html)
+
+## References {background-color="lightYellow"}
+
+:::

@@ -1,0 +1,33 @@
+# [Extra] Advanced Spatial Analysis and database use
+
+This is not really a practical, but rather a collection of useful techniques and tricks showing advanced spatial analyses in PostGIS. Some of these may be highly useful for your project. There is a number of techniques that I recommend to investigate, and learn from:
+
+1. The chaining of complex spatial analyses and composing custom functions;
+2. Thinking beyond basic binary spatial relationships;
+3. Reconstruction of interesting geometrical characteristics;
+4. Using the database to store data styling for visualisation in QGIS.
+
+
+## Computing visibility (here, in 2D)
+
+Computing Isovists is a valuable way of approximate visibility analysis. Viewsheds are typically computed on DEM rasters, or on TIN meshes capturing elevation models. Here is a method that works in 2D with building footpints, and could be relatively easily expanded into 3D to work with extruded building shapes: [https://abelvm.github.io/sql/isovists/](https://abelvm.github.io/sql/isovists/)
+
+This article is also highly didactic, so it is good to read through carefully. Can you think how this approach could be taken into the 3D, extruding the geometries of the building polygons using `ST_Extrude` [https://postgis.net/docs/ST_Extrude.html](https://postgis.net/docs/ST_Extrude.html) and analysing the visibility using rays in 3D (for instance, assuming a constant height of the drone above ground)?
+
+This method also demonstrates the way you can compose a brand new user-defined function that can be used for valuable analysis.
+
+## Beyond binary topological spatial relationships
+
+Some relationships require more than 2 objects to participate - think of bridges, that must connect two road segments ( or rail segments) at opposite extremes of the bridge. Thus, we have a relationship or at least 3 objects. This is something we have addressed in a series of papers on n-ary spatial relationships [@majic2019discovery,@majic2021rim]. The repository for the first paper of @majic2019discovery is here, and contains a custom PL/SQL function that is worth to play with [https://github.com/SelfHealingMapsProject/RIM](https://github.com/SelfHealingMapsProject/RIM).
+
+## QGIS and cartographic visualisation
+
+Some of this has been already covered in the self-paced initial assignment A1. You can extend you knowledge here through the resources below
+
+- A set of tutorials that cover (although shallowly) a lot of QGIS interaction with PostGIS is [here](https://docs.qgis.org/3.28/en/docs/training_manual/database_concepts/index.html)
+
+- QGIS and working with styles: [style manager](https://docs.qgis.org/3.28/en/docs/user_manual/style_library/style_manager.html) and [vector styling tutorial](https://www.qgistutorials.com/en/docs/3/basic_vector_styling.html) 
+
+- A tutorial showing how you can store a layer style to QGIS is [here](https://www.youtube.com/watch?v=zC-_AmmGTQ8). In general, you open a layer from PostGIS, and compose your style for this given layer (by manipulating symbology etc). Then go to `Properties>Symbology>Styles>` (this is at the bottom of the menu), and select `Save current style` and specify `Save style` as `in Database (postgres)`. It will create a table in your user schema that you can inspect, if you wish so. The style can be applied as default to the table if/when opened.
+
+- Styling applied to flight maps: compare web portals offering similar functionalities here: [https://www.casa.gov.au/knowyourdrone/drone-safety-apps]( https://www.casa.gov.au/knowyourdrone/drone-safety-apps), there is a set of common stylistic patterns to these maps. [ok2fly](https://ok2fly.com.au/) is frequently used.

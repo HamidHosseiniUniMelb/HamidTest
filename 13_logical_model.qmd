@@ -1,0 +1,373 @@
+# [L4a] Logical Database Design
+
+## Learning objectives {background-color="lightPink"}
+
+- Understand the distinction between the conceptual and logical model of databases;
+- Understand the foundations of the relational model;
+- Think of the issues with the relational model with respect to spatial databases
+
+## Logical database design
+
+- Mapping of conceptual design &rarr; logical model 
+- Tailored to the type of DBMS used (relational, object-relational, document store, key-value pair db...)
+
+### Logical design for relational databases
+
+**Aim**: *logical* grouping of attributes into *relations* (tables)
+
+:::{.incremental}
+
+- Developing *relations* (tables) and their *attributes* in order to capture the *conceptual model*;
+- Constructing a *database schema*.
+- Relational databases are based on the formal theory of *relational algebra* [@codd1970relational] - not covered in this subject, but see textbooks such as @elmasri2016fundamentals
+- **Relational database management systems** are *implementations* of the relational model, adapted for practicality
+
+:::
+
+## Concept mapping: conceptual design to relational DB
+
+In general:
+
+| Conceptual design     | Relational DB     | 
+|---|-----|
+| Entity (entity type)  | Table             |
+| Instance of an entity | Row of a table    |
+| Attribute             | Column of a table |
+| Relationship          | Foreign key column *(1:1 and 1:N relationships)*<br>"Associative entity" table *(M:N relationships)* |
+
+: [Mapping from conceptual design terminology to relational database terminology]{.content-hidden when-format="revealjs"}
+
+## Data types
+
+The DBMS needs to know what type of data to store in each column.
+
+- **Numeric** (integer, floating point, fixed-precision decimal, ...)
+- **Text**
+- **Temporal** (date, time, timestamp, ...)
+- **Boolean**
+- **Spatial** (geometry, geography, raster) – see upcoming lectures
+- **Array** (zero or more values of another chosen data type)
+- **Complex object** (JSON)
+
+::: {.content-visible unless-format="revealjs"}
+Available data types vary greatly between DBMSs. Some (SQLite/Spatialite) allow storing any data for any attribute (type affinity).
+:::
+
+### Attribute domains
+
+In addition to imposing a data type, we may require further constraints on the value of a column. For example:
+
+- Non-negative integer (0, 1, 2, ...)
+- Text limited to 10 characters
+- The column must always have a value (cannot be `NULL`)
+- Spatial data with values related to a specified Spatial Reference System
+
+This defines the **domain** of a column.
+
+## Keys
+
+We need to be able to uniquely identify each row in a table.
+
+Why?
+
+:::{.content-visible when-format="revealjs"}
+###
+:::
+
+:::{.incremental}
+
+- ![](./figs/1_part/13_logical_model/keys1.png)
+- ![](./figs/1_part/13_logical_model/keys2.png)
+- ![](./figs/1_part/13_logical_model/keys3.png)
+
+:::
+
+### Primary keys
+
+:::{.incremental}
+- **Primary key**: a column or set of columns that **uniquely identifies each row** in a table
+- Satisfies three criteria:
+    - *Uniqueness*: No two rows can have the same primary key value.
+    - *Non-nullability*: A primary key column cannot have null values; every record must have a valid primary key.
+    - *Stability*: Ideally, a primary key should not change over time.
+- If there are no suitable column(s), create a **surrogate key** (arbitrary ID number) as an additional column, and make that the primary key
+- Conventionally <u>underlined</u> in diagrams or notation
+:::
+
+### Foreign keys
+
+- **Foreign key**: a column that references the primary key of *another table*
+- Relationships from the conceptual diagram get converted to **foreign keys**
+- Conventionally [dotted underline]{.udot} in diagrams or notation
+
+::: {#tbl-panel layout-ncol=2}
+| <u>id</u> | surname | firstname |[pcode]{.udot}|
+|-----|------|------|-----|
+| 1    | Becker    | Reto    | 3000   |
+| 2    | Lee    |  Silvia    | 2615   |
+| 3    | Lee    | Christian    | 2615   |
+| 5    | Smith    | Dirk    | 2000   |
+| 4    | Ginzler    | Christian    | 6000   |
+
+: `employee` table
+
+|<u>pcode</u>|place|
+|-----|------|
+| 3000   |Melbourne|
+| 2615   |Canberra|
+| 2000   |Sydney|
+| 6000   |Perth |
+
+: `postcodes` table
+
+Simple schema
+:::
+
+:::{.content-visible when-format="revealjs"}
+### Where to add the foreign key?
+:::
+
+:::{.incremental}
+
+- **1:1 relationships:** add FK on the entity with **total participation** if any, otherwise on either entity
+- **1:N relationships:** add FK on the **"N" side** (e.g. `employee`-`works for`-`department`: place FK on `employee`), referencing the PK of the "1" side table
+- **M:N relationships:** need to create a new linking table (**associative entity**) with two FKs, each referencing the PK of one of the related tables
+
+Same logic applies for any relationship attributes.
+:::
+
+### Weak entities and composite keys
+
+- Recall: the existence of a **weak entity** depends on the existence of its **parent entity**;
+- Weak entities are *identified* by **composite keys**, where one part is a foreign key of the parent entity, and the second part is a **partial key**.
+    - *Dashed underline* denotes a partial key column
+
+:::{.content-visible when-format="revealjs"}
+### Partial keys of weak entities
+:::
+
+Martin's office: `PAR-290-6-6313`
+
+- There are multiple UoM campuses, only one is `PAR`kville;
+- There is only one building `290` (Melbourne Connect) in `PAR` (but possibly others elsewhere);
+- There are many `6` floors, but only one in `PAR-290`
+- There may be many rooms `6313`, but only one in `PAR-290-6`. **Only** together we uniquely identify the office.
+
+:::{.content-visible when-format="revealjs"}
+### Partial keys of weak entities
+:::
+
+![](./figs/1_part/13_logical_model/weak_entities_and_partial_keys.png){width="20%"}
+
+:::{.content-visible when-format="revealjs"}
+### {.unnumbered}
+:::{.callout-tip}
+### Exercise: Identify PKs and FKs
+
+| COURSENR | COURSENAME |
+|------|------|
+| 1    | Spat. DB |
+| 2    | GIS I    |
+| 3    | GIS II    |
+: --- COURSES ---
+
+| COURSENR | ROOMINDEX | DATE |
+|------|------|------|
+| 1   | 1    | 2011-11-10 10:55|
+: --- ROOMBOOKING ---
+
+|ROOMINDEX|ROOMNR|LEVEL|BUILDING|CAPACITY|
+|---------|------|-----|--------|--------|
+|1|86|H|Y25|55|
+|2|85|G|Y03|NULL|
+
+: --- ROOM ---
+
+:::
+
+:::
+
+<!-- really weird example, not even clear how it shows spatial-specific concepts
+## Spatial weak entities: Glacier
+
+- A `GLACIER` has a persistent **identity** (`Name: Aletsch glacier, CH`)
+- Changes its `STATE` throughout time (melts)
+- May break into multiple `PARTs` over time, each can be measured or named differently
+
+![](./figs/1_part/12_conceptual_model/glacier_er.png){width="60%"}
+
+### Spatial weak entities: Glacier (schema)
+
+GLACIER(<u>NAME</u>, ...)
+
+STATE([GLACIER.NAME (FK)]{.udot}, [YEAR]{.udot},...)
+
+PART([GLACIER.NAME (FK)]{.udot}, [STATE.YEAR (FK)]{.udot},[ID]{.udot}...) 
+-->
+
+## Maintaining integrity
+
+### Integrity constraints
+
+:::{.incremental}
+- **Domain constraint:** for each row in a table, the value of every column is always from the *domain* of that column;
+- **Key constraint:** the primary key attributes must uniquely identify a row in a table (assures that no two rows are identical);
+- **Entity integrity constraint:** no primary key can be NULL;
+- **Referential integrity constraint:** FK values must be from the set of existing PK values of the referenced table. The *value domains* of the PK and FK must be equal.
+:::
+
+:::{.content-visible when-format="revealjs"}
+## {.unnumbered}
+:::{.callout-tip}
+## Exercise: Violations of integrity constraints
+
+Find violations of constraints and name them.
+
+::: {#tbl-panel layout-ncol=2}
+| <u>id</u> | surname | firstname |[pcode]{.udot}|
+|-----|------|------|-----|
+| 2    | Becker    | Reto    | 3000   |
+| 2    | Lee    |  Silvia    | 2615   |
+| 3    | Lee    | Christian    | 2615   |
+|     | Smith    | Dirk    | 2000   |
+| 4    | Ginzler    | Christian    | 7500   |
+
+: `employee` table
+
+|<u>pcode</u>|place|
+|-----|------|
+| 3000   |Melbourne|
+| 2615   |Canberra|
+| "2000"   |Sydney|
+| 6000   |Perth |
+
+: `postcodes` table
+
+Tables with violations
+:::
+:::
+:::
+
+## Normalisation of relations
+
+Process of organizing columns in relations in a database schema optimizing data storage and minimizing data redundancy:
+
++ **Aim**: ability to edit data in a single relation to assure **database consistency**.
++ **Normalization** reduces the occurrence of insertion, update and deletion **anomalies**:
+    - **Insertion anomaly**: inability to **add** data to the database due to absence of other data;
+    - **Update anomaly**: data **inconsistency** resulting from data redundancy and a **partial update**;
+    - **Deletion anomaly**: unintended **loss** of data due to deletion of other data.
+
+## {.unnumbered}
+
+:::{.callout-important}
+It is *not* always practical/desirable to fully normalise all schemas (e.g., for performance).
+:::
+
+### Anomalies - Insertion
+
+`EMPLOYEE_DEPT`
+
+![](./figs/1_part/14_maintaining_integrity/insertion.png)
+
+Observe: We cannot create a new department without employees.
+
+### Anomalies - Update
+
+`EMPLOYEE_DEPT`
+
+![](./figs/1_part/14_maintaining_integrity/update.png)
+
+Observe: We must update values in multiple places to avoid inconsistency.
+
+### Anomalies - Deletion
+
+`EMPLOYEE_DEPT`
+
+![](./figs/1_part/14_maintaining_integrity/deletion.png)
+
+Observe: We may inadvertently lose data (here, the name of department 3) when removing other data.
+
+## Schema normalisation 
+
+The process of grouping attributes across relations in a DB Schema that supports the maintenance of data integrity and reduces duplication.
+
+### 1st Normal Form
+
+**1NF: Each data item (cell) is atomic** (contains a single item of data)
+
+{Address=‘1 Barry St’}
+    
+=> 
+    
+{Number=1, Street_Name=‘Barry’, Street_type=‘Street’}
+
+
+### 2nd Normal Form  
+
+**2NF: Satisfies 1NF + no attributes are dependent on *part* of the PK**
+
+(Only applicable when the PK is made up of two or more columns.)
+
+enrolment(<u>student_id</u>, <u>subject_code</u>, given_name, family_name, subject_name, course_code, course_name, year)
+
+::: {.fragment}
+=>
+
+enrolment([<u>student_id</u>]{.udot}, [<u>subject_code</u>]{.udot}, course_code, course_name, year)
+
+subject(<u>subject_code</u>, subject_name)
+
+student(<u>student_id</u>, given_name, family_name)
+:::
+
+### 3rd Normal Form  
+
+**3NF: Satisfies 2NF + no attributes are *indirectly* dependent on the PK.**
+
+That is, every non-key attribute must provide a fact about the key, the whole key and nothing but the key.
+
+enrolment(<u>student_id</u>, <u>subject_code</u>, given_name, family_name, subject_name, course_code, course_name, year)
+
+::: {.fragment}
+=>
+
+enrolment([<u>student_id</u>]{.udot}, [<u>subject_code</u>]{.udot}, [course_code]{.udot}, year)
+
+subject(<u>subject_code</u>, subject_name)
+
+course(<u>course_code</u>, course_name)
+
+student(<u>student_id</u>, given_name, family_name)
+:::
+
+
+## Maintaining weak spatial relationships
+
+:::{.incremental}
++ The referential integrity of *some* weakly spatial relationships cannot be *practically* assured by foreign keys
+    - car must be on a road
+    - boat must be on water surface
+    - no house within 50 m of powerline
++ We verify the existence of a relationship through database **triggers** 
++ **Trigger** program procedures that automatically verify (compute) whether the relationship is satisfied (upon `INSERT/UPDATE/DELETE` in DB)
+:::
+
+## {.unnumbered}
+
+![](./figs/1_part/13_logical_model/weakly_spatial_relationship.png){width=80%}
+
+## Recap {background-color="lightPink"}
+
+- You can design the logical structure of your relational databases;
+    - more detail on [Relational algebra and SQL](./s00_intro_SQL.html) in Supplementary materials.
+- You can design a structure of your relational database in a manner maintaining integrity of the data;
+- You understand why referential integrity is sometimes not sufficient to maintain spatial relationships.
+
+<!-- end slides -->
+::: {.content-visible when-format="revealjs"}
+## Next: [Spatial Data Representation](/13c_physical_model.html)
+
+## References {background-color="lightYellow"}
+
+:::

@@ -1,0 +1,5 @@
+# [P5] Assignment 2
+
+This practical is a work session on Assignment 2. It is an excellent opportunity to ask your tutor any questions about the assignment, the project specification, or your progress on the task.
+
+Your tutor will demonstrate how to inspect data from some of the [suggested data sources in the project specification](/assignments/project_specification.qmd#data), which will help you prepare the relevant section of your report.

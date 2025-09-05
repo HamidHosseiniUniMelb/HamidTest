@@ -1,0 +1,16 @@
+{
+    "version": "0.2",
+    "ignorePaths": [],
+    "dictionaryDefinitions": [],
+    "dictionaries": [],
+    "words": [
+        "MAUP"
+    ],
+    "ignoreWords": [],
+    "import": [],
+    "enabled": false,
+    "enableFiletypes": [
+        "quarto"
+    ],
+    "language": "en,en-GB"
+}

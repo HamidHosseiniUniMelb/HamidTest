@@ -1,0 +1,41 @@
+# Data Cleaning
+
+**Probabilistic databases – handling uncertainty**
+
+- Think of sensor networks – probability that something is what it reports
+- Uncertain values (inputs)
+    - Attribute uncertainty (temperature +-.5 deg C, position uncertainty)
+    - Correlated uncertainty: correlation of x and y in geo coordinates
+
+
+![](./figs/4_part/43_data_cleaning/probablistic_databases.jpg)
+
+- A probabilistic database considers a discrete probability distribution of all possible Worlds.
+- A relational database explicitly models only one of such worlds.
+- The probability of all the worlds sums to 1.
+
+![](./figs/4_part/43_data_cleaning/probablistic_databases2.png){width="50%"}
+
+Image: Dan Suciu, UoW Probability DB lectures
+
+<http://courses.cs.washington.edu/courses/cse599t/09wi/>
+
+YouTube- Seven Databases in Song: <https://www.youtube.com/watch?v=jyx8iP5tfCI>
+
+**Research challenges (of interest to us)**
+
+- *Self-Healing Maps: ML in databases for error detection and rectification, incl. outlier detection
+- *Place databases – Graph databases (Property graphs) and spatial operations/indexes and semantic reasoning
+- High performance mobile object analytics with MObj databases (incl mapmatching, characterization, viz and analytics)
+- HD maps: database support for high definition maps (autonomous vehicles), db updating
+- LIDAR/Point cloud data structures and octrees
+
+**Summary: Advances in DB**
+
+- Large-scale data processing and complex deployments need different solutions
+- Partitioning of databases
+- Network communiction is not instantaneous
+- CAP
+- Other types of data sotrage: key-value pairs, documents, graphs,... Suit different applications
+- Some non-traditional databases have great potential in spatial applciations (array DBs, graph DBs, Document stores, probabilistic DBs)
+

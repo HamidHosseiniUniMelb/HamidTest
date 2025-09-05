@@ -1,0 +1,221 @@
+# Conceptual Modelling
+
+## Learning objectives {background-color="lightPink"}
+
+- Understand the process of modelling as abstraction and generalisation of properties of things that matter for a specific purpose, as part of DB design;
+- Appreciate the need to clearly and unambiguously capture and communicate conceptual models
+- Understand the independence of conceptual design from subsequent database design steps (e.g., logical design).
+
+## DB design
+
+![](./figs/1_part/12_conceptual_model/1_db_design_process.png)
+
+### Database design
+
+The design of the **logical** and **physical structure** of a database so that it contains **all** the **information required** by the **user** and for the efficient behaviour of the whole **information system** for all users, **applications** and user **interactions**.
+
+<!--
+### Database design aims
+
+- **Identify what to store:** all the information required by all applications and use-cases that should be supported by the data stored in the database
+- **Identify what NOT to store:** only store data related to the information needs of the use cases
+- **Store it smartly:** To reduce the redundancy of the stored data (structure, computation)
+--> 
+
+## What is conceptual modelling?
+
+A model of the **essential** properties of the system.
+
+Describes the system's *components* , their *properties*, and their *relationships*.
+
+A spatial model will include *spatio-temporal* properties of the components and their *spatial* relationships.
+
+### Formalisation of the model
+
+A conceptual model _encoded_ into a _language_ that enables unambiguous understanding of the model content by other *human* readers. 
+
+We will use the formalism called *Entity-Relationship Models* (ERM) or *Entity-Relationship diagrams* [@chen1976entity] .
+
+## Entity-Relationship Models
+
++ Identification of components (**entity types**) we want to describe in the **database**, their **relationships** and **attributes** based on requirements analysis:
+
+```
+DEPARTMENT 
+Name, Number, {Locations}, Manager, Manager_start_date
+```
+
+### Entities, Entity types and Entity Sets
+
+**Entity**: a *thing* in the real world with an independent existence that can be characterised through a set of attributes.
+
+    - *physical entities*: Alan Thomas; Yarra River; the computer in this room
+    - *abstract entities*: Google; GEOM90008
+
+**Entity type**: a *concept* that defines entities with the *same attributes* (as a template), but *different attribute values*:
+
+    - *physical entity types*: person; watercourse; computer
+    - *abstract entity types*: company; University subject
+
+
+### ER Diagrams 
+
+
+![Person entity type](./figs/1_part/12_conceptual_model/entity_type.png)
+
+
+### Attributes
+
+**Attribute:** A particular property that *describes* an entity. Attributes have of a **name** and **data type**. 
+
+   - *Each* entity is described through the *values* of its attributes
+   - *Each* attribute of an entity has *a value*.
+   - All possible values of attributes of the same attribute type form the **domain** of the attribute.
+
+`(Age: non-negative integer)`
+
+### Entity with attributes
+
+```
+e1 = {Name: Joe Bloggs; Address: 30 Baker St, Melbourne VIC 3010; Years_employed: 25; Phone: 045 9998 844}
+```
+
+![Entity of an employee](./figs/1_part/12_conceptual_model/2_er_attribute.png){#fig-fig2}
+
+### Spatial Attribute types
+
+- An attribute capturing information about an entity's **footprint** (location and extent)
+
+- Note: *Footprint* is not yet a **data type**, just conceptual placeholders that needs to be refined.
+
+![Spatial entity types](./figs/1_part/12_conceptual_model/spatial_entity_types.png)
+
+
+
+<!--
+- An entity with a geometry
+ attribute is called a **feature**, the entity type is then a **Feature Type**;
+- A feature has one or more geometries (geometry attributes), and one or more non-geometry attributes.
+
+ ![](./figs/1_part/12_conceptual_model/geom_attribute.png){width="10%"}
+-->
+<!--
+![](./figs/1_part/12_conceptual_model/geomety_postgis.png){width="80%"}
+
+
+:::{.callout-note}
+### PostGIS
+`ST_GeometryType(g)` - Return the geometry type of an attribute `g` of type `ST_Geometry`
+:::
+-->
+
+## Relationship Types 
+
+- **Relationship Type:** **set of permissible associations (relationship set)** amongst entities of given **entity types**;
+- entities **participate** in a relationship;
+- entities may participate in **spatial** relationships.
+ 
+
+:::{.content-visible when-format="revealjs"}
+##
+:::{.callout-tip}
+## Exercise: Think of spatial relationships
+What explicitly spatial relationships may be modelled in a navigation systems database?
+
+![SatNav](./figs/1_part/12_conceptual_model/satnav.jpg){width="20%"}
+
+:::
+:::
+
+:::{.content-visible when-format="revealjs"}
+##
+:::{.callout-tip}
+## Exercise: Think of spatial relationships
+
+
+
+Read as: *Car drives on Road. A Road is driven on by a car*
+
+- A car must drive on the road;
+- A house must stand on a single parcel;
+- A hydrant must be close to a house;
+:::
+:::
+
+
+
+### Relationship constraints
+
+Number of entities that *can* participate in a relationship may be constrained:
+
++ **Cardinality ratio constraint:** *maximum* number of relationship **instances** that an entity can participate in.
+    - One-to-one (1:1), one-to-many (1:N), many-to-many (N:N)
++ **Participation constraint (partial, total):** *minimum* number of relationship **instances** that an entity can participate in.
+    - **Total PC**: each entity present in the entity set must mandatorily participate in the relationship ("mandatory participation");
+    - **Partial PC**: each entity in the entity set may or may not participate in the relationship ("optional participate").
+
+### Decoding constraints
+
+![](./figs/1_part/12_conceptual_model/decoding_constraints.png)
+
+
+### Relationship attributes
+
+- Relationship: <u>You</u> have a tenancy agreement for your <u>flat</u>
+- This <u>tenancy</u> **starts** at some date, and is backed by some *$AUD* exchanging hands (**rent**);
+- You have a **deposit** with a certain value.
+
+
+
+
+### Relationship attributes modelling options
+
+- 1:1 Relationship (both alternatives shown)
+
+![](./figs/1_part/12_conceptual_model/1-1_relationship.png){width="50%"}
+
+- 1:n Relationship
+
+![](./figs/1_part/12_conceptual_model/1-n_relationship.png){width="50%"}
+
+- m:n Relationship
+
+![](./figs/1_part/12_conceptual_model/m-n_relationship.png){width="50%"}
+
+### Weak/Dependent entity types
+
+- **Weak entity types:** Some things **can not** have an autonomous existence
+- **Identifying relationship**: relationship with participation constraint, for referential integrity
+
+![](./figs/1_part/12_conceptual_model/weak_entity_type_example.png){width="70%"}
+
+### Weak entity types, space and time
+
+- Many things change dynamically through time, or only exist if other entities come together;
+- We can model their *state* using weak entity types
+
+**Spatio-Temporal Example: Car trips**
+
+    - A `CAR` has a persistent **identity**;
+    - A `CAR` is part of many `TRIPs` in time (**moves**);
+    - A `DRIVER` can drive multiple `CARs`;
+    - A `TRIP` cannot exist without a `CAR` and a `DRIVER`.
+    - `TRIP` is a weak entity.
+
+### Spatial example: Glacier
+
+- Has a persistent **identity**
+    - Example: Aletsch glacier, Switzerland
+- Changes its **state** throughout time (melts)
+- May break into multiple parts over time, each can be measured or named differently
+
+![](./figs/1_part/12_conceptual_model/glacier.png){width="60%"}
+
+![](./figs/1_part/12_conceptual_model/glacier_er.png){width="40%"}
+
+<!-- end slides -->
+::: {.content-visible when-format="revealjs"}
+## Next: [Intro to DBMS](/12b_introduction_DBMS_short.html)
+
+## References {background-color="lightYellow"}
+:::

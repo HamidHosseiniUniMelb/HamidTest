@@ -1,0 +1,315 @@
+# [L10b] Space-driven Indexing
+
+::: {.content-visible when-format="revealjs"}
+
+## Learning objectives {background-color="lightPink"}
+
+- You will understand space-driven indexing, based on regular decompositions of space;
+- You will be able to link general indexing principles ( sorting, simplified representation) to space-driven indexes;
+- You will be able to reason about the pros and cons of space-driven indexing.
+
+:::
+
+
+## Recall spatial queries
+
+**Range search**: finding objects (or their simplified representations, as bounding boxes) *containing* the query point (*point query*) or *overlapping* with the query area (*window query*).
+
+**Spatial join**: Finding pairs of objects that interact spatially (given a predicate). Note, all binary topological relationship search *except* disjoint can be index accelerated.
+
+**K-Nearest Neighbor (KNN)**: Finding the *k*-nearest spatial objects of a target object.
+
+<!-- not sure how this is relevant here
+## Hashing
+
+Hashing - encoding of arbitrary data into a small set of values. A principle that underpins a family of indexes.
+
+- Maps values to a smaller array of index *buckets*: 0, …, m-1
+- One bucket may contain multiple, close values
+- Values are computed on a defined, low cost hash function 
+- Cover the value domain evenly (maps well to even search, and even allocation on disk)
+- Can be searched by binary search approaches. -- this doesn't seem correct
+
+:::{.content-visible when-format="revealjs"}
+## Hashing {.unnumbered}
+:::
+
+![Hashing](./figs/3_part/31_space_driven_indexing/hashing.png){width="40%"}
+-->
+
+## Space-driven spatial indexes
+
+- We divide space into regular cells;
+- These cells may be hierarchically organised;
+- Cells may be always present (index slots always stored), or they may be generated based on the data inserted – but the scheme pre-defines the division.
+- The objects's location is usually indexed based on the simplified representation of the geometry (point, rectangle)
+
+## Ordering in 2D(+) Space
+
+### Grid (Tile) index
+
+- We partition space into regular cells;
+- Objects get an address in this space – either numbered (*id*), or as $x$ and $y$ index
+- One object may be assigned to multiple cells
+
+![Grid indexes](./figs/3_part/31_space_driven_indexing/grid_index.png){width="80%"}
+
+::: {.content-visible when-format="revealjs"}
+### Grid (Tile) index
+:::
+
+- Numbering of cells following some logical order: e.g, row ordering (below, aka row-prime)
+- Search in the index is based on binary search (e.g., B-Tree)
+
+![Row-prime grid index](./figs/3_part/31_space_driven_indexing/grid_index2.png){width="80%"}
+
+### Grid index as a data structure in a DB
+
+- Note the interleaving of cell number as axis indexes
+- How to blend multi-digit numbers?
+
+![Lookup grid index cell - geometry](./figs/3_part/31_space_driven_indexing/grid_index3.png){width="80%"}
+
+## Space filling curves
+
+### Morton code (Z-order)
+
+- Interleaving of binary encoding - Morton curve (Z-order) [@morton1966computer]
+- Enables to chose the level of detail of the grid (side = $2^n$)
+- Generalizes to n-dimensions!
+- This is exactly the tiling used in many web map tiles, in terrain tiles in game engines, ... ([original paper](https://dominoweb.draco.res.ibm.com/0dabf9473b9c86d48525779800566a39.html))
+- Once data are sorted along this sequence, any one-dimensional structure can be used for search (B-Tree, hash codes). 
+
+:::{.content-visible when-format="revealjs"}
+### Morton code {.unnumbered}
+:::
+
+
+![Morton curve](./figs/3_part/31_space_driven_indexing/space_filling_curves.png){width="80%"}
+
+### Other space filling curves
+
+:::{layout-ncol="2"}
+
+![Peano curve](./figs/3_part/31_space_driven_indexing/peano.png){width="45%"}
+
+![Hilbert curve](./figs/3_part/31_space_driven_indexing/hilbert.png){width="45%"}
+
+:::
+
+## Grid indexes: Pros&Cons
+
++ Pros:
+    - Simple application of 1D sorting;
+    - Fast insert
+
++ Cons:
+    - Inefficient for storage size, may include large amounts of empty, pre-allocated space or redundancy
+    - Depending on object distribution less efficient range search (object close in space may be far in index); 
+
+:::{.content-visible when-format="revealjs"}
+### Grid indexes: Pros&Cons {.unnumbered}
+:::
+
+::: {layout="[50,35]"}
+
+![](./figs/3_part/31_space_driven_indexing/grid_procs_cons.png){width="60%"}
+
+![](./figs/3_part/31_space_driven_indexing/grid_procs_cons2.png){width="20%"}
+:::
+
+
+## Hierarchical Space-driven indexes
+
+This content is best followed using demos from the group of Prof Hanan Samet at the University of Maryland [http://donar.umiacs.umd.edu/quadtree/points.html](http://donar.umiacs.umd.edu/quadtree/points.html) – you will need a modern (Chrome-based or Edge based) browser. When opening the link, it will show a CheerpJ notification (loading is slow). 
+
+
+### Quadtrees
+
+- Space-filling curve-based numbering of cells has hierarchical implications 
+- What if we adapt the cell level to fit around the indexed object?
+
+![Bing tile index](./figs/3_part/31_space_driven_indexing/tiledindex.png)
+
+### Quad tree index
+
+- Divide space into hierarchically nested, adaptable cells, each internal node has 4 children;
+- May directly benefit from recursive (self-similar) grid numbering by space filling curves
+- Each cell has a limit size (N of objects) or to fit the object
+- Some quadtrees may be object driven ( see later, Point Quadtree)
+
+### Quad trees for points, lines, rectangles
+
+- Adaptive hierarchical regular subdivision – many variants
+
+:::{layout="[[50],[50,50]]"}
+![points](./figs/3_part/31_space_driven_indexing/quadtrees2.png)
+
+![lines](./figs/3_part/31_space_driven_indexing/quadtree_lines.png)
+
+![rectangles](./figs/3_part/31_space_driven_indexing/rectangle_quadtree.png)
+:::
+
+### Quadtrees: variants (Region Quadtree vs point KD Tree)
+
+- Quadtree principles apply differently. In KD Trees, these are Object driven structures (see next chapter)
+
+![Fig: P. van Oosterom, 1990](./figs/3_part/31_space_driven_indexing/quadtrees_variants.png)
+
+### Extension to 3D: Octrees
+
+- We iteratively subdivide a 3D space into quadrants (8);
+- Useful for 3D applications, storing PointCloud data (occupancy grids), games, true 3D structures in GIS
+- Important for self driving cars!
+
+![](./figs/3_part/31_space_driven_indexing/extension_octress.png)
+
+## Geocodes and global discrete grids
+
+The assignment of unique IDs to locations on:
+
+- Projections of Earth to a plane
+- Spherical models of the Earth
+
+### Geohash
+
+- [Geohashing](http://geohash.org/) assigns a unique code to a location on a *projection* of the Earth (Plate carre).
+- Follows the Z-order curve principle;
+- Adds a second 32 bit encoding to reduce code length (Niemeyer, 2008), but requires a code alphabet:
+
+![Geohash code alphabet (Wiki)](./figs/3_part/31_space_driven_indexing/geohash_code.png)
+
+:::{.content-visible when-format="revealjs"}
+### Geohash {.unnumbered}
+:::
+
+:::{.content-hidden when-format="revealjs"}
+
+We can then encode any location on Earth to a code, by navigating along the Morton Z-curve. We end up with a code that encodes both the location, and the level of detail. 
+
+When decoding, we know that close codes (similar prefix) are going to be close locations on Earth - but not necessarily in converse ( if the locations are along the dividing lines, close locations may have distant codes).
+
+When decoding, even a part of the code ( below, $r$), enables to identify a coarser, enclosing location. 
+
+Not all geo-codes have this property (say, Where3Words)
+:::
+
+![Geohash of Melbourne](./figs/3_part/31_space_driven_indexing/geohashing_melb.png){width="90%"}
+
+:::{.content-hidden when-format="revealjs"}
+:::{.callout-note}
+Note: Nice geohash explainer at [https://bigfastblog.com/geohash-intro](https://bigfastblog.com/geohash-intro)
+
+Note 2: A Postgis implementation is in the function `ST_GeoHash`
+:::
+:::
+
+### Google S2
+
+- A global hierarchical geocode (30 levels) defined on a partition of the sphere [https://s2geometry.io/about/overview](https://s2geometry.io/about/overview)
+
+::: {layout-ncol="2"}
+
+![S2 organisation](./figs/3_part/31_space_driven_indexing/s2curve.png){width="45%"}
+
+![S2 layout based on Hilbert curve](./figs/3_part/31_space_driven_indexing/s2_world.png){width="45%"}
+
+:::
+
+:::{.content-visible when-format="revealjs"}
+### S2 {.unnumbered}
+:::
+
+- S2 cells are Spherical geodesics! Note the curved edges when shown on a planar projection.
+
+![S2 hierarchy of geodesics](./figs/3_part/31_space_driven_indexing/s2hierarchy.png){width="65%"}
+
+:::{.content-hidden when-format="revealjs"}
+:::{.callout-note}
+
+Note: You can install and work with S2 in PostGIS using an external Python library [https://github.com/AfieldTrails/s2-postgis](https://github.com/AfieldTrails/s2-postgis). S2 is used in other libraries, for instance notably in R *sf* package for spheroidical computations.
+
+:::
+:::
+
+### Uber H3
+
+- Hierarchical (16 levels) partitions of the Earth into hexagonal cells, based on a gnomonic projection of the Earth into spherical icosahedron (20 faces solid). 
+- Overlaps between consecutive levels
+- Requires a hack - 12 pentagons around the Earth ( in the sea).
+
+:::{layout-ncol="2"}
+
+![Icosahedron decomposition of the Earth](./figs/3_part/31_space_driven_indexing/h3_proj.png){width="45%"}
+
+![Uber's H3 grid](./figs/3_part/31_space_driven_indexing/h3_uber.png){width="45%"}
+
+:::
+
+:::{.content-visible when-format="revealjs"}
+### H3 {.unnumbered}
+:::
+
+:::{layout-ncol="2"}
+![H3 neighbourhood](./figs/3_part/31_space_driven_indexing/h3_radius.png){width="45%"}
+
+
+![H3 hierarchical decomposition](./figs/3_part/31_space_driven_indexing/h3hierarchy.png){width="45%"}
+
+:::
+
+:::{.content-hidden when-format="revealjs"}
+:::{.callout-note}
+
+Note: You can install and work with H3 in PostGIS [https://blog.rustprooflabs.com/2022/04/postgis-h3-intro](https://blog.rustprooflabs.com/2022/04/postgis-h3-intro)
+
+:::
+:::
+
+
+
+
+<!--
+## Z-order grid - Overlap query
+
+![https://en.wikipedia.org/wiki/Z-order_curve](./figs/3_part/31_space_driven_indexing/z_order_grid.png){width="80%"}
+--> 
+
+
+
+
+
+## Hierarchical spatial subdivisions: Pros&Cons
+
++ **Pros:**
+    - Simple to index using modifications of standard 1D sorting;
+    - Useful for point and raster indexing;
+    - Adapt better to data (less wasted space) than plain grids
+    - Requires only local recomputing after insert/deletion
++ **Cons:**
+    - Depending on object distribution, may be less efficient for range search (object close in space may still be far in index); 
+    - Trees can be unbalanced in depth – hard to estimate retrieval time;
+    
+
+::: {.content-visible when-format="revealjs"}
+
+## Summary {background-color="lightPink"}
+
+- You understand the philosophy of space driven indexing;
+- You can reflect on different means to divide space to fit the distribution of data;
+- You appreciate the pros and cons of space driven indexing.
+:::
+
+## Literature
+
+- Rigaux et al: Spatial Databases with applications to GIS
+- Samet: Foundations of Multidimensional data and Metric Data Structures
+- Nice writeup of someone's indexing notes: [https://tarunjain07.medium.com/geospatial-geohash-notes-15cbc50b329d](https://tarunjain07.medium.com/geospatial-geohash-notes-15cbc50b329d)
+
+<!-- end slides -->
+::: {.content-visible when-format="revealjs"}
+## Next: [Spatial indexing - object-driven indexing](/32_object_driven_indexing.html)
+
+## References {background-color="lightYellow"}
+
+:::

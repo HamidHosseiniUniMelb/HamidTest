@@ -1,0 +1,467 @@
+# Topological analysis 
+
+## Learning objectives {background-color="lightPink"}
+
+- You will appreciate the variety of qualitative spatial relationships conceptualised by people for spatial analysis;
+- You will understand the set-theoretic foundations of binary topological relationships captured by the 9-intersection model;
+- You will be able to apply topological queries in spatial analysis;
+- You will appreciate the difference between evaluating (computing) binary spatial relationships, and the need to *persist* topological structures.
+
+
+### Quantitative properties of geometries
+
+- Distance between two points
+- Length of a LineString  
+- Perimeter of a Polygon 
+- Bearing to another point from a given origin
+
+::: {.content-visible when-format="revealjs"}
+## {.unnumbered}
+::: {.callout-tip}
+## Qualitative spatial relationships
+
+- Name a qualitative spatial relationship between:
+    - a point $P$ and a second point $Q$
+    - a point $P$ and a polygon $A$
+    - a polygon $A$ and a second polygon $B$
+    - a line $L$ and a second line $M$
+
+:::{.incremental}
+
+- Which of these relationships can be unambiguously interpreted in a computing/spatial data/GIS context?
+
+:::
+
+:::
+:::
+
+### Qualitative, Non-topological relationships 
+
+:::{.callout-tip}
+Think *nominal* (possibly ordinal) measurement scale (stats).
+:::
+
+- Relative directions (to the north, to my right, to your right)
+- Qualitative distance (near, far)
+
+## Topology
+
+### Topological qualitative properties
+
+::: {.incremental}
+- A point is at an *endpoint* of a line segment or a LineString (aka *arc*)
+- A point is on the *boundary* of an area 
+- A point is in the *interior*/*exterior* of an area 
+- A LineString is *simple* 
+- An area is *open*/*closed*/*simple*
+- An area is *connected* 
+- An area is *disjoint* from another area
+:::
+
+### Topology
+
+The study of properties of forms (geometric objects) **invariant under continuous deformation** (*Homeomorphism*, aka **topological isomorphism**).
+
+:::{.content-hidden when-format="revealjs"}
+Significant for many structures of interest to spatial information science:
+:::
+
+![Train network connectivity is a topological structure [@worboys2004gis]](./figs/2_part/22_topological_analysis/metromap.png){width=70%}
+
+::: {.content-visible when-format="revealjs"}
+### Topological invariance {.unnumbered}
+
+:::: {.columns}
+
+::: {.column width="30%"}
+![3D Homeomorphism](./figs/2_part/22_topological_analysis/topological_invariant.gif){width=45%}
+:::
+
+::: {.column width="30%"}
+![Network homeomorphism](./figs/2_part/22_topological_analysis/network_homeomorphism.gif){width=70%}
+:::
+
+::: {.column width="30%"}
+![2D Homeomorphism](./figs/2_part/22_topological_analysis/shape_mosh.gif){width=50%}
+:::
+::::
+
+![Non-homeomorphic transformation](./figs/2_part/22_topological_analysis/non_homeomorphic_transformation.gif){width=20%}
+
+:::
+
+### Formalisation of topological relationships
+
+To query topological spatial relationships efficiently, a formalism is needed, that:
+
+- Is efficiently computable and enables reasoning;
+- Is succinct and expressive;
+- Results in equivalent relationships for topologically isomorphic geometries.
+
+
+## Point-set topology
+
+### Topology - neighbourhood
+
+Let $S$ be a given set of points. A *topological space* (a topology) is a collection of subsets of $S$, called *neighborhoods*, that satisfy: 
+
+:::: {.columns}
+
+::: {.column width="50%"}
+1. Every point in $S$ is in *some* neighborhood. 
+2. The intersection of any two neighborhoods of any point $x$ in $S$ contains a neighborhood of $x$. 
+:::
+
+::: {.column width="50%"}
+![Point-set topology [@worboys2004gis]](./figs/2_part/22_topological_analysis/point_set_topology.png){width="100%"}
+:::
+::::
+
+### Topology - neighbourhood (cont.)
+
+:::: {.columns}
+
+::: {.column width="50%"}
+- Let $S$ be a topological space and $C$ be a subset of points of $S$. An individual point $x$ is near to $C$ if every neighborhood of $x$ contains some point of $C$. 
+- $C$ is **open** if every point of $C$ can be surrounded by a neighborhood that is entirely within $C$. 
+- $C$ is **closed** if it contains all the points in its neighbourhood. 
+
+:::
+
+::: {.column width="50%"}
+![Neighbourhood [@worboys2004gis]](./figs/2_part/22_topological_analysis/open_closed_sets2.png){width="100%"}
+:::
+::::
+
+### Open and Closed Sets
+:::{.content-visible unless-format="revealjs"}
+Points in the Cartesian plane and *open discs* (circles surrounding the points) form a *topology* 
+:::
+
+![](./figs/2_part/22_topological_analysis/open_closed_sets.png){width="50%"}
+
+### Closure, Boundary, Interior
+
+:::: {.columns}
+::: {.column width="50%"}
+- The *interior* of set *S* ($S^{\circ}$): set of all points which belong to $S$ and are **not near** points of $S'$ (the *complement* of $S$, i.e., the exterior, an open set)
+- The *boundary* of *S* ($\partial S$): all points which are near to both $S$ and $S'$.
+- The *closure* of *S* ($\bar{X}$): the union of interior of $S$ with the set of all its near points (i.e., interior + boundary).
+:::
+
+::: {.column width="50%"}
+![](./figs/2_part/22_topological_analysis/closure_boundary_interior.png){width="100%"}
+
+:::
+::::
+
+
+::: {.content-visible when-format="revealjs"}
+## {.unnumbered}
+::: {.callout-tip}
+##  Where is this?
+
+- Inside/Outside?
+
+![](./figs/2_part/22_topological_analysis/exercise_inside_outside.png){width="60%"}
+:::
+:::
+
+## 9 Intersection model
+
+@egenhofer1991point proposed the **9 Intersection model** that describes **binary** (two objects) topological relationships based on intersections of the sets of points in the interiors, boundary and exteriors of two spatial entities in two dimensions.
+
+![9IM](./figs/2_part/22_topological_analysis/9IM.png){width="70%"}
+
+
+:::{.content-visible when-format="revealjs"}
+## {.unnumbered}
+
+::: {.callout-tip}
+## Exercise: A touches (meets) B
+
+![](./figs/2_part/22_topological_analysis/exercise_9IM.png){width="80%"}
+:::
+:::
+
+### A touches (meets) B
+
+We evaluate the existence ( ie., being not an empty set) of the intersections of the sets representing the interior/boundary /exterior of two geometries.
+
+![A meets B. False = 0, True = 1](./figs/2_part/22_topological_analysis/exercise_9IM_solution.png)
+
+### A touches (meets) B
+
+“A touches B”  implies that (0: False, 1: True):
+
+::::{.columns}
+
+:::{.column width="55%"}
+Interior of A intersects Interior of B?	
+Interior of A intersects Boundary of B?	
+Interior of A intersects Exterior of B?
+Boundary of A intersects Interior of B?	
+Boundary of A intersects Boundary of B?	
+Boundary of A intersects Exterior of B?	
+Exterior of A intersects Interior of B?	
+Exterior of A intersects Exterior of B?	
+Exterior of A intersects Boundary of B?	
+:::
+
+:::{.column width="30%"}
+$A^{\circ} \cap B^{\circ} = 0$
+$A^{\circ} \cap \partial B = 0$
+$A^{\circ} \cap B' = 1$
+$\partial A \cap B^{\circ} = 0$
+$\partial A \cap \partial B = 1$
+$\partial A \cap B' = 1$
+$A' \cap B^{\circ} = 1$
+$A' \cap \partial B = 1$
+$A' \cap B' = 1$
+:::
+::::
+
+:::{.content-visible when-format="revealjs"}
+### Named spatial predicates in 9IM {.unnumbered}
+
+![9IM](./figs/2_part/22_topological_analysis/named_spatial_predicates_9IM.png){width="85%"}
+:::
+
+### Named spatial predicates in 9IM
+
+![9IM](./figs/2_part/22_topological_analysis/named_spatial_predicates_9IM_2.png){width="85%"}
+
+### Dimensionally extended 9IM
+
+Extension of 9IM by evaluating the dimensionality of the intersection set 
+
+![Dimensionally Extended 9IM (DE9IM), [@clementini1993small]](./figs/2_part/22_topological_analysis/dimensionally_extended_9IM.png){width="70%"}
+
+### Dimensionally extended 9IM (cont.)
+
+Intersection sets can be: 
+
+- 0D: (Multi)Point
+- 1D: (Multi)Linestring
+- 2D: (Multi)Polygon
+
+**Note**: 9IM and DE9IM can be applied to evaluate relationships of geometries of *different* dimensionalities (e.g., 1D with 2D: *line crosses polygon*)
+
+:::{.content-visible when-format="revealjs"}
+## {.unnumbered}
+::: {.callout-tip}
+# Fill the DE9IM intersection matrix for the relationships of the line and polygon
+
+![](./figs/2_part/22_topological_analysis/exercise_9IM_2.png){width="70%"}
+:::
+:::
+
+### Topological operations in spatial databases
+
+::::{.columns}
+
+:::{.column width="50%"}
+`ST_Relate` masks for 9-IM:
+
+![](./figs/2_part/22_topological_analysis/masks_for_9IM_eqn.png){width="100%"}
+
+Common notation:  
+
+T: True, F: False and dimensions 0: point, 1: line, 2: polygon; $*$: don’t care/any
+:::
+
+:::{.column width="50%"}
+![](./figs/2_part/22_topological_analysis/masks_for_9IM.png){width="100%"}
+:::
+::::
+
+## Maintaining topological relationships
+
+Certain entity types have to always maintain specific spatial relationships:
+
+- Ship cannot float on land;
+- Tree has to stand in a parcel (not in a lake)
+- Car has to be on the road…
+
+In a spatial database, we maintain these relationships using **triggers**, automatically executed pieces of code within a database that are run when an event happens: `on INSERT`, `on UPDATE`, `on DELETE`.
+
+### Spatial trigger - Point must be in Polygon
+
+First, create a custom function:
+
+```sql
+CREATE OR REPLACE FUNCTION check_pointWithinPolygon()
+RETURNS trigger AS $$
+BEGIN
+    IF ((SELECT count(*) FROM polytable AS p WHERE ST_Within(NEW.geom, p.geom)) > 0) THEN
+        RETURN NEW; 
+    ELSE
+        RAISE DEBUG 'inserted feature GID:% , LABEL: % is not within a polygon', NEW.gid, NEW.label_sample;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+COMMIT;
+```
+... then register a trigger using this function, for a specific table:
+
+```sql
+CREATE TRIGGER myPointInPoly BEFORE INSERT OR UPDATE
+ON mypoints FOR EACH ROW
+EXECUTE PROCEDURE check_pointWithinPolygon();
+COMMIT;
+```
+
+## Persisting Topology
+
+We can **persist/store** structures with assured topological properties between geometries in a database.
+    
+- For (topo)logical integrity assurance (*parcels not overlapping*, *streets connected at junctions*)
+- To increase speed and efficiency of processing (many comparisons need not be re-computed)
+- To reduce storage load (no duplicate storage of shared edges)
+
+![](./figs/2_part/22_topological_analysis/persistent_topology.png)
+
+### Planar partitions of space
+
+- Polygons completely covering space (*jointly exhaustive*...);
+- No overlaps, no gaps (*...pairwise disjoint*);
+- Euler’s characteristic: captures mathematical properties of **finite, connected, planar partitions** of $f$ faces, $n$ nodes and $e$ edges:
+    $$n-e+f=2$$
+
+
+### Node-Arc-Area Topological data model
+
+**Data structure** for partitions, consisting of **nodes, arcs**, and **faces**:
+
+- Each directed arc has exactly one start and one end node. 
+- Each node must be the start node or end node (maybe both) of at least one directed arc. 
+- Each area is bounded by one or more directed arcs. 
+- Directed arcs may intersect only at their end nodes. 
+- Each directed arc has exactly one area on its right and one area on its left. 
+- Each area must be the left area or right area (maybe both) of at least one directed arc. 
+
+::: {.content-visible when-format="revealjs"}
+### {.unnumbered}
+
+::: {.callout-note}
+### NAA Planar decomposition (complete)
+
+![Node-Arc-Area Topology](./figs/2_part/22_topological_analysis/node_arc_area_topology.png)
+:::
+:::
+
+### Node-Arc-Area Data Structure
+
+![Partition and its arc table](./figs/2_part/22_topological_analysis/node_arc_area_topology_solution.png)
+
+![Face and Node table](./figs/2_part/22_topological_analysis/node_arc_area_topology2.png){width="60%"}
+
+## When to create topology?
+
+- Create topology for cleaning data;
+- Create topology before simplification of boundaries of planar decompositions;
+- Create topology if neighbourhoods matter (e.g., cadaster)
+
+
+:::{.content-visible unless-format="revealjs"}
+### NAA Conceptual model
+
+![](./figs/2_part/22_topological_analysis/naa_conceptual_model.png){width="80%"}
+
+
+ARC(<u>ARC ID</u>, BEGIN _NODE, END _NODE, LEFT _AREA, RIGHT _AREA)
+
+POLYGON(<u>AREA ID</u>,<u>ARC ID</u>, SEQUENCE_NO)
+
+POLYLINE(<u>ARC ID</u>,<u>POINT ID</u>, SEQUENCE_NO)
+
+POINT(<u>POINT ID</u>,X_COORD, Y_COORD)
+
+NODE(<u>NODE ID</u>, POINT_ID)
+
+<!--ArcGIS: AAT(FNODE, TNODE, LPOLY, RPOLY, LENGTH, Adm-ID)
+-->
+:::
+
+
+### Topology and simplification
+
+![](./figs/2_part/22_topological_analysis/topologya_and_simplification.png){width="60%"}
+
+Beware – this is not a fully solved problem – it will preserve EXISTING relationships, but may introduce new ones!
+
+:::{.content-visible unless-format="revealjs"}
+## Topology in Postgis
+ 
+![PostGIS Topology](./figs/2_part/22_topological_analysis/topology_postgis.png)
+
+**Edge** 
+
+- edge_id integer PRIMARY KEY 
+- start_node integer REFERENCES Node.node_id)
+- end_node integer REFERENCES Node.node_id
+- next_left_edge integer REFERENCES abs(Edge.edge_id)
+- next_right_edge integer REFERENCES abs(Edge.edge_id)
+- left_face integer REFERENCES Face.face_id
+- righr_face integer REFERENCES Face.face_id
+- geom geometry ( a linestring)
+
+**Node**
+
+- node_id integer PRIMARY KEY
+- containing_face integer REFERENCES Face.face_id
+- geom geometry ( a point)
+
+**Face** 
+
+- face_id integer PRIMARY KEY 
+- mbr geometry ( can be NULL )
+
+:::
+
+### Postgis Topology tables - simple example
+
+![](./figs/2_part/22_topological_analysis/topology_postgis4.png)
+
+- $n-e+f = 2?$
+- $2-3+2+1(complement) = 2$
+
+
+### Postgis Topology -- real world
+
+![](./figs/2_part/22_topological_analysis/topology_postgis2.png)
+
+We again expect $n-e+f = 2?$
+
+Yet: $$315-368+262 = 209$$
+
+
+
+### PostGIS Topology -- real world (cont.)
+
+This is because of MultiPolygons and a **disconnected** planar decomposition.
+
+![](./figs/2_part/22_topological_analysis/topology_postgis3.png)
+
+- We have MultiPolygons and a disconnected graph - the deviation is an artefact of Alaska, Hawaii, Puerto Rico and Haiti ...
+- $315-368+56+1(complement) = 4$ (here, a face is a state - better, but Alaska is still disconnected)
+
+
+
+::: {.content-visible when-format="revealjs"}
+## Summary {background-color="lightPink"}
+
+- You understand the foundations of the point-set topology, its notation, and how analysing neighbourhoods of points in a set allows us to reason about the inside, boundary and exterior of a set;
+- You understand how to construct 9IM model masks and know how to use them to evaluate what a specific natural language predicate means in a given DBMS;
+- You understand how topology is used to maintain the integrity of relationships between entities (through triggers), as modelled in a conceptual model of a database;
+- You understand what are the benefits of persisting topological relationships of a dataset in an explicit topological model and how this is beneficial for e.g, the maintenance of relationships during generalisation.
+:::
+
+
+<!-- end slides -->
+::: {.content-visible when-format="revealjs"}
+## Next: [Network analysis](/23_network_analysis.html)
+
+## References {background-color="lightYellow"}
+
+:::

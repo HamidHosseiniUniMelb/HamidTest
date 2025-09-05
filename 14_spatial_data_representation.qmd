@@ -1,0 +1,304 @@
+# [L4c] Spatial Data Representation
+
+::: {.content-hidden when-format="revealjs"}
+How we (as humans) conceptualize the world **is not, and should not** be constrained by how we *can* represent things in computers. Yet, the way data are representable in computers influences how we think about the world around us.
+:::
+
+We have discussed how to characterise most properties of entities in a conceptual and physical model. 
+
+Now we need to discuss how to capture the location (extent and position) of things in the world.
+
+:::{.content-visible when-format="revealjs"}
+## {.unnumbered}
+:::{.callout-tip}
+## Exercise: Meaning of dimensionality
+
+Can you thing what the difference is for the two uses of the term *dimension*?
+
+- Can you think of 0D, 1D, 2D **spatial data**?
+- Can you think of a 1D, 2D or 3D **space**?
+:::
+:::
+
+
+### Object or Field dimension vs Space Dimension
+
+:::: {.columns}
+
+::: {.column width="60%"}
+- Objects and Fields are *embedded* in a space of a given dimension, *n*D;
+    - Our lived experience is 3+1D (3D + time), a sheet of paper is 2D;
+- The *embedding* space can contain objects with a dimensionality up to *n*D (a square on a 2D paper, but not a cube);
+- Similarly, fields have a dimensionality of up to *n* (elevation field is 2D, or possibly 2.5D).
+:::
+
+::: {.column width="40%"}
+
+![3D space with 0D and 1D objects](/figs/1_part/16_spatial_data_model/space_dimensionality.png){width="40%"}
+
+:::
+
+::::
+
+### Conceptual models vs representations of spatial data
+
+![](./figs/1_part/16_spatial_data_model/model_vs_representations.png){width=80%}
+
+:::{.content-visible when-format="revealjs"}
+### Conceptual models vs representations of spatial data
+:::
+
+![](./figs/1_part/16_spatial_data_model/model_vs_representations2.png){width=80%}
+
+
+:::{.content-visible when-format="revealjs"}
+## {.unnumbered}
+:::{.callout-tip}
+## Exercise: Is a Vector or Raster Representation better? 
+
+- Elevation of Tasmanian central plateau
+- Traffic lights in Melbourne
+- Rainfall across Melbourne
+- Pedestrian traffic in the Melbourne CBD
+
+Discuss with your neighbour. Why would you say yes/no?
+:::
+:::
+
+## Vectors and Rasters
+
+![](./figs/1_part/16_spatial_data_model/raster_vector.png){width=80%}
+
+### Vector (intro)
+
+The geometry of geographical phenomena is represented by *linking* discrete *vertices* located in a space of *n* dimensions.
+
+:::{.incremental}
+- Vector **geometries** can be of 1,2,3, .. *n* dimensions
+- Vector geometries are *usually* constructed by **linear** interpolation between vertices;
+- Vector geometries can have *n* attributes attached to them
+- The relationship between geometries needs to be determined/computed or stored.
+- The resolution (granularity/precision) of the representation of the geometry is **not explicit**
+:::
+
+### Illusion of vector precision {.nostretch}
+
+Vector data present an illusion of total precision. 
+
+- Vertices appear at a precise position, but this is uncertain;
+- Lines connecting vertices communicate an illusion of true location of e.g., boundaries, yet they are interpolations!
+
+:::{.content-hidden when-format="revealjs"}
+We do not know if the actual value of the coordinates is (@fig-vector_precision). The coordinates (144,-34) may have been  measured as (144.5,-34.3). It is hard to tell whether this is a rounded value, or a value  (144.500000,-34.300000) that has been measured at high precision but with trailing zeros left out. Yet, the actual value of the coordinates may also be e.g., (144.567894,-34.331546), but due to measurement errors it has been measured as (144.500000,-34.300000).
+
+:::
+
+:::{.content-hidden unless-format="revealjs"}
+### Illusion of vector precision {.unnumbered}
+:::
+
+<!--::: {.layout="[[25,25],[25,25]]"}-->
+:::{#fig-vector_precision layout-ncol=2}
+:::{.fragment}
+![](./figs/1_part/16_spatial_data_model/vector_precision.png){width="40%"}
+:::
+:::{.fragment}
+![](./figs/1_part/16_spatial_data_model/vector_precision4.png){width="40%"}
+:::
+:::{.fragment}
+![](./figs/1_part/16_spatial_data_model/vector_precision2.png){width="40%"}
+:::
+:::{.fragment}
+![](./figs/1_part/16_spatial_data_model/vector_precision3.png){width="40%"}
+:::
+:::{.fragment}
+Vertex precision is not explicit.
+:::
+:::
+
+:::{.content-visible when-format="revealjs"}
+## Consequences of limited measurement precision
+:::
+:::{.content-hidden when-format="revealjs"}
+Often, the effects of limited measurement precision are only obvious if we have multiple measurements, and they all seem to snap to meridian lines and lines of constant latitude (*parallels*), forming a grid.
+:::
+
+![](./figs/1_part/16_spatial_data_model/gbif_raster_grid.png){width=80%}
+
+:::{.content-hidden unless-format="revealjs"}
+### Beware of ridiculous coordinate precision.
+
+![https://xkcd.com/2170/](./figs/1_part/16_spatial_data_model/xkcd_coordinate_precision.png)
+
+:::
+
+### Vector edge precision is also an illusion
+
+:::{.content-hidden when-format="revealjs"}
+Vector geometries have vertices connected by edges. These can either be linear edges (line segments), or arc segments. Yet, in reality, we measure only vertices at locations where we *perceive* them as meaningful for the measurement of a particular physical or made-up feature ( e.g., a boundary) -- we pick *salient* points. This boundary may have a much more nuanced geometry. As such, the lines in our geometry representations are the results of **interpolation**.
+:::
+
+:::{#fig-vector_precision layout-ncol=2}
+:::{.fragment}
+![](./figs/1_part/16_spatial_data_model/vector_precision_edge.png){width=40%}
+:::
+:::{.fragment}
+![](./figs/1_part/16_spatial_data_model/vector_precision_edge2.png){width=40%}
+:::
+:::{.fragment}
+Vector edge precision is an illusion.
+:::
+:::
+
+### Raster (intro)
+
+Representation of the footprint of geographical phenomena is based on a *partition* of space into regular grids of cells that each hold a **single** value.
+
+:::{.incremental}
+-   Only one value per cell, but possibly *n* *bands* (e.g., IR, R,G,B, UV, elevation)
+-   Cells have a defined dimension (2D - pixel, 3D - voxel)
+-   All cells have a value (possibly `NULL`)
+-   A cell has pre-defined neighbours.
+-   The resolution (granularity / precision) of the footprint of the cell is explicit
+:::
+
+### Illusion of raster imprecision
+
+Raster data present an illusion of **im**precision. 
+
+- Cells appear to snap to grid lines, being shifted from true position, depending on resolution of the raster 
+- Cells aligned in lines appear jagged, communicating an illusion if imprecision. 
+
+<!--::: {.layout="[[25,25],[25,25]]"}-->
+
+:::{layout-ncol=2}
+:::{.fragment}
+![](./figs/1_part/16_spatial_data_model/raster_vector.png){width=40%}
+:::
+
+:::{.fragment}
+![](./figs/1_part/16_spatial_data_model/raster_vector_detail.png){width=60%}
+:::
+
+:::
+
+:::{.content-hidden unless-format="revealjs"}
+### Illusion of raster imprecision {.unnumbered}
+:::
+
+:::{#fig-raster_precision layout-ncol=2 layout-nrow=2}
+![(c)Nearmap](./figs/1_part/10_spatial_data_modeling/nearmap_raster_full.png)
+
+![(c)Nearmap](./figs/1_part/10_spatial_data_modeling/nearmap_raster_zoomdetail.png)
+
+Raster precision (granularity) is explicit.
+:::
+
+:::{.content-visible unless-format="revealjs"}
+### Vector vs Raster data products
+
+Below are two typical data products using two different data representations. Note that both are rendered on the screen -- we always see the results of a rasterisation, i.e., a raster product. 
+
+::: {.incremental layout="[45,45]"}
+![Vector](./figs/1_part/10_spatial_data_modeling/gmaps_vector.png)
+
+![Raster](./figs/1_part/10_spatial_data_modeling/nearmap_raster_full.png)
+:::
+:::
+
+## Spatial data storage in DBMS
+
+:::{.content-visible when-format="revealjs"}
+:::{.callout-tip}
+## Exercise: Relational model and spatial data {.unnumbered}
+
+Try to undertake a logical model of spatial data in normalised tables.
+:::
+
+:::{.incremental}
+- Is it doable?
+- Would it be easy to manage?
+- Would it be performant?
+:::
+:::
+
+### Relational model and spatial data
+
+A complicated marriage.
+
+Spatial data are typically **multi-dimensional** (0-nD, up to the dimensionality of the embedding space (2D, 3D).
+
++ **Performance**: multi-valued attributes (coordinates) lead to endless joins.
+    - Spatial data are a bad fit for tabular structures!
++ **Indexing**: no natural ordering of data in 2D(+) space. Leads to problems with access strategies (discussed in a few weeks)
+
+::: {.content-visible when-format="revealjs"}
+### Relational model and spatial data {.unnumbered}
+:::
+
+A naive first-principles approach:
+
+`SQUARE`
+
+| VertexNumber | X | Y |
+|------|------|------|
+| 1   | 0    | 0    |
+| 2   | 0    | 5    |
+| 3   | 5    | 5    |
+| 4   | 5    | 0    |
+| 1   | 0    | 0    |
+
+`ROAD`
+
+| ROAD_ID | X_0 | Y_0 | X_1 | Y_1 | ... |
+|------|------|------|------|------|------|
+| 1   | 0    | 0    | 0 | 5 | ... |
+| 2   | -4    | -6   | -4 | -3 | ... |
+
+### Hybrid model 
+
+- Maintains pointers (FK) to a separate storage solution (e.g., a file)
+- Typical for early integration with GIS
+- Makes maintaining integrity, security and reliability hard
+- **Example**: *Shapefile* data format (3+ files, *.shp*-geometries, *.dbf*)
+
+![](./figs/1_part/16_spatial_data_model/options_for_spatial_data.png)
+
+### Integrated model (Object-relational DBMS) -- Vectors
+
+- Extended relational model with **special data types**;
+- The Open Geospatial Consortium (OGC) Simple Feature model for SQL: **ST_**Geometry
+- Tables with *n* non-spatial and 1+ column(s) of a (sub) class data type of `Geometry`
+- Uses the capabilities of the DBMS to manage and query the Features;
+
+![](./figs/1_part/16_spatial_data_model/postgres_vector.png){width=80%}
+
+
+### Raster
+
+Tables containing a single raster split amongst multiple records (tiles), either storing directly the data as a large binary object (in Postgres, The Oversized-Attribute Storage Technique -- TOAST) or as pointers to files;
+
+![](./figs/1_part/16_spatial_data_model/postgres_raster.png){width=80%}
+
+
+## Beyond X,Y
+
+To correctly interpret, analyse and relate spatial data, more than their geometry is needed:
+
+- **Spatial reference systems** (defined by origin, axes, units of measurement, datum)
+- Efficient spatial access structures (**indexes**) 
+- Optionally, **metadata** about the spatial features – data quality parameters (lineage, accuracy, semantics of attributes)
+
+## Recap {background-color="lightPink"}
+
+- You understand how spatial conceptual models map to dominant spatial data representations;
+- You understand traps of the vector and raster data representation;
+- You appreciate why it is difficult to map multi-dimensional data to normalised relational data structures.
+
+<!-- end slides -->
+::: {.content-visible when-format="revealjs"}
+## Next: [Spatial Reference Systems](/15_spatial_ref_systems.html)
+
+## References {background-color="lightYellow"}
+
+:::

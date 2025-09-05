@@ -1,0 +1,110 @@
+# Postgis
+
+**Is there an index?**
+
+|table_name|index_name|column_name|
+|---|---|---|
+|us_states|spatial.us_states_GEOM_idx|geom|
+
+
+```sql
+-- find if you have an index 
+
+select 
+    t.relname as table_name, 
+    i.relname as index_name, 
+    a.attname as column_name 
+
+from 
+    pg_class t, 
+    pg_class i, 
+    pg_index ix, 
+    pg_attribute a 
+
+where   
+    t.oid = ix.indrelid 
+    and i.oid = ix.indexrelid
+    and a.attrelid = t.oid 
+    and a.attnum = ANY(ix.indkey) 
+    and t.relkind = 'r'
+    and t.relname like 'us_states' 
+
+order by 
+    t.relname, 
+    i.relname; 
+
+```
+**Creation, maintenance, analysis**
+
+```sql 
+
+CREATE INDEX "spatial.us_counties_GEOM_idx"
+    ON spatial.us_counties 
+    USING gist 
+    (geom); 
+
+CLUSTER spatial.us_counties USING "spatial.us_counties_GEOM_idx";
+VACCUM ANALYZE spatial.us_counties; 
+```
+
+**Use of index (Filter-refine)**
+
+
+| county character varying | county character varying | 
+|---------|:-----|
+| Alamance      | Chatham   |  
+| Alamance     | Caswell  |  
+| Alamance       | Rockingham    | 
+| Alamance | Orange|
+| Alamance | Randolph|
+| Alamance| Guilford|
+| Vance | Warren|
+| Vance| Franklin|
+
+![](./figs/3_part/33_query_selectivity/filter_refine.png){width="50%"}
+
+```sql
+EXPLAIN ANALYZE
+SELECT t1.county, t2.county 
+FROM spatial.us_counties as t1, spatial.us_counties as t2 
+WHERE ST_TOUCHES(t1.geom,t2.geom);
+```
+
+![](./figs/3_part/33_query_selectivity/filter_refine2.png)
+
+**Deletion of an index**
+
+```sql
+DROP INDEX spatial."spatial.us_counties_GEOM_idx";
+```
+
+![](./figs/3_part/33_query_selectivity/deletion_index.png)
+
+**Inspect an index in Postgis**
+
+- You would need a local install of Postgis, and the installation of a special too: Gevel
+- <https://gist.github.com/Komzpa/f9e1c241d1d2a27cf5a4f985f646f8a6>
+- create table public.vic_polygon_index_vis as 
+
+(select level, replace(a::text, '2DF', '')::box2d::geometry as geom from gist_print('public.victoria_line_index') as t(level int, valid bool, a box2df));
+
+![](./figs/3_part/33_query_selectivity/inspect_index_postgis.png){width="80%"}
+
+
+![](./figs/3_part/33_query_selectivity/inspect_index_postgis2.png){width="80%"}
+
+
+![](./figs/3_part/33_query_selectivity/inspect_index_postgis3.png){width="80%"}
+
+**Resources**
+
+- Visualizations:
+    - <http://zufallsgenerator.github.io/2014/01/26/visually-comparing-algorithms>
+    - <http://blog.ivank.net/quadtree-visualization.html>
+
+**Literature**
+
+- Rigaux et al: Spatial Databases with applications to GIS
+- Samet: Foundations of Multidimensional data and Metric Data Structures
+
+![](./figs/3_part/33_query_selectivity/literature.png)

@@ -1,0 +1,218 @@
+# [Extra] Advances in databases
+
+::: {.content-visible when-format="revealjs"}
+
+## Learning objectives {background-color="lightPink"}
+
+- You will understand current developments in data collection, storage and processing
+- You will understand the challenges of data distribution to transactions and query answering
+- You will understand what are the differences between the various types of structured, semi-structured and non-structured data not fitting well into relational models
+- You will think of the challenges brought by uncertainty in data, approximate queries, and their manifestation in spatial and non-spatial domains
+
+:::
+
+## Changing DB landscape
+
+### Past
+
+1. Structured DB Design process with identifiable stable requirements
+2. Well-defined entities, attributes and relationships 
+4. Static or slow changing content, ACID transactions (On-Line Transaction Processing, OLTP)
+3. Exact match to query
+5. Single instance on single server, data fit into memory
+
+**So – what if (some) of above does not hold...**
+
+### Current trends in computing
+
+1. Changing requirements and agile adaptation
+2. Heterogeneous entities, discovered relationships
+3. Dynamic data integration and analytics (On-Line Analytical Processing, OLAP)
+4. Query results: handling ambiguity;
+5. Databases exceed HW limitations, require distribution
+
+### Big Data (3 or 4 Vs)
+
++ **Volume** of data: beyond what can reasonably fit into a single memory/ hard drive
++ **Velocity**: data generated/updated at a high rate (streaming from sensors, social network feeds, stock exchange). Delays in processing are costly!
++ **Variety**: heterogeneity of schemas, formats, inconsistentcy.
++ **Veracity**: how trusted the data can be, data quality.
+
+Early talk on Big Data coining the term: [Roger Magoulas, 2009](http://www.quora.com/Who-coined-the-term-big-data)
+
+### Changing requirements and adaptation
+
+:::: {.columns}
+
+:::{.column width="50%"}
+
+- Much data is generated from (mobile) sensors and APIs beyond your control;
+- Relational models do not cope well with changes in schemas schemas;
+- Yet, changes are inevitable.
+- We need to minimise and isolate these effects.
+
+:::
+
+:::{.column width="50%"}
+![Twitter API](./figs/4_part/40_advances_spatial_data_management/trends_needs.png){width="100%"}
+:::
+
+::::
+
+:::{.content-visible when-format="revealjs"}
+
+### Changing requirements {.unnumbered}
+
+![](./figs/4_part/40_advances_spatial_data_management/schema_meme.png)
+
+:::
+
+### Heterogeneous entities, discovered relationships
+
+- Naming and definition ( attributes, domain ranges) of entities changes;
+- Entities may not even be well identified and form homogenous *sets* (i.e., documents)
+
+![Twitter API coordinate changes](./figs/4_part/40_advances_spatial_data_management/twitter_deprecated.png)
+
+:::{.content-visible when-format="revealjs"}
+### Heterogeneous entities, discovered relationships {.unnumbered}
+:::
+
+<!-- mermaid thing deleted--> 
+
+### Dynamic data integration and analytics
+
++ Use of databases shifts from transactional data warehousing (OLTP) to analytical decision making (OLAT);
++ Much of the data stored will never be inspected (logs), only if an event happens;
++ Data are accessed *across* entities (records) (i.e., projections of attributes), e.g., to create dashboards 
+    - *What is the average value of a rental transaction in Melbourne*, vs
+    - *What are the attributes of this rental in Melbourne*?.
+
+:::{.content-visible when-format="revealjs"}
+### Dynamic data integration and analytics (cont.) {.unnumbered}
+:::
+
+
+[![OECD Dashboard](./figs/4_part/40_advances_spatial_data_management/dashboard.png){width="60%"}](https://data.oecd.org/australia.htm)
+
+### Query results: handling ambiguity
+
+- Repeatable, deterministic results are not always desirable or quickly computable;
+- Responses to queries may not be binary (yes/no) or exact (256);
+- Approximate matches are preferred to empty exact matches.
+
+![Exact result](./figs/4_part/40_advances_spatial_data_management/restaurant_nearMelbourneMuseum.png){width="50%"}
+
+## Solutions 
+
+### Changes in storage models
+
+**From:** Relational DBMS with tuple (record)-based organisation
+
+**To:** NoSQL database content
+
+### NoSQL: Reduced schema dependence
+
+- Key-value stores, columnar, document or graph-based database content - i.e., data model OTHER THAN relational;
+- No single unifying concept, no shared query language, **no one size fits all**!
+- Typically NoSQL is **not good at joins**
+
+### NoSQL – typology
+
+- **Key-Value** stores: a *unique* key and a value (opaque). Often used for cache. **HStore in Postgres**
+- **Document** store: values not opaque, but indexed by full text or some attributes if a structured format (JSON, XML). **JSON data type in Postgres**
+- **Column** DBs: attribute-first indexing (as opposed to row-first). Optimised for column aggregates over identical entities (sums, averages,…)
+
+:::{.content-visible when-format="revealjs"}
+### NoSQL – typology (cont.) {.unnumbered}
+:::
+
+- **Graph DB/Linked data**: Labeled property graphs (Nodes: entities, Edges: relationships). Flexible models of relationships, joins are explicitly stored. 
+- **Array DB**: *raster* data and arrays of simple values in a regular grid of *n* dimensions. (Meteorology, Remote sensing)
+- **OLAP Cubes**: hierarchical, *n*-dimensional value storage, e.g., in economics, demography.
+
+:::{.content-visible when-format="revealjs"}
+### NoSQL – typology (cont.) {.unnumbered}
+:::
+
+![OLAP Cube](./figs/4_part/42_no_sql/nosql_typology.png){width="60%"}
+
+
+<!--:::{.content-visible when-format="revealjs"}
+
+### NoSQL style
+
+[YouTube: NoSQL Style (Gangnam Style Parody for Geeks) ](https://www.youtube.com/watch?v=qpK0WAuyOl4)
+
+:::
+-->
+
+### Changes in query models
+
+**From:** Relational algebra and SQL
+
+**To:** API interfaces and general-purpose programming, specialised query languages (GraphQL) or NLP QA
+
+### Query result processing
+
+- Search matching and ranking: return best, quick matches based on heuristics, but possibly not a complete set;
+- Probabilistic databases.
+
+:::{layout-ncol="2"}
+
+![Search matching](./figs/4_part/40_advances_spatial_data_management/approx_result.png){width="45%"}
+
+![Approximate result](./figs/4_part/40_advances_spatial_data_management/approx_result_geo.png){width="45%"}
+
+:::
+
+### Heterogeneous entities and discovered relationships
+
+- Graph databases (Neo4J) and Document stores using search indexes
+- Query languages supporting pattern matching, and
+- Question Answering interfaces (Large language models e.g., GPT, prompted by NL prompts, e.g., ChatGPT)
+
+:::{.content-visible when-format="revealjs"}
+### Heterogeneous entities and discovered relationships (cont.) {.unnumbered}
+:::
+
+[![Neo4J and Panama papers](./figs/4_part/40_advances_spatial_data_management/neo4jpanama.png){width="60%"}](https://neo4j.com/blog/panama-papers-tom-sawyer-perspectives/)
+
+### Scalability via Distribution
+
++ Data **Volume** and **Velocity** require solutions that grow *at least* proportionally to needs;
+    - Purpose-build computers are expensive (scale *up*, vertical scalability)
+    - Ability to add more small/cheap resources as requirements grow (scale *out*, horizontal scalability);
+- Embraces failure by redundancy
+- Consequence: databases are partitioned between multiple physical systems (computers).
+
+:::{.callout-note}
+**Note**: More in [Chapter Distributed DB](./41_distributed_db.qmd).
+:::
+
+### Cloud-optimised storage
+
+- `HTTP`: hypertext transfer protocol powering the Web;
+- Resources identified by `URL`;
+- `REST`: Representational Stateless Transfer, actions `PUT`, `GET`,`POST`,`DELETE`
+- `MIME` Document type;
+- `URL` + *Range* `GET` requests enable addressing *parts* of data in Cloud-optimised data stores (Amazon `S3`);
+- Modern formats supporting all this: (Geo)Parquet (and Arrow), Cloud-optimised GeoTIFF, Cloud-Optimized Point Clouds (COPC laz);
+- Lake DB technologies ([DuckDB](https://duckdb.org/), [Apache Arrow](https://arrow.apache.org/) and Apache Spark)
+
+
+## Resources
+
++ Cloud Optimised Geospatial Formats:
+    - [STAC](https://stacspec.org/en)
+    - [COG - Cloud Optimized GeoTIFF](https://www.cogeo.org/)
+    - [Cloud Optimzed Point Clouds](https://copc.io/)
+    - [Geoparquet](https://geoparquet.org/)
+
+<!-- end slides -->
+::: {.content-visible when-format="revealjs"}
+## Next: [Distributed databases](/41_distributed_db.html)
+
+## References {background-color="lightYellow"}
+
+:::

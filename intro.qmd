@@ -1,0 +1,51 @@
+## How this book works
+
+This book is structured along parts, with theoretical chapters. The pracicals that relate to these chapters are in a separate part, called *Practicals*. Materials for Assignments are on LMS, with additional materials in *Assignments*.
+
+Throughout the book, we will use call-outs to attract your attention to particular content:
+
+:::{.callout-note}
+## Note: A nice little trick
+
+This is an example of a note.
+:::
+
+
+:::{.callout-tip}
+## Excercise: come with an example
+:::
+
+:::{.callout-important}
+## Important: Note this
+
+This is an example of an important note.
+:::
+
+We will also include code, in SQL
+
+```SQL
+SELECT name, area FROM countries;
+```
+
+## Slides
+
+This book is accompanied by slides used in class.
+
+
+```{=html}
+<iframe class="slide-deck" src="slides/index.html"></iframe>
+```
+ 
+listing:
+  id: target
+  contents:
+    - *.qmd
+  sort: "date desc"
+  type: table
+  categories: true
+  sort-ui: false
+  filter-ui: false
+page-layout: full
+title-block-banner: true
+format: html
+

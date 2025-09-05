@@ -1,0 +1,42 @@
+# [P10] Data cleaning and loading
+
+In this practical, we provide hints about data cleaning and loading. It is a practical that you may come back to throughout the semester.
+
+
+## Working with data 
+When working with data, it is extremely useful to look at the sample data you have (if you have any). These may come from a legacy system, possibly be exported as a dump (bulk export) of a current database or as a result of an export function. 
+
+There are a few notes of caution that apply - export functions often denormalise datasets, based on a view that has been defined by the designers. You need to think how to organise these data *in your database* yourself;
+
+
+## Working with exports - Exploratory data analysis
+
+- **Important:** always keep a version of the raw data you received. Note in a text file any procedures you have used for modifying the data (for later documentation), but you have to have a way to get back to the original data if needed;
+- **Explore data** You may get data in an Excel spreadsheet, or as a CSV. After you download the data needed (csv, xlsx), you may want to visualise the data in Excel, or even directly in QGIS. It is preferable to open .csv files in a text editor rather then in Excel, to not suffer data conversions that Excel causes. Beware about the encoding of the text exports. Does it match your system, or the target system? Do you have troubles with special characters such as ä, ü not displaying correctly? It is a good practice to look at the range of values you have received: maybe plot them in a scatter plot, investigate value distributions (counts per value) in a histogram.
+- **Explore geospatial data:** If you get spatial data (as a geopackage (gpkg), or as a shapefile - remember, this is a folder-based format, and you need *at least* '.shp, .shx, .dbf' files, and hopefully a '.prj'. To fix encoding problems of shapefiles, the '.cpg' sidecar file can be added, with a text specification of encoding ( such as UTF-8), you can open these directly in QGIS. Plot the spatial data on a map to see what area they cover, and think about outliers;
+- **Check metadata:** whenever possible, check metadata or any other descriptive data about your samples. Sometimes these are available (say, Open Data Vic), sometimes not (as in data samples provided by project partners). You may need to ask meaningful questions from the data provider, read their websites, read scientific reports. 
+- **Spatial projections:** for spatial data, you need to make sure the information about the projection of your data is maintained. You may need to reproject, or you may decide to reproject on the fly (during queries). Typically, small data are projected on the fly, to match basemap/foundational data. It is also beneficial to avoid repeated reprojections (computationally costly, and may introduce errors). Avoid reprojecting raster data. This is also covered later in lectures.
+- **Data types** The data types of the exported sample data may not match well the original (or best) storage. Often, exported sample data are plain text. Think carefully about the domains of the values of the data. In QGIS you can click on the layer properties, and investigate the Fields tab;
+- **Attribute domains:** Further,  samples of datasets are *views*, and are therefore projections and selections of the full dataset. This means that the value domains of the datasets may not be fully covered by the values in the samples. Always think carefully what values may be missed, and whether you need to cater for them. Check values and consistency for each field/column in the records/rows. In QGIS you can explore the Attribute Table of each layer;
+
+## Data standardisation and cleaning
+
+- **Data cleaning:** Investigate whether data entry errors exist in the system (e.g., using OpenRefine, see below). It is your responsibility to assure that your data are clean, but also think, whether you can/should alter the data entered by people. Do you need to maintain a second column, where a standardised version of the entry is kept?
+- **Missing data:** Critically investigate value domains, Do you have missing values? Are they captured correctly (`NULL`), or as text (`"NULL"`, or `"NA"`)? If you see a value `0`, is it indeed meant to be `0`? What about special values, `-9999`?
+- **Tooling:** Explore the fantastic open source tool [OpenRefine](https://openrefine.org/) for cleaning tabular data in text. Second, use Postgres directly to update fields, create new ones, join data, etc. Explore the ability to [manipulate strings](https://www.postgresql.org/docs/current/functions-string.html) in PostGIS, including such advanced functions like [Soundex](https://www.postgresql.org/docs/current/fuzzystrmatch.html) to deal with typos ('Melborn'>'Melbourne'). 
+
+## Data modelling
+
+Once you are done with above, it is time to think of data modelling, and creating normalised data structures, in an ER model. You need to settle on the data type and value range for each attribute, and make sure you handle enumerated values through lookup tables or other means to assure consistency.
+
+## Importing data
+
+To summarise your options for importing data:
+
+- data dumps in CSV/XLSX (use a plain text editor such as Notepad++, or SublimeText, or VSCode, to investigate;
+- OpenRepast as a tool for cleaning such data;
+- QGIS is a great tool for viewing data, and for importing (spatial or non-spatial) data into your database by export to PostGIS. Use the DBManager in 'Database > DB Manager Tool'. You can then `Import Layer/File` to QGIS, but you can also `Export` using the Processing Toolbox (`GDAL > Export to PostGIS`) - there are two versions, depending on whether you have a connection already established or not. In newer versions of QGIS, you often can also just drag an opened layer to your schema (beware, you lose control of some features);
+- `ogr2ogr` (part of GDAL) is the Swiss knife of spatial data, and is supported by the Processing Toolbox in QGIS directly, but the command line utility has more flexibility. This is great for data munging (ETL = Extract→Transform→Load).
+- Advanced tools, such as [FME](https://www.safe.com/) can be explored for ETL processes too.
+- Finally, of course, you can also enter data manually - by vectorisation (aka digitisation) in QGIS ( create a new Layer, and start editing). You can also create data entry forms (incl using functionalities from Joined tables,  see [Forms](https://docs.qgis.org/3.34/en/docs/training_manual/create_vector_data/forms.html) and [lookup](https://gis.stackexchange.com/questions/332621/qgis-forms-field-display-based-on-the-value-of-another-field) ) in QGIS, .
+

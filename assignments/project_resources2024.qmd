@@ -1,0 +1,56 @@
+# Project resources
+
+This page contains additional resources that may help you with delivering the project. These resources will be added as we go, for the benefit of all.
+
+## Requirements analysis 
+
+There are many ways how a requirements analysis may be presented. There is no single way how its content may be specified.
+
+Some resources, note most of these capture requirements for much larger systems:
+
+- [Sample template](https://www.softwaredevelopmenttemplates.com/templates/database-design-document-template/)
+- [Asana template](https://asana.com/resources/software-requirement-document-template)
+- [SQL server requirements](https://www.mssqltips.com/sqlservertip/1456/sql-server-database-requirements/)
+- [Jama software requirements](https://www.jamasoftware.com/requirements-management-guide/writing-requirements/how-to-write-system-requirement-specification-srs-documents)
+
+## Postgis
+
+### Geocoding
+
+::: {.callout-important}
+Note (11 October): A student has pointed out that the following resources, added here by Martin, are not able to be used, because `plpython3u` is not availbale on Wammawatcha. Please consider alternative SQL-based approaches to geocoding that draw on resources such as [Vicmap Address](https://www.land.vic.gov.au/maps-and-spatial/spatial-data/vicmap-catalogue/vicmap-address) and/or [Vicmap Admin](https://www.land.vic.gov.au/maps-and-spatial/spatial-data/vicmap-catalogue/vicmap-admin) and/or other similar datasets.
+:::
+
+- How to create a custom function to call a REST API with a Geocoding service: [here](https://www.crunchydata.com/blog/geocoding-with-web-apis-in-postgres)
+
+- *Geocoders* ( som have limited free tiers, that is fine, you only need to demonstrate functionality if you decide so): [Nominatim](https://nominatim.org/), [MapTiler](https://www.maptiler.com/cloud/geocoding/), [OpenCage](https://opencagedata.com/)
+
+## Working with Group schemas
+
+In the project, you will be working in group schemas, where only your group members and teaching staff will be able to see the data (e.g., `group_01`). This is also an opportunity to learn about the way Postgres/PostGIS handles access rights.
+
+You will notice that is a group member `user1` creates a table in the scheam, e.g. `group_01.mytable`, then **only** `user1` would havem by default, access to it. This is easily verifiable, by e.g., `user2` trying to inspect the content: `SELECT * from group_01.mytable;`
+
+While it is possible for us to `GRANT` more privileges on all currently existing tables, this is an action that needs to be repeated for all newly created tables.
+
+It is therefore recommended that for any table you create (e..g, whichever member of the group) you `GRANT` the right privileges:
+
+```sql
+ALTER TABLE groupXX.tablename OWNER TO groupXX;
+```
+
+## Additional reading
+
+### Geospatial privacy, location obsfuscation, protecting the divulsion of location
+
+- Duckham and Kulik (2005): A Formal Model of Obfuscation and Negotiation for Location Privacy. https://link.springer.com/chapter/10.1007/11428572_10 (note, this is a full-on paper, for this project it is sufficient to engage with the concept of location obfuscation)
+- Swanlund, Schuurman, Brussoni (2019): MaskMy.XYZ: An easy-to-use tool for protecting geoprivacy using geographic masks. https://onlinelibrary.wiley.com/doi/abs/10.1111/tgis.12606 (masking is one of the ways of obfuscating location, and is applied to things like rare specimen too).
+
+### Rare species and location
+
+- Lindemayer and Scheele (2017): Do not publish. Limiting open-access information on rare and endangered species will help to protect them. https://www.science.org/doi/abs/10.1126/science.aan1362
+- Tulloch et al. (2018): A decision tree for assessing the risks and benefits of publishing biodiversity data. https://www.nature.com/articles/s41559-018-0608-1
+
+### Data sovereignty
+
+- IATSIS https://aiatsis.gov.au/publication/116530 

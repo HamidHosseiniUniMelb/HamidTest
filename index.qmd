@@ -1,0 +1,139 @@
+::: {.content-hidden when-format="revealjs"}
+
+# Introduction
+
+## Acknowledgment of country {.unnumbered}
+*The content of this subject has been prepared and delivered on unceded Aboriginal land in Naarm (aka Melbourne). I pay my respects to the Wurundjeri People of the Kulin Nation on whose Country the Parkville campus of the University of Melbourne is located, as well as to all First Nations people and their Elders Past and Present. *
+
+Spatial sciences have an indisputable and tragic colonial history, where the charting of '*blank spots*' in maps led to the killing, dispossession and oppression of countless First Nations Peoples globally. 
+
+First Nations Peoples have also developed sophisticated ways to understand and manage Country, and work with Spatial Information, and this knowledge is essential for a just and equitable progress towards the righting of historical wrongs, and the achievement of a sustainable future [@fund2015sustainable] . I hope this subject enables you to reflect on some of this history, and future, of spatial sciences.
+
+## About this subject {.unnumbered}
+
+This subject will introduce you to spatial information management - the management of complex information that includes spatial information. It will introduce the fundamental theoretical concepts of spatio-temporal data modelling, representation, storage, and analysis (to a small extent). It will let you understand how spatial information is handled by spatial databases in order to enable efficient, consistent analytical results.
+
+This subject takes a particular approach to spatial data management - a database perspective. This allows to present all of the approaches in spatial data management from a unified perspective compatible with general knowledge in data management. It will provide you with all the skills and knowledge necessary to integrate spatial information into broader data projects.
+
+Yet, everything you learn is exactly applicable to the more common work with plain GIS systems. Here, we will predominantly use GIS only as a client interface to spatial data, to visualise the data themselves, or results of analyses. You should however be able to make the connection - what you instruct the database to do, can also be done by clicking around in a GIS graphical user interface (without all the advantages of being backed by a database). If you make this connection, you will be able to quickly learn any new GIS system as the concepts will apply in the same way.
+
+
+## Approach
+
+This subject is further structured along a small number of core messages:
+
+* Spatial and spatio-temporal data have **specific properties** that must be **explicitly modelled**;
+* These must be considered during the **design** and **implementation** of a spatial data project;
+* These properties **define** how we **store, query, and access** the data
+* These properties define how we **manage database consistency**;
+* **Loading data** from common spatial datasets must consider these properties explicitly, too;
+
+We will base the design of this course on the a number of theories. Importantly, the core theoretical concepts of spatial information @kuhn2012core will be discussed.  
+
+We will dwell into:
+
+1. **Modelling** the spatial reality;
+2. **Life cycle of (spatial) data management** (from requirements analysis, through conceptual and logical design, to physical storage design);
+3. Data representations: vectors, rasters, networks, moving objects/trajectories, spatial reference systems
+4. Foundations of **computational geometry, topological analysis, and network analysis** for spatial data management;
+5. **Efficient** data access for analysis, maintenance of **data consistency** and **data quality**.
+
+What you learn will become a foundation stone for your future growth as a spatial data manager, GIS analyst, and more.
+
+We will be designing models, implementing them and interrogating the data through a spatially-enabled Database Management System (DBMS). A DBMS is self-describing systems that allows to maintain important aspects of data consistency and integrity throughout the entire data lifecycle. We will maintain important linkages between  records through explicit references, or via analysis of (spatial) properties. 
+
+Indeed, this ability to store and analyse the spatial location and extent of *things* is the core of this book. There are four things that make a DBMS a *spatial DBMS*:
+
+
+* The ability to store **spatial data types** to capture the location and extent of things in the real world;
+* The inclusion of **spatial analysis methods** to analyse the spatial properties and relationships of these *things*;
+* The **extension of the DBMS query language** to enable to formulate **spatial queries**; and, optionally
+* The inclusion of **spatial access methods** ( indexes) enabling to efficiently execute spatial queries.
+:::
+
+::: {.content-visible when-format="revealjs"}
+
+## Acknowledgment of country {background-color="black"}
+
+The University of Melbourne acknowledges the Traditional Owners of the unceded land on which we work, learn and live: the Wurundjeri Woi-wurrung and Bunurong peoples.
+ 
+We pay respect to Elders past and present and acknowledge the importance of Indigenous knowledge in Engineering education.
+
+We acknowledge that spatial sciences have a tragic colonial history that led to the killing, dispossession and oppression of countless First Nations Peoples, globally. 
+
+First Nations Peoples have also developed sophisticated ways to understand and manage Country, and work with Spatial Information, and this knowledge is essential for a just and equitable progress towards the righting of historical wrongs, and the achievement of a sustainable future [@fund2015sustainable].
+
+## Subject content
+
+* Introduction to **spatial information management** - handling complex information that includes spatial components;
+* Introduction to **fundamental theoretical concepts** of spatio-temporal data modelling, representation, storage, and analysis. 
+* Handling information in **spatial databases** for efficient, consistent analytical results.
+
+
+## Spatial is special
+
+:::{.incremental}
+- Almost anything you can think of has a spatial component – stuff is somewhere;​
+- Many people forget that – this will be your career advantage!​
+- The spatial component of data reveals peculiar elements of their relationships​
+- Spatial problem solving requires people who understand databases AND can think spatially.​
+- Spatial data require special handling;
+:::
+
+## Spatial analytical applications
+
+![Aurin.org.au - walkability](./figs/intro/fig1.png)
+
+## Geographic Information Science and Systems
+
+* Spatio-temporal data have **specific properties** that must be **explicitly modelled**;
+* These must be considered during the **entire lifecycle** of a spatial information system;
+* They **define** how we **represent, locate, query, and access** the information;
+* We build on the foundations of **computational geometry, topological analysis, and network analysis** 
+* These properties define how we **manage data consistency**;
+* **Loading data** from common datasets must consider these properties explicitly.
+
+
+## What do spatial databases bring
+
+::: {.incremental}
+* The ability to store **spatial data types** to capture the location and extent of things in the real world;
+* The inclusion of **spatial analysis methods** to analyse the spatial properties and relationships of these *things*;
+* The **extension of the DBMS query language** to enable to formulate **spatial queries**; and, optionally
+* The inclusion of **spatial access methods** ( indexes) enabling to efficiently execute spatial queries.
+:::
+
+<!--
+::: {.content-visible when-format="revealjs"}
+## Activity: What course are you studying?
+
+::: {.callout-tip}
+Go to [pollev.com/martintomko167](https://pollev.com/martintomko167)​
+:::
+-->
+
+## Next: [Subject organisation](organisational_aspects.html)
+
+## Index Slide {background-color="palegreen"}
+
+- Week 1: [Subject organisation](organisational_aspects.html), [Spatial Data Modelling](10_spatial_data_modelling.html)
+- Week 2: [Requirements Analysis](11_requirements_analysis_short.html), [Conceptual Modelling](12_conceptual_model_short.html)
+- Week 3: [Logical Modelling](13_logical_model_short.html), [Maintaining Integrity](13b_maintaining_integrity.html), [Project Brief](11s_projectbrief_reqssummary_slides.html)
+- Week 4: [Physical Modelling](13c_physical_model.html), [Spatial Data Representations](14_spatial_data_representation.html)
+- Week 5: [Spatial Reference Systems](15_spatial_ref_systems.html), [Spatial Transformations](16_srs_transformations.html)
+- Week 6: [Geometries](17_geometries.html), [Querying Spatial Data](20_querying_spatial_data.html)
+- Week 7: [Geometrical Analysis](21_geometrical_analysis_short.html), [Topological Analysis](22_topological_analysis_short.html)
+- Week 8: [Network Analysis](23_network_analysis.html)
+- Week 9: [Raster Analysis](24_raster_analysis.html)
+- Week 10: [Efficient Data Analysis](30_efficient_data_querying.html), [Space Driven Indexing](31_space_driven_indexing.html)
+- Week 11: [Object Driven Indexing](32_object_driven_indexing.html), [Advances in Spatial Data Management](40_advances_spatial_data_management.html)
+- Week 12: Project presentations
+
+## References {background-color="lightYellow"}
+
+
+
+
+
+:::
+

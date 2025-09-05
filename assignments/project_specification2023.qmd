@@ -1,0 +1,73 @@
+# Project specification: Drone Management Database for Universities
+
+## Project Brief
+
+The University is expanding its use of drones for research, in particular for the acquisition of imagery for spatial data analysis and for multimedia production. Thus, drones equipped with a variety of sensors (e.g., RGB cameras, Lidar, thermal cameras) are flown by university staff. The University requires a database system that would enable to manage all drone-related information management for compliance, monitoring, and supporting drone activity planning. 
+
+
+Your task is to develop a database implemented in the Postgres/Postgis database management system only, using PGAdmin (or equivalent SQL client) and possibly QGIS as clients used to interact with the databse and (where applicable) visualise results of database interactions. 
+You will demonstrate the functionality on data for Victoria.
+
+### Adherence to CASA rules
+
+In its drone (Unamnned Aerial Vehicle, UAV) operation, the University must adhere to all the regulations for flying drones specified by the Civil Aviation Safety Authority ([CASA](https://www.casa.gov.au/about-us/who-we-are/about-casa)). These are succinctly summarised in the 12 rules here:
+
+![Casa rules](/figs/assessment/know-your-drone-flying-for-fun.png)
+
+Any and all flights conducted by University employees and with University equipment must follow CASA rules. Therefore, a drone flight plan must be lodged for each flight. A flight plan is the planned (spatial) path that the drone will fly along when collecting imagery data ( whether flown autonomously, or piloted by pilot) (see [project resources](./project_resources.qmd) ). This plan must be automatically validated against the spatial data held in the database, providing a canonical database of critical infrastructure that the flights must avoid (as per CASA rules), or boundaries within which the drone may operate. 
+
+- Given a flight path plan, automatically determine whether this path can be executed according to CASA's rules. For visibility constraints, you can decide whether you apply a simple heuristic (e.g., maximum visible distance), a more advanced heuristic, or advanced analysis over a Digital Elevation Model (**Bonus**). This should be discussed in the documentation;
+- Given a flight plan, determine whether the pilot must be a university certified pilot (i.e. employee), or can be a pil;ot in training or a student (only allowed to fly on University properties);
+- University pilots fly missions in all parts of Victoria, and thus have to drive to the sites. For any flight, determine the shortest route (by car) along the Victorian road netwrok to get to the a selected drone mission start point (could be any point along the closed path of the flight, or a point you select), from the University central campus in Parkville (you can use any of the main University entrances as start point).
+- For any flight, the system should be able to compute the max and min elevation (above sea level) of the flight, as well as difference in elevations (total ascent and total descent in metres) along the flight path. Note that the operator must keep the drone at least 15m above ground and below the sensor or CASA max height constraint above ground (whichever is lower).
+
+### Operator and Equipment Management: 
+
+The University further wishes that the system supports operator and equipment management:
+
+- Each operator must be identifiable by their employee number and name, and the database should store their email and phone contacts;
+- Tracking what flight has been undertaken by which operator, and enabling to reveal the history of all flights undertaken by any operator (Name of a close-by named place, date of flight, operator identifiers and contact). 
+- The operators are required to undertake periodic refresher courses, once a year or once every 50 flight hours. The system should be able to identify all operators required to undertake a training in the coming month (30 calendar days). Flight time can be calculated by drone flight speed. Pilots without full qualification (students, pilots in training) can only fly within University property;
+- The database system should store information about all drones, sensors, and batteries. Batteries older than 2 years must be sent for inspection. Sensors should be calibrated yearly;  
+- Each type of sensor has a maximum operating altitude, that should be considered for the flight plan.
+- Any drone allocated for a flight must be able to carry a given battery and sensor without exceeding their maximum payload (total weight), and without exceeding their maximum flight time (determined by the battery);
+- Given a path that _can_ be flown, determine _which_ operators are able to fly it. Note that any operator can only fly one job at any given time. The client would prefer to receive suggestions for the most applicable pilot from the available pilots (i.e., fitting rules);
+
+
+### Additional desiderata
+
+The client desires that the system can be used to:
+
+- Identify the 3 closest hotels to the start point of the flight, for staff accommodation. This is because pilots may have to drive to remote sites in Victoria and will not be able to return to Parkville;
+- Provides staff with a path to the closest hospital/emergency location, from the flight's start point.
+- Data desiderata: all map data can only be stored in either GDA94 or GDA2020. All flight paths are to be inputted in WGS84 (lon, lat, in decimal degrees). The database should handle reprojecting dynamically.
+
+All capabilities should be demonstrated on realistic ( but potentially minimal) data, based on SQL queries delivered with the report (in some cases, a sequence of queries may be needed, such as an INSERT and SELECT statement). You should select one ( or multiple) sites in Melbourne to demonstrate the functionalities, as well as one or multiple sites in a Local Government Area containing one of the University's rural campuses at Dookie or Creswick [campuses](https://www.unimelb.edu.au/filming-on-campus/gallery/rural-campuses).
+
+**Note:** Detailed path planning is not within the scope of the project, and can be demonstrated based on externally computed, or simulated, or manually composed paths. It is assumed that all paths are return to departure paths (closed loops).
+
+**Note:** the CASA rules above apply for non-commercial applications. For commercial applications, the operator (pilot) needs to be licenced as a [remote pilot](https://www.casa.gov.au/drones/get-your-operator-credentials/remote-pilot-licence). Externally contracted research can be considered commercial application. 
+
+### Database access
+
+The University envisages that a variety of database clients will be used for accessing this database, but these are out of scope of this brief. The project team will be required to deliver a database in the Postgres/Postgis databse management system loaded with demonstration data, and demonstrated using basic SQL queries executed from PGAdmin and / or QGIS. The results of spatial queries can be visualised through a connection to QGIS.
+
+Aspects of database user access management are out of scope for this project.
+
+## Data desiderata
+
+You should specify all data you will need in the proposal.
+
+In your project, you should use data from **at least 3 data sources** (e.g., authoritative source, crowdsourced source (OSM), measured or user provided source (e.g., flight path)). You should use data that include points, lines, and polygons (vector), and a raster dataset (the provided DEM is sufficient). 
+
+You can use datasets from the `spatial` schema, but you **must** also provide some (spatial)data yourself. You can use any data you decide, sourced from outside sources. You should carefully evaluate the data, and limit the size of the dataset to the minimal size required (i.e., extract only the subset of data required, reduce the attributes required, limit the data to the extent of the area of interest - we recommend to pick an entire LGA). 
+
+The subject team will also make a set of commonly used data available to all (Raster DEM, street network). Those should not be duplicated in group schemas, nor substituted by other data.
+
+Some of the data sources you should investigate for your project include:
+
+- [VICMap](https://www.land.vic.gov.au/maps-and-spatial/spatial-data/vicmap-catalogue)
+- [VICMap Lite](https://www.land.vic.gov.au/maps-and-spatial/spatial-data/vicmap-catalogue/vicmap-lite) a reduced, very useful subset of the Vicmap data to consider.
+- [Vic Open Data](https://www.data.vic.gov.au/)
+- OpenStreetMap - especially useful for amenities. 
+- Overture maps data [Overture](https://github.com/OvertureMaps/data/blob/main/README.md#how-to-access-overture-maps-data) (Advanced, btu we may provide some of these data)

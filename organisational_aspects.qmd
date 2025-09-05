@@ -1,0 +1,152 @@
+# GEOM90008 Subject Overview
+
+## Learning objectives
+:::{.incremental}
+
+* **Associate** the value of spatial information to digital infrastructure management;
+* **Evaluate** fundamental data structures and analysis procedures associated with spatial information;
+* **Apply** the database design process to manage information about infrastructure data;
+* **Combine** advanced skills in design and use of a spatial database supported by a GIS on a complex project;
+* **Demonstrate** professional skills in ethics and sustainability, communication, and teamwork.
+:::
+
+## Practical skills
+
+:::{.incremental}
++ **Extensive group project**, along its **entire lifecycle**:.
+    - **Requirements analysis:** as specified by a *client* (distill necessary capabilities of a spatial management system);
+    - **Conceptual and logical modelling:** designing a database for the project and maintain consistency of the data;
+    - **Sourcing, processing and ingestion of data:** identification and ETL of the data into the PostGIS database;
+    - **Analysis of the data:** formulate queries realising the requirements.
++ **Hands-on spatial SQL:** maintain the data using the state-of-the-art PostGIS database and a GIS frontend (QGIS).
+:::
+
+## Team {.scrollable .smaller}
+
+::: {layout="[[10,10],[10,10]]"}
+
+![Martin - coordinator](./figs/subjectspec/martin.png){fig-align="left"}
+
+![Alan - Senior Tutor](./figs/subjectspec/alan.jpg){fig-align="left"}
+
+![Thulasi](./figs/subjectspec/thulasi.png){fig-align="left"}
+
+![Hamid](./figs/subjectspec/hamid.png){fig-align="left"}
+:::
+
+<!--
+## Tell me about you
+
+:::{.callout-tip}
+Go to [pollev.com/martintomko167](https://pollev.com/martintomko167)​
+:::
+--> 
+
+<!--
+## Tell me about you and databases…​
+
+:::{.callout-tip}
+Go to [pollev.com/martintomko167](https://pollev.com/martintomko167)​
+:::
+-->
+
+## Students
+
+![N=100](./figs/subjectspec/stats.png){fig-align="left"}
+
+## Assessment
+
+Full details are on the [subject website](https://tomkom.pages.gitlab.unimelb.edu.au/spatialdatamanagement/)
+
+:::{.incremental}
+1. **A1 [Individual, Hurdle]:** Documentation of a self training excercise
+2. **A2 [Group]:** Project design proposal
+3. **A3 [Individual]:** Spatial data querying
+4. **A4 [Individual]:** Midsemester Quiz, in person, in classroom (lecture)
+5. **A5 [Group]:** Presentation
+6. **A6 [Group, Individual reflection]:** Project report and implementation
+:::
+
+## Timeline
+
+![](./figs/subjectspec/timeline.png){fig-align="left"}
+
+## Plagiarism
+
+*“We expect that when a student turns in work for assessment that it is the independent work of that student, it is written by that student, and they have written it in their own words. In most cases, copied assignments will be given a zero grade for the piece of work for both parties: if A copies B's assignment, both A and B will get zero. Assignments copied in whole or large part from books or articles will receive a zero grade.”*
+
+[Academic honesty - UoM](https://academichonesty.unimelb.edu.au/advice-for-students​)
+
+## Groups
+
+Form your groups of 4 students from the same Practical in the next 2 weeks! 
+
+Please, see the Group work policy details in the Canvas modules.
+
+## Format
+
+- I will ask you for **frequent feedback** during the lectures and practicals;
+- **Experiment**. If you have a problem, **say** so, **search** for a solution and **tell** us all! 
+- **Ask**. If we don’t know, we will suggest how to search for it, and **discuss** the solution. 
+
+## Learn to solve problems
+
+- Think spatially
+- Break big problems into smaller problems;
+- Look for common patterns and approaches;
+- Look for help in documentation and on the web;
+- Help each other;
+- When stuck: ask 🙂
+
+## Reading
+
+- This is a Masters level course – you MUST learn to read and understand research literature;
+- The field moves fast, and books cannot capture it all in a timely manner.
+- I will adapt to the level and the interests of the group;
+- I will provide, throughout the course, some original papers that relate to the content, and will expect that you read and understand them.
+
+## Main resources
+
+- Elmasri and Navathe (2016 - or earlier editions): **Fundamentals of Database Systems**, 7th edition, Pearsons, 1272 pp.
+- Worboys and Duckham (2004) **GIS: A computing perspective**, second edition, CRC Press, ISBN: 0415283752. (Covers spatial databases and spatial information more generally.) 
+- Rigaux, Scholl, and Voisard (2002) **Spatial databases: With application to GIS**, Morgan Kaufmann, ISBN: 1558605886. (More detail specifically on spatial databases.)
+
+## Tools
+
+We will use Postgres and QGIS
+
+:::{.incremental}
+- The major Free and Open-Source relational spatial database and GIS system
+- Highly efficient;
+- Standard compliant;
+- Well documented;
+- Very popular in the industry;
+- Available on most platforms – transferrable skill.
+:::
+
+## PostGIS server
+
+- Connection parameters – see Practicals. Use your unimelb login name and password.
+- If you have just enrolled, try. If you cannot access the DB, let me know ASAP!
+- Use VPN if off campus! (search unimelb help for instructions)
+- Use any SQL client for querying – pgAdmin IV is recommended, other possible too.
+- We will use QGIS for data visualization – it is a PostGIS client on its own!
+
+## Web resources
+
++ Postgis documentation is your first port of call
+    - http://postgis.net/documentation/ 
+    - Check what version of Postgis we are using:
+
+        ```SELECT PostGIS_full_version();```
++ Part of this course is to learn how to search in the documentation. Search before you ask!
+
+## PostGIS (applied books)
+
+- Obe, R., & Hsu, L. (2011). **PostGIS in action**. Manning Publications Co. web: http://www.postgis.us/
+- Corti, P., Kraft, T. J., Mather, S. V., & Park, B. (2014). **PostGIS 2.0 Cookbook**. Packt Publishing Ltd
+
+
+::: {.content-visible when-format="revealjs"}
+## Next: [Modelling](/10_spatial_data_modelling.html)
+:::

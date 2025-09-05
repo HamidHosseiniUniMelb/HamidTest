@@ -1,0 +1,82 @@
+# [A2] Data Management Project – design proposal
+
+## Objective
+
+This assessment covers the three initial stages of database design: requirements analysis, conceptual and logical design.
+This assessment ask you to document the design choices and understanding of the [main project](project_specification.qmd), which you will then realise throughout the semester and document and present in Assessments [5](A6.qmd) and [6](A6.qmd).
+You should read through Assessments [5](A6.qmd) and [6](A6.qmd) to anticipate design needs.
+
+To do this assignment, you will need to undertake a requirements analysis, and conceptually model the database you will be creating. To do so, no technical skills with the database are necessary, but you should immerse yourself in the problem. Try to understand the requirements, maybe what is missing from them, and come up with your own, specific perspective on the problem. Read documents and materials from commercial software that implements something similar. Think and understand the complexities of the tasks from the user perspective. Think of the complexity of managing these data across a large institution. 
+
+This is a group assessment. This assessment should require about 35 hours to complete. See below for report requirements.
+
+## Resources
+
+Check and follow the practicals:
+
+- [Requirements analysis and conceptual design](/practicals/03_requirements_conceptual.qmd)
+- [Logical design](/practicals/04_logical_design.qmd)
+
+These are structured so that if you follow these on a week to week basis, you should be able to complete A2 in time, and to high quality. 
+
+Note that you will need to come with your own interpretation of requirements, complement them with your own reading of Web resources (both those linked in Lectures/Practicals and in resources in the book and from your own search). Do not underestimate the amount of time needed for this assignment.
+
+## Assignment report components
+
+- **Requirements analysis [5 pts]:** Perform and document a requirements analysis, based on the materials supplied. 
+- **Conceptual Database Design [5 pts]:** Translate your requirements analysis into a conceptual design for your database. Include an argued case for choices in case of ambiguities, possibly supported by literature/resources. Well justified extensions to the basic requirements. You must document this design with a well documented ER-model and catalog of entities and their attributes and relationships;
+- **Logical Database Design [5 pts]:** Suggest a logical database design (the design of storage structures required to represent the database modelled in the previous step). Document in detail the choices made, including aspects of database maintenance during the entire life cycle (e.g., maintenance of database integrity based on table normalisation). Provide an easy to navigate specification of the attributes of all envisaged tables (what they mean, what data types they contain, how content may depend on other data);
+- **Outline envisaged data sources [5 pts]:** List and briefly describe the sources of data you envisage to use for filling this database, and what requirements they should satisfy.
+- **Report presentation [5 pts]:** Professional-level formatting, structure and writing style, illustration with diligently cross-referenced figures with meaningful captions, and proper citations/referencing. 
+
+<!--
+## Individual reflection components
+
++ **Individual reflection [10 pts]:** a professional-level, brief and to the point reflection structured along the aspects of (a) Situation, (b) Approach taken to address the situation, and (c) Outcome, for :
+- A **Technical challenge** you encountered, which at this stage of the project would address the Requirements analysis or Conceptual/Logical modelling aspects of the project;
+ - A **Spatial challenge** you encountered, specifically relating to a problem with thinking about the spatial requirements, conceptual modelling of spatial aspects of the project, or relating to the data envisaged;
+ - An **Interpersonal/teamwork challenge** reflecting on your role in the team and contribution, team dynamics and collaboration management, possibly including your own or the team's individual strengths and weaknesses. 
+-->
+
+Detailed rubric for the group report is presented below (**25 pts total**):
+
+|     Criteria    	|     Exceeds expectations (4 to   5 pts)    	|     Meets expectations (3 to 4   pts)    	|     Approaches expectations (2 to 3   pts)    	|     Below expectations (1   to 2 pts)    	|     Insufficient (<=1 pt)    	|
+|---	|---	|---	|---	|---	|---	|
+|     **Requirement   Analysis**    	|     The   requirements are thoroughly identified and described in detail for the project design. The requirements analysis appropriate for the problem domain and supports implementation in a database system.     	|     The requirements are identified and described adequately, with only minor uncertainties. The requirement analysis can be adapted with minor changes for subsequent implementation.    	|     Most of the requirements are identified and described in the analysis while others are neglected or barely described. The requirement analysis needs a revision to   make a complete conceptual design possible.    	|     The requirements analysis and their description do not reflect the necessary depth to support the conceptual and logical database design. The requirements analysis needs a major revision before proceeding to implementation in a spatial database management system.    	|     The   requirement analysis is flawed and misleading and does not satisfy the  necessary requirements of the project. Needs a critical revision before proceeding to implementation in a spatial database management system.    	|
+|     **Conceptual Design**    	|     Clear and well-defined conceptual design for the spatial database. Includes a   complete list of appropriate entities, relationships, attributes, and constraints with their definitions, presented along with a thorough ER diagram. All notation is well documented.   	|     Solid   conceptual design including a list of necessary entities, relationships,   attributes, and constraints. Minor revision is needed to improve the current   conceptual design, some entities may not be well specified, or aspects of the diagrammatic representation are not specified ( e.g., notation).    	|     A conceptual design including most of the required entities,   relationships, attributes, and constraints. A revision of the design is   needed to improve the conceptual design, and details of the specifications are unclear or ambiguous, incl in the formalisation of the ER diagram.     	|     Incomplete conceptual design with partial coverage of essential entities,   relationships, attributes, and constraints. Formalisation in ER diagram is not thorough, and many definitions of the concepts are incomplete, vague, or missing. A major revision is needed to   improve the current design. |  The conceptual   design is not appropriate, missing several necessary entities, relationships,   attributes, and constraints. Needs a careful re-design and significant   changes to create a proper conceptual design for the spatial database. The formalisation is weak, and little effort is evident of complementing the requirements analysis with in-depth thinking.   	|
+|     **Logical Design**    	|     Logical   design for the spatial database that is consistent with the conceptual   design and the diagrams. the specification of  appropriate tables, fields and relationships that support the project requirements. The design choices are justified and   demonstrated an outstanding understanding of the spatial data concepts. Queries to create the required schemas are suggested, and how these assist with the maintenance of the necessary constraints (form the requirements analysis) are documented.    	|     Logical   design for the spatial database that is consistent with the conceptual   design. The design includes the necessary tables, fields, and relationships to support most of the project requirements, with adequate specifications of constraints. The design choices are discussed   and justified and demonstrated a solid understanding of spatial data modelling.    	|     Logical   design for the spatial database that is broadly consistent with the conceptual   design. The design includes most of the necessary tables, fields, and   relationships to support some of the project requirements. The design choices   are somehow discussed and demonstrated an understanding of the spatial data   concepts, but ambiguities about remain that need to be resolved before the storage structures can be created.    	|     Created a logical   design for the spatial database that is inconsistent between the conceptual and logical designs, and misses aspects of the requirements. Misses some of the necessary tables,   fields, and relationships. The design choices are vaguely discussed. A clear   understanding of spatial data concepts is not evident.    	|     Flawed   and inconsistent logical design for the spatial database. Most of the tables,   fields and relationships are neglected or ill-designed, and would not satisfy the requirements specified in the Project brief. The design choices   are not clearly discussed and justified. A clear understanding of spatial   data concepts is not evident.    	|
+|     **Envisaged Data   Sources**    	|     Identifies   and evaluates appropriate data sources for the spatial database. The data sources   are relevant to the problem domain and can be integrated effectively into the   spatial database. Demonstrates an outstanding understanding of data quality assessment techniques and anticipates on data processing/loading requirements.    	|     Identifies   and evaluates relevant data sources for the spatial database. The data   sources are likely adequate for the project and can be integrated into the   spatial database. Minor changes may be considered to improve the project design.   Demonstrates a solid reflection on data   quality assessment needs and processing.    	|     Identifies   and evaluates some of the relevant data sources for the spatial database. The   data sources are somewhat irrelevant to the project domain. A revision of the   data sources is needed to improve the design. Demonstrates some   understanding of data sourcing, processing, and quality assessment.    	|     Identifies some data sources for the spatial database but misses other datasets that will be required to satisfy the requirements. The data sources are somewhat irrelevant to the project and require further discussion to justify the choices. A major revision of the datasets and data sources is required to proceed to project implementation. Needs to further elaborate on data   sourcing, processing, and quality assessment of the selected data sources.    	|     Has identified   some data sources but misses important sources that are useful for the   spatial database project. Some data sources are not relevant to scope of the   project, and datasets are not specified in detail. A justification on choices to select data sources is missing. A critical revision is required to include necessary data sources. Needs to   elaborate on data acquisition, processing, quality assessment of the selected   data sources.    	|
+|     **Report   Presentation**    	|     Professional and effective presentation of the project design. The report follows a standard technical report structure and clearly describes the brief (project requirements) and   design decisions. Includes appropriate visual aids such as diagrams, tables, possibly maps to support the text. Uses attributions and references to all sources.    	|     Presents the spatial database design project in a report that follows a standard technical   report structure and describes the project requirements and design decisions, using an appropriate writing style. Includes most necessary visual aids such as diagrams, tables and possibly maps to   support the text. Attributes external sources and references without flaws. |    Presents the project design in a report with minor structural issues that require revision to meet professional standards of a technical report. Includes some visual aids (diagrams, tables or maps) to support the  text. Needs a revision for the visual aids to improve the report quality. Attribution of sources and referencing has minor flaws.   	|     Presents the project design project in a report with major structural issues. requiring a major revision to meet professional standards expected from a technical report. Would benefit from using more/better presented visual aids such as diagrams, tables and maps to  support the text. Lacks adequate attribution of external resources, and has incomplete referencing. Requires a major revision to improve the report quality.    	|     The report   requires significant improvement in terms of readability and structure to meet professional requirements. A   critical revision is necessary to address major structural issues. Lacks adequate, well presented visual aids such as diagrams, tables, and maps that would enhance the understanding of the report's content. Requires a major revision for the   visual aids to improve the quality of the report. Lacks attribution of external sources and referencing of materials.   	|
+
+<!--
+The assessment of the individual reflection will be assessed based on the following rubric (**10 pts total**):
+
+|     Criteria    	|     Outstanding (8 to   10 pts)    	|     Deep, broad and critical reflection (6 to 8 pts)    	|     Balanced reflection (4 to 6   pts)    	|     Descriptive but shallow (2 to 4 pts)    	|     Weak (<=2 pts)    	|
+|---	|---	|---	|---	|---	|---	|
+|     **Individual   Reflection**    	|     Highly reflective   response. Demonstrates the ability to critically consider and assess own contributions to the project by reflecting on challenges, reflecting on strategies that enabled to resolve them, and the outcomes achieved, including learning for the future incl. self-development.    	|     Reflective   response. Considers and attempts to assess challenges, approaches taken and results achieved.   	|     Somewhat reflective response. Tends to describe rather than reflect on challenge, the reflection on the appraoch taken is somewhat shallow and it is not clear how the outcomes inform change in future behaviour.   	|     A reflection on individual challenge during the undertaking of the task is not evident, and the outcomes and not supported by sufficient ellaboration on the approach taken. Little to no reflection on learnings for the future. 	|     A reflection on  the challenges, approaches and outcomes along the three kinds of challenges is missing or incomplete. The description of individual learning/growth is either unconvincing or lacking.    	|
+-->
+
+## Submission guidelines
+
+A **report** of a maximum of 6 pages per group (exclusive of appendices for the Conceptual ER diagram and data dictionary/specification in the Logical analysis step) as **a pdf** file (25 pts total)
+<!--2. A separate submission (Assignment 2.2 in Canvas) of **a 1-page self-reflection** *per individual student* (10 pts). -->
+
+## Addenda
+
+### Suggested Project proposal/ requirements analysis document elements
+
+**Note**: Not all proposals need to have all this content.
+
+1. Project Name
+2. Project Team
+3. Summary of requirements
+    1. Project rationale - needs/reason for the DB, project objectives
+    2. Project scope (what this is to do, what this will not do)
+    3. Anticipated uses and user types
+    4. Data access and use ethical considerations, including aspects of data sovereignty 
+4. Conceptual design of the database
+    1. ER Data Model (can be in Appendix)
+    2. Resulting fully specified logical model of relations (can be in Appendix for the full detail)
+    2. Data Model Documentation (incl legend, symbols, acronyms) (can be in appendix)
+5. Supported functionality
+6. Anticipated data and sources of the data.

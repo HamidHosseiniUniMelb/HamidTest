@@ -1,0 +1,270 @@
+# [L6a] Vector Geometries
+
+::: {.content-visible when-format="revealjs"}
+## Learning objectives {background-color="lightPink"}
+
+- You will understand the complexities of representing vector geometries in GIS (in 2D)
+- You will thoroughly appreciate what holes in polygons are, and what geometry collections are;
+- You will be able to explain the concepts of simple geometries, and of valid polygons;
+- You will understand how input data validation can be ascertained in GIS systems, incl in PostGIS.
+:::
+
+## Geometries: Vector representation
+
+::: {.incremental}
+- Geometries consisting of vertices anchored to some coordinate system;
+- Linear (or potentially circular arc) interpolation between vertices;
+- Geometries do not occupy the entire space (*object* conceptualisation of the world);
+- Can be of 0, 1, 2, 3, 4D…;
+- Representation, manipulations and analysis grounded in principles of computational geometry.
+:::
+
+## Recap on fundamental maths for geometry
+
+### Point/Vertex
+
+A point in the Cartesian plane $\mathbb{R}^2$ is associated with a unique pair of real numbers $a = (x,y)$ measuring distance from the origin in the $x$ and $y$ directions. It is sometimes convenient to think of the point $a$ as a vector.
+
+:::{.content-hidden when-format="revealjs"}
+- Scalar: Addition, subtraction, and multiplication, e.g.,
+    $(x_{1},y_{1})-(x_{2},y_{2})=(x_{1}-x_{2},y_{1}-y_{2})$
+- Norm: $||a|| = \sqrt{(x^2 + y^2)}$
+- Distance: $|ab| = || a-b||$
+- Angle between vectors: 
+    $\cos \alpha = \displaystyle\frac{x_{a}x_{b}+y_{a}y_{b}}{||a||\cdot||b||}$
+:::
+
+![](./figs/2_part/21_geometrical_analysis/point.png){width="30%"}
+
+### Lines
+
+Lines can be defined as **point sets**.
+
+:::{.content-hidden when-format="revealjs"}
+- The *line* incident with $a$ and $b$ is defined as the point set
+ 
+    $\lbrace{\lambda a+ (1-\lambda)b\mid\lambda \in \mathbb{R}\rbrace}$.
+- The *line segment* between $a$ and $b$ is defined as the point set 
+ 
+    $\lbrace{\lambda a+ (1-\lambda)b\mid\lambda \in [0,1]\rbrace}$.
+- The *half line* radiating from $b$ and passing through $b$ is defined as the point set 
+ 
+    $\lbrace{\lambda a+ (1-\lambda)b\mid\lambda \geq 0\rbrace}$.
+:::
+
+![](./figs/2_part/21_geometrical_analysis/line.png){width="80%"}
+
+### Polylines and polygons
+
+:::{.content-hidden when-format="revealjs"}
+- A *polyline* in $\mathbb{R}^2$ is a finite set of line segments (called edges) such that each edge end-point is shared by exactly two edges, except possibly for two points, called the *extremes* of the polyline. 
+    - If no two edges intersect at any place other than possibly at their end-points, the polyline is *simple*. 
+    - A polyline is *closed* if it has no extreme points. 
+- A (simple) *polygon* in $\mathbb{R}^2$ is the area enclosed by a simple closed polyline. This polyline forms the *boundary* of the polygon. Each end-point of an edge of the polyline is called a *vertex* of the polygon.
+    - A *convex* polygon has every point *intervisible*
+    - A *star-shaped* or *semi-convex* polygon has at least one point that is intervisible
+:::
+
+![](./figs/2_part/21_geometrical_analysis/polygon_vs_polyline.png){width="80%"}
+
+:::{.callout-note} 
+**Note:** Polyline and LineString are interchangeably used terms.
+:::
+
+
+### Simple vs non-simple geometry
+
+**Jordan curve theorem:** In a plane, a simple closed curve divides the plane into an **interior** and an **exterior**.  
+
+:::{layout-ncol="2"}
+![Inside and outside](./figs/1_part/16_spatial_data_model/jordan_curve.png){width="25%"}
+
+![Geometry with a hole](./figs/1_part/16_spatial_data_model/jordan_curve_hole.png){width="25%"}
+:::
+
+:::{.content-visible unless-format="revealjs"}
+This has profound implications, e.g., for non-self-intersecting geometries. 
+:::
+
+:::{.content-visible when-format="revealjs"}
+
+## {.unnumbered}
+
+:::{.callout-tip} 
+## Exercise: Simple polygon
+
+Consider a non-simple polygon (with a self-intersecting boundary). Can you decide what is inside/outside?
+:::
+
+:::
+
+![](./figs/2_part/21_geometrical_analysis/simple_vs_nonsimple.png){width="65%"}
+
+## Representing and storing geometries
+
+PostGIS, QGIS and (to some extent) ArcGIS broadly follow the OGC Simple Features specification.
+
+- Geometry type
+- Dimensionality (2, 3 or 4 dimensions)
+
+### Geometry types
+
+![](./figs/2_part/21_geometrical_analysis/single_vs_multi_geometry.png){width="65%"}
+
+A Multi... geometry is a set of geometries where the **whole set** is treated a **single** feature.
+
+There is also the GeometryCollection geometry type for a set of geometries of *any* type.
+
+:::{.content-hidden when-format="revealjs"}
+A Multi... feature or GeometryCollection still corresponds to a single row of attribute values. Thus, the whole set of member geometries represents one object. 
+
+Consider the country of Australia, that includes all the thousands of islands, including Tasmania. Conceptually, this is still a single feature made up of many polygons – a MultiPolygon.
+:::
+
+:::{.content-hidden unless-format="revealjs"}
+### {.unnumbered}
+::: {.callout-tip}
+## Discussion
+
+- Come up with real-world cases (one for each) that you would represent as a MultiPoint, MultiLineString (MultiPolyline), MultiPolygon;
+    - When would this be useful?
+    - What would be the drawbacks of representing a given entity’s footprint as a multi-geometry?
+
+<!-- ![](./figs/2_part/21_geometrical_analysis/discuss_with_neighbor.png){width="50%"} -->
+:::
+:::
+
+### Example: Polygon with nested holes
+
+:::: {.columns}
+
+::: {.column width="50%"}
+![](./figs/2_part/21_geometrical_analysis/nested_holes.jpg){width="80%"}
+:::
+
+::: {.column width="50%"}
+```
+Polygon[[outer][hole:taal, [hole:volcano, [hole:lake]]]]
+```
+
+- Is this ok?
+- OGC Simple Features: no nested holes!
+- You have to use MultiPolygon
+:::
+
+::::
+
+
+### Serialisation of geometries
+
+Interoperable encodings of geometries in text or binary enable transfer between systems, e.g. `WKB` Well Known Binary, or `WKT` Well Known Text:
+
+- Point: `POINT (70 30)`
+- Polyline: `LINESTRING (30 10, 20 50, 60 70)`
+- Polygon: <code>POLYGON **[(]{style="color:red;"}(**30 10, 20 50, 60 70, 30 10**)[)]{style="color:red;"}**</code>
+- Polygon with hole: <code>POLYGON **[(]{style="color:red;"}(**30 10, 20 50, 60 70, 30 10**), (**30 15, 25 45, 55 65, 30 15**)[)]{style="color:red;"}**</code>
+- MultiPolygon: <code>MULTIPOLYGON **[(]{style="color:#00a040"}[(]{style="color:red"}(**40 40, 20 45, 45 30, 40 40**)[), (]{style="color:red"}(**20 35, 10 30, 10 10, 30 5, 45 20, 20 35**), (**30 20, 20 15, 20 25, 30 20**)[)]{style="color:red;"}[)]{style="color:#00a040"}**</code>
+
+### Dimensionality
+
+- By default, geometries have 2 dimensions 
+    - `POINT (-144.2 37.6)`
+    - Interpretation depends on the SRS. Typically (x,y), but the SRS can define its own *axis order*
+- Can add a **Z dimension**, typically representing **elevation**
+    - `POINT Z (-144.2 37.6 232.1)`
+- Can also add an **M dimension**, often representing **chainage** ("linear referencing") or **time**
+    - `POINT M (-144.2 37.6 68.6)`
+- Can have both Z and M for a 4D geometry
+    - `POINT ZM (-144.2 37.6 232.1 68.6)`
+
+## Keeping geometry data consistent: Validation and homogenisation
+
+### Validity of geometries
+
+- We will from now on assume that **all** geometries we deal with are **simple**;
+- We will also assume that **polygons** are **valid**, an additional constraint:
+    1. No hole outside of a polygon, or a polygon made of a non-simple polyline as boundary
+    2. Boundary rings (external, internal boundaries) should not intersect (but may be tangent)
+    3. Interior rings must be fully contained in the exterior rings
+    4. No cut lines
+- Test using `ST_IsValid`
+
+:::{.content-hidden unless-format="revealjs"}
+### Invalid polygons
+:::
+
+![Examples of invalid polygons](./figs/2_part/21_geometrical_analysis/invalid_polygons.png)
+
+### Validation upon import
+
+- Extremely important step during ETL - importing data from unknown sources;
+- Invalid geometries can break spatial analysis, and it is tedious to fix data.
+- Check your data:
+    - `ST_IsSimple(geom)`
+    - `ST_IsValid(geom)` and `ST_IsValidReason(geom)`
+    - `ST_MakeValid(geom)` (and the expert trick: `ST_Buffer(geom, 0.00001)`)
+
+- Use constraints upon loading data:
+
+```sql
+ALTER TABLE public.my_valid_table
+    ADD CONSTRAINT enforce_valid_geom CHECK (ST_IsValid(geom));
+```
+
+### Consistent winding order
+
+Store all geometries in the same winding order (e.g., **Left hand rule**):
+
+- The inside of a Polygon should be consistently to one side of the boundary (Left/Right hand). 
+- Well formed geometries should have external boundaries with vertices in a consistent, (counter)clockwise order 
+- Note: Different tools use different conventions. OGC Simple Features standard: LHR
+
+![](./figs/2_part/21_geometrical_analysis/left_hand_rule.png){width="20%"}
+
+:::{.content-hidden when-format="revealjs"}
+### Differences between software tools
+
+![](./figs/2_part/21_geometrical_analysis/multipolygon.png){width=30%}
+
+BLUE and RED are each valid Simple Feature Polygons.
+
+OGC Simple Features: `POLYGON (Outer Ring Counter-Clockwise, Inner Ring Clockwise)`
+
+ESRI: `POLYGON (Outer Ring Clockwise, Inner Ring Counter-Clockwise)`
+
+![](./figs/2_part/21_geometrical_analysis/difference_between_software.png)
+
+:::
+
+### Nesting of rings in polygons
+
+OGC Simple Features Specification: Polygons can only have *one outer ring* in *counter-clockwise* winding order. Optional holes can be one or more *clockwise* rings. Due to the single outer ring specification, nested structures have to be represented as MultiPolygon. 
+
+```
+MULTIPOLYGON (
+    (Outer Ring Blue CCW, Inner Ring Blue CW),
+    (Outer Ring Red CCW, Inner Ring Red CW)
+)
+```
+
+
+## Resources
+
+**GeometryType in PostGIS (OGC)**
+
+- <http://www.opengeospatial.org/standards/sfs>
+
+
+## Summary {background-color="lightPink"}
+
+- You have a full appreciation for the mathematical foundations of vector geometry representation;
+- You understand the meaning of terms such as simple geometry, valid polygon, geometry collection, and polygon with a hole.
+- You can outline important constraints on data you may want to work with in a spatial database (e.g., valid, simple, homogenously represented data).
+
+<!-- end slides -->
+::: {.content-visible when-format="revealjs"}
+## Next: [Querying Geometries](/20_querying_spatial_data.html)
+
+## References {background-color="lightYellow"}
+
+:::

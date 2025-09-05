@@ -1,0 +1,151 @@
+# [P9] Raster analysis
+
+## Objectives
+You will understand the basics of raster operations.
+
+As we are more advanced in the semester, this part is only going to provide basic pointers to literature, and you should demonstrate that you are able to read the documentation of PostGIS, and the section on [rasters](https://postgis.net/docs/RT_reference.html). It is highly recommended to follow the tutorial in the [PostGIS workshops](https://postgis.net/workshops/postgis-intro/rasters.html)
+
+:::{.callout-note}
+
+A basic script accompanying the raster practical is [here](/resources/sql/sql07_raster_analysis.sql)
+:::
+
+## 1. Basic raster manipulation
+
+In this practical we will experiment with the rasters in the `spatial` schema. There is a dataset of a 30m DEM for Victoria in `victoria_dem_30m`. This dataset has also separate, lower resolution overviews created, that you can use to undertake analysis faster, or evaluate the impact of resampling: `victoria_dem_30m_o_2`, `victoria_dem_30m_o_4` and `victoria_dem_30m_o_8`.
+
+::: {.callout-tip title="Your Turn"}
+1. Display `victoria_dem_30m` in QGIS. To improve the colour contrast as you zoom in and pan around, go to **Layers** panel > right-click on the raster layer > **Properties** > **Symbology** tab > expand **Min/Max Value Settings** > set **Statistics extent** to **Updated canvas** > click **OK**.
+2. How do `victoria_dem_30m`, `victoria_dem_30m_o_2`, `victoria_dem_30m_o_4` and `victoria_dem_30m_o_8` differ? **HINT:** you may need to zoom in to the level of individual pixels.
+:::
+
+![Raster in QGIS](/figs/practicals/p08_raster_analysis/qgis_raster.png){width="60%"}
+
+### 1.1. Information about raster datasets
+
+::: {.callout-tip title="Your Turn"}
+1. Find the number of rows in the `victoria_dem_30m` table. What do you think each row represents?
+2. Now run the `ST_MetaData` function on each row in the `victoria_dem_30m` table, using the following pattern:
+
+```sql
+SELECT rid, (ST_MetaData(rast)).*
+FROM raster_table;
+```
+
+Does this help you to understand what each row in the raster table represents? Can you identify what is the geographical (ground) extent of each row, and its size in pixels? How many bands does the raster have? What SRS is in use?
+
+3. Investigate additional, band-specific metadata using the `ST_BandMetaData` function:
+
+```sql
+SELECT rid, (ST_BandMetaData(rast)).*
+FROM raster_table;
+```
+
+This provides additional information about the raster, such as the `NODATA` value.
+
+4. By looking at the metadata, verify what is different between `victoria_dem_30m`, `victoria_dem_30m_o_2`, `victoria_dem_30m_o_4` and `victoria_dem_30m_o_8`.
+5. Find the highest elevation in Victoria according to `victoria_dem_30m`. **HINT:** Look at the PostGIS Raster function reference or try a Google search to find appropriate functions.
+:::
+
+### 1.2. Retrieving values of a cell
+
+We will be working only with single-band rasters. 
+
+To find the value of a particular raster cell, we require a query geometry (that may need to be transformed into the same SRS as the raster). Think - is it better to transform the raster, or the geometry?
+
+Once you have a query geometry, you can experiment with the function `ST_Value(rast,geom)` to identify the value of the cell.
+
+::: {.callout-tip title="Your Turn"}
+1. Find the elevation of Mount Dandenong according to the `victoria_dem_30m` raster. **HINT:** Research the coordinates of Mount Dandenong using any tool of your choice.
+2. What if the query geometry results in multiple raster cells? Find the value of the raster corresponding to a line in `carlton_edges` or a polygon in `melbourne_osm_polygon`, say. Can you find the union of the results? You can investigate the *raster to geometry* functions [here](https://postgis.net/docs/RT_reference.html#Raster_Processing_Geometry).
+3. Find a function that does the inverse - for a given value, retrieve the cells (and possibly, their geographic coordinates). Experiment with:
+
+```sql
+SELECT (ST_PixelAsPoints(rast)).*
+FROM raster_table
+```
+and
+```sql
+SELECT (ST_PixelAsCentroids(rast)).*
+FROM raster_table
+```
+:::
+
+### 1.3. Raster clipping
+
+You can "clip" the raster to an area of interest. For example, if you clip the `victoria_dem_30m` raster to a polygon representing the Parkville campus, all pixels outside the polygon would be set to NODATA.
+
+::: {.callout-tip title="Your Turn"}
+1. Try clipping the Victoria DEM to a particular LGA. To check your results, use the technique shown in the "Viewing rasters" section below.
+2. What is the highest elevation on any University campus (`unimelb_campus` table)?
+:::
+
+## 2. Map algebra
+
+If unsure what map algebra is, or the concept of *local, focal, zonal and global* operations, review this week's lecture or online resources.
+
+Some core map algebra operations, such as terrain analysis (slope, aspect, ...) and the reclassify operation, have their own dedicated PostGIS functions. However, if you need to do more, there is a generic Map Algebra function available.
+
+The `ST_MapAlgebra` function is extremely powerful but challenging to use. Its official documentation [[1]](https://postgis.net/docs/RT_ST_MapAlgebra_expr.html) [[2]](https://postgis.net/docs/RT_ST_MapAlgebra.html) is quite technical in nature. Here is my best attempt at a guide:
+
+The `ST_MapAlgebra` function exists in two versions:
+
+- The "expression version" is for local operations.
+- The "callback function version" is mainly used for focal operations (but can be used for local, zonal and global operations if you write your own PL/pgSQL callback function).
+
+Both versions are capable of handling multi-band rasters, but we will ignore this functionality, as we are only working with single-band rasters in this subject.
+
+The "**expression version**" is called as follows:
+
+- For a unary local operator: `ST_MapAlgebra(rast, NULL, 'expression goes here')`
+- For a binary local operator: `ST_MapAlgebra(a.rast, b.rast, 'expression goes here')`
+
+Examples of expressions that can replace `'expression goes here'`:
+
+- Doubling each cell of the raster (unary): `'2*[rast]'`
+- Boolean mask (unary) - return 1 where the input raster > 10, otherwise 0: `'([rast]>10)::integer'`
+- Adding two rasters (binary): `'[rast1]+[rast2]'`
+- **Note**: The expression keywords `[rast]`, `[rast1]` and `[rast2]` never change. So for instance, `[rast1]` always refers to the first supplied raster (`a.rast` in the above example).
+
+The "**callback function version**" is called as follows:
+
+- For a unary focal operator: `ST_MapAlgebra(rast, 1, 'ST_YourChosenCallback(float8[], int4[], text[])'::regprocedure,` `NULL, 'FIRST', NULL, kernelradiusX, kernelradiusY)`
+
+Replace the name `ST_YourChosenCallback` with one of the functions listed under "Built-in Map Algebra Callback Functions" at the [PostGIS Raster Reference](https://postgis.net/docs/RT_reference.html#Raster_Processing_MapAlgebra_Callbacks), such as `ST_Sum4ma`.
+
+`kernelradiusX` and `kernelradiusY` are the "radius" of the moving window/kernel. The actual width of the kernel is `2*kernelradiusX + 1`, and likewise for height. For example, for a 3x3 kernel, these should both be set to 1.
+
+### 2.1. Map algebra problems
+
+As a starting point, a query that doubles the value of every pixel (a unary local operation) would be as follows:
+
+```sql
+SELECT rid, ST_MapAlgebra(rast, NULL, '2*[rast]')
+FROM ...
+```
+
+::: {.callout-tip title="Your Turn"}
+In these problems, visualise your resulting rasters using the process in the "Viewing rasters" section below.
+
+1. On the `victoria_dem_30m_o_8` raster, create a boolean mask raster that contains the value 1 where the elevation is below 500 m, and the value 0 elsewhere.
+2. Apply the "mean" focal operator on `victoria_dem_30m_o_8` using a 5x5 kernel. Comparing your output raster with the original, what visual change do you notice? 
+3. A botanist wants to identify *plateaus* of Victoria. Using `victoria_dem_30m_o_8`, generate a raster to identify land above 1200 m with a slope (`ST_Slope`) less than 4 degrees.
+4. Another botanist is interested in roadside vegetation at different elevations in the `NORTHERN GRAMPIANS` LGA. Generate a raster showing the elevation within 500 m of every road in this LGA, and NODATA elsewhere.
+:::
+
+## Viewing raster query results
+
+Rasters are a highly visual type of data, and you will most likely want to visualise the results. However, you cannot visualise raster-based SQL query outputs in QGIS in the same way as you view vector-based outputs.
+
+As a workaround, you can create a table to store the output of your query. Then visualise your table in QGIS by dragging the view from the **Browser** panel. 
+
+```sql
+DROP TABLE IF EXISTS myraster;
+CREATE TABLE myraster AS
+SELECT rid, ____raster_function_goes_here____
+FROM ...
+```
+
+## Resources
+
+- a wonderful writeup that links raster data storage (outside of database, in contrast to our current data in the spatial schema) and their analysis [https://www.crunchydata.com/blog/postgis-raster-and-crunchy-bridge](https://www.crunchydata.com/blog/postgis-raster-and-crunchy-bridge)

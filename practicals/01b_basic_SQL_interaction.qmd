@@ -1,0 +1,158 @@
+# [P1b] Basic SQL Interaction
+
+:::{.callout-note}
+**If you've never encountered SQL before**, I encourage you to check out the following resources:
+
+- First, [Grok Learning's Intro SQL course](https://groklearning.com/course/intro-sql-1/) - available via your Unimelb login
+- Then continue with the [W3Schools PostgreSQL Tutorial](https://www.w3schools.com/postgresql), starting from the "PostgreSQL LIMIT" page
+
+You could also explore the general [W3Schools SQL Tutorial](https://www.w3schools.com/sql).
+
+There is also a set of introductory SQL queries in the script here: [Intro to SQL](../resources/sql/sql01-2_basicSQL.sql).
+:::
+
+## The SELECT statement
+
+To retrieve data from a database, we use the `SELECT` statement. It is a  powerful statement with a syntax similar to English. It allows you to transform meaningful question you may want to have answered using data.
+
+The basic syntax of the `SELECT` statement is shown below (see the lecture notes or [https://www.w3schools.com/sql](https://www.w3schools.com/sql) for more information; square brackets below indicate optional clauses). 
+```
+SELECT [ DISTINCT ]
+    column_expression1, column_expression2, ...
+    [ FROM ... ]
+    [ WHERE ... ]
+    [ GROUP BY ... ]
+    [ HAVING ... ]
+    [ ORDER BY ... ];
+```
+
+:::{.callout-tip title="Example"}
+Consider this question:
+
+*“Which U.S. states have more than 10 cities with a population over 50,000, and how many such cities does each state have?”*
+
+
+```sql
+SELECT t.state_abrv, count(*) --  lists the abbreviations of the states and count of cities
+FROM spatial.us_cities AS t -- use data from table 'us_cities' in the 'spatial' schema - call it 't'
+WHERE t.pop90 > 50000 -- only list  cities with large populations
+GROUP BY t.state_abrv -- we are grouping the results by state
+HAVING COUNT(*) > 10 -- but only for the states with a count of such cities 10+
+ORDER BY count(*) DESC; -- we order our results by the count of such cities, in descending order
+```
+
+:::
+
+## Overview of available data
+
+When first logging into a new database, it is good to get the overview of the available data. Execute the statement:
+
+```sql
+SELECT * FROM information_schema.tables;
+```
+
+This statement will list all the data tables already available to you in the `geom90008` database. You will start with no tables of your own (no table will have a value of your `username` in the column `table_schema`), but many tables will still be available for you to query in the `spatial` schema. 
+
+::: {.callout-tip title="Your Turn"}
+Use a `WHERE ___ = ___` clause to refine the `SELECT` statement above to:
+
+- show only tables with type `BASE TABLE`
+- show only tables that are in the `spatial` schema
+
+Note that when using PostgreSQL, the value of a string in a `SELECT` statement must be always enclosed using single quotes, e.g., `'value'`
+
+Ask for guidance from the demonstrators if you get stuck at this point. 
+:::
+
+
+## Table description
+
+To get the description of the data available in a specific table, use the following SQL as a template: 
+
+```sql
+SELECT * FROM information_schema.columns WHERE table_name = 'table';
+```
+
+::: {.callout-tip title="Your Turn"}
+Find out what are the columns and data types of the `us_cities` table in the `spatial` schema.
+
+**Note:** You can verify the results, by inspecting the content of the `spatial` schema in the PGAdmin Graphical User Interface (GUI), navigating through the object tree in the left pane.
+:::
+
+### View records of a table
+
+::: {.callout-tip title="Your Turn"}
+Issue `SELECT` statements allowing you to view the records (the rows) of the `us_cities` table: 
+
+- First, select all the records. Use the `*` operator to select all columns.
+- Select **only** the record of the city of Richmond.
+- Select the population (column `pop90`) of the city of Richmond (this is called the *projection* operation).
+:::
+
+::: {.callout-caution title="Answers" collapse="true"}
+Answers:
+
+- `SELECT * FROM spatial.us_cities` (on Wammawatcha you must explicitly name the schema `spatial` as well as the table name. If you do not specify a schema, Wammawatcha uses your personal schema)
+- `SELECT * FROM spatial.us_cities WHERE ...` (you finish the query)
+- `SELECT pop90 FROM spatial.us_cities WHERE ...`
+:::
+
+You *must* prefix an attribute reference with the table name (for example, `us_cities.pop90`) whenever the attribute name appears in more than one table in the FROM clause (to resolve any ambiguities). You may use this format even when the attribute name is unique in the tables you are querying, to be on the safe side.
+
+### Advanced queries
+
+In the previous exercise you have acquired familiarity with the basic SQL command, `SELECT`. In this exercise you will learn additional commands and perform some basic non-spatial data analysis. We will look at nested `SELECT` statements and restrictions in `SELECT` statements. You may need to refer to an SQL syntax guide to help you answer some of the following questions. There are many books on the subject, and the [W3Schools SQL tutorial](https://www.w3schools.com/sql) provides an excellent, simple, and accessible tutorial for all the SQL functions covered in this practical.
+
+These queries will get you to practice ordered display of data in a table, the retrieval of data that meet certain conditions, composite conditions, and queries on the results of previous queries. The syntax of the `SELECT` statement noted earlier should substantially help you here.
+
+::: {.callout-tip title="Your Turn"}
+- List all the US cities in alphabetical order. **HINT:** Use the `ORDER BY` operator.
+- Count the US cities in California with a population of greater than 150000. **HINT:** The state abbreviation for California is CA. You need to use the `COUNT` keyword, and the `AND` keyword to chain conditions.
+- Get the population of the largest city in Texas. **HINT:** Try using the `MAX` operator that applies to a column. The state abbreviation for Texas is TX.
+- Get the name of the city with the largest population in Texas. **HINT:** You will probably need to use a nested `SELECT` query to achieve this. When nesting a `SELECT` query you enclose the entire subquery in parenthesis (brackets). 
+- List the 100 most populous US cities. **HINT:** The "most populous" cities means those with the highest population. There are at least two ways to do this. The simplest can be found by looking closely at the results of describing the table for US cities. Another more complex way is to use the special SQL keyword `LIMIT` in your `SELECT` statement. However, check your answer carefully as you must be certain to order your cities by population before using `LIMIT` to restrict your answer to only those most populous cities. Your list should be sorted in descending order (most populous first).
+- Get the number of different states which contain the 100 most populous US cities. **HINT:** The answer requires the number of different states, so two or more cities in the same state only count once.
+:::
+
+::: {.callout-caution title="Answers" collapse="true"}
+- There are **18** cities in California with a population of greater than 150000.
+- The population of the largest city in Texas is **1630553**. The name of this city is **Houston**.
+- The list of the 100 most populous US cities begins with **New York** (1) and ends with **Newport News** (100).
+- There are **37** different states which contain the 100 most populous US cities.
+:::
+
+### Data entry and join queries
+
+Now we will practice the entry of data, into a table that you define and create on your own, and populate with sample data. Yu will then add and modify the data entries and finally delete (`DROP`) the table. All the queries in the previous exercise concerned the values in a single table (`"us_cities"`). Now we will also practice `JOIN` queries, enabling to answer questions requiring that you relate together information across multiple tables within a single `SELECT` statement.
+
+**Create a new table:** 
+
+::: {.callout-tip title="Your Turn"}
+Create a table `"directory"` containing the name of a `"company"`, `"city"`, `"product name"`, and `"number"` of items sold. Table creation is achieved using the `CREATE` statement. The relation scheme for your table is:
+
+```
+directory(company: VARCHAR(32), city: VARCHAR(32), product_name: VARCHAR(32), no_of_items: INTEGER)
+```
+:::
+
+**Table structure:** Think about the structure of the table. 
+
+::: {.callout-tip title="Your Turn"}
+- What are the `candidate keys` for your new table – what are the attributes (or the unique combination of multiple attributes) that have values that would allow you to uniquely identify any record in the `directory` table?
+- What should be the `primary key` for this table – out of all the combinations of attributes, what would be the preferred, simplest combination that you would choose to uniquely identify any record?
+:::
+
+See how the answers to these questions help you with solving the tasks below:
+
+**Table creation and querying:**
+
+::: {.callout-tip title="Your Turn"}
+- Enter 10 data records for your table. **HINT:** Data entry is achieved using the SQL `INSERT` statement. You can invent whatever data you want, except for the `city` attribute, which must contain only names of cities from the `us_cities` table (at least two different names). You should also have at least two different products sold by at least two different companies. 
+- List the names of products along with the abbreviations for states they are sold in.  **HINT:** this is a join query requiring you to join your new 'directory' table with the `us_cities` table, via the join field `city` on both tables. If you encounter problems, make sure the city names in the `city` column of your new `directory` table are spelled correctly, and are exactly as they appear in the `us_cities` table. 
+- List the total number of sales by state.  **HINT:** this is another join query requiring the use of the `GROUP BY` SQL keywords. 
+- List the total number of products sold by city. This is similar to the previous query.
+- Get the population of the cities where the company that sold most products operates. This requires an extension of the previous query, using a nested `SELECT` statement. 
+- Suppose it is Christmas and one of your companies has just sold a lot of one of your products in a particular city. Use the `UPDATE` statement to increase the number of items sold for that record.
+- Delete the company that sold the least amount of the products from the table. Suppose an underperforming company has be sold. Delete all the records in the table for the company that has in total the lowest number of sales.  **HINT:** Use the SQL `DELETE` statement. This query can be achieved using one nested SQL query!
+- Drop the `directory` table. When you are finished, you should delete the `directory` table using the `DROP` SQL statement. Do this last, as you will lose all the data and the structure after executing this command!
+:::

@@ -1,0 +1,49 @@
+# [A5] Data Management Project – presentation
+
+This assessment gives you an opportunity to present, in a brief pitch to the client, the design choices and realisation (implementation) of your project.
+
+You will record a professionally presented video where you will all -- as a group -- present the essential requirements that you *addressed* in the project, and how these mapped to the implemented spatial database capabilities.
+
+The format is a **3 minute video pitch** - a convincing summary presentation that tells a consistent, cohesive story linking project aims and principal requirements to a demonstration how these are satisfied, possibly noting interesting technical choices. The video needs to be engaging and professionally presented, as if for a client.
+
+**Note:** This needs not be a full, extensive presentation of *all* capabilities ( this will be left for the final report in Assessment A6). These presentations will also allow you to get some feedback before the final report.
+
+This is a group assessment, requiring a 3-minute recorded video (10 points), with an additional 1 minute recorded video of individual reflection (5 points). This assessment should require about 10 hours to complete.
+
+## Assignment video components
+
+-   **Pitch/Story line \[4 pts\]:** Overall quality of the pitch and its story line, focusing on the quality to convince.
+-   **Design choices and capabilities\[3 pts\]:** Exposition of the design choices with appropriate level of detail, explanation of the technical rationale and delivered capabilities;
+-   **Video presentation \[3 pts\]:** professional-level editing, structure, and presentation (visual and verbal).
+
+<!--
+## Individual reflection video components
+
++ **Individual reflection [5 pts]:** a professional-level, brief and to the point reflection on your learning in the project, illustrated on an annecdote/situation of your chosing using the aspects of (a) Situation, (b) Approach taken to address the situation, and (c) Outcome, for :
+ - a **Technical challenge** you encountered, preferrably one of a *spatial* kind, and how you solved it;
+ - the related **individual or teamwork challenge** reflecting on the role team dynamics and collaboration played a role in solving this challenge, and what you learnt from this experience.
+-->
+
+Detailed rubric for the group video (**10 pts total**):
+
+| Criteria | Exceeds expectations (4 to 3 pts) | Meets expectations (3 to 2 pts) | Approaches expectations (2 to 1 pts) | Below expectations (\<=1 pt) |
+|---|---|---|---|---|
+| **Pitch/Story line** | A very high-quality pitch; thoughtfully designed and well-structured story line, linking the project aims, highlighting key requirements and leading to the foundations of the implemented functionality, with an appealing and engaging demonstration of the functionality with exciting additional capabilities. | A good-quality pitch; thoughtfully designed and mostly well-structured story line, linking from the project aims, highlighting most key requirements, with only minor ambiguities how these lead to the foundations of the implemented functionality, followed by a convincing demonstration of the functionality. | An adequate pitch; a clearly designed and structured story line with only minor unclear links between the project aims, missing only on few requirements. Possibly contains ambiguities how requirements lead to the implemented functionality that is demonstrated in a not entirely convincing manner. | An inadequate pitch with a poorly structured story line with major discrepanscies between the project aims and requirements, and delivered capabilities. It is unclear how the requirements lead to the implemented functionality, with a demonstration that fails to demonstrate the capabilities of the implemented database. |
+| **Design choices and capabilities** |  | Clearly argued technical choices, using correct terminology and able to explain complex technical aspects with clarity, with ability to filter excessive detail. | Well argued technical choices, with minor aspects remaining unclear. Presented using mostly correct terminology with adequate judgment of the level of detail needed, with some excessive or insufficient detail for the target audience. | Insufficiently argued technical choices, with major aspects of the proposed solution remaining unclear. Presented using at times incorrect terminology or inadequate judgment of the level of detail needed for the target audience. |
+| **Video presentation** |  | Professional and effective presentation of the project: well-rehearsed; fluid, articulate and succinct presentation, well modulated tone aligned with visual presentation. Combines presenter view and illustrative graphics that complement each other. Equal and meaningful contribution of each team member clearly obvious in both content preparation and delivery. | Mostly effective presentation of the project. Minor issues with fluidity and succinctness and tone. The combination of speaker view or graphics is adequate to maintain engagement and support the communication of technical aspects of the solution. The contribution of team members is somewhat unbalanced in the video. | Ineffective presentation of the project with major issues with fluidity, verbosity and tone. Inadequate combination of speaker view or graphics (either only a narrated powerpoint, or only a speaker view) is inadequate to maintain engagement and/or understanding of the technical aspects. The contribution of team members is unbalanced, showing less than half of the team members. |
+
+<!--
+Rubric for the assessment of the individual reflection video (**5 pts total**):
+
+
+|     Criteria    	|     Outstanding (5 to 4 pts)    	|     Deep, broad and critical reflection (4 to 3 pts)    	|     Balanced reflection (3 to 2   pts)    	|     Descriptive but shallow (2 to 1 pts)    	|     Weak (<=1 pts)    	|
+|---	|---	|---	|---	|---	|---	|
+| **Individual Reflection** | Highly reflective response. Good choice of anecdote demonstrating  the ability to identify a technical challenge situation and critically assess own contributions to group effort, including drawing lessons learnt for future changes in behaviour/approach, and areas for self-development. | Reflective response. Suggests an adequate situation that enables to consider how a technical challenge was addressed and to assess own contribution in the context of a group effort to solve it. | Somewhat reflective response. Describes a situation that is not very specific, and does not reflect on individual role in the team and team dynamics. Only vaguely identifies lessons learnt. | Does not identify a suitable technical challenge/situation on which the relfection is based, and only poorly describes the way it has been solved. Learnings are not embedded in a reflection on team dynamics | A reflection on aspecific technical challenge, its solution and related learning are not not evident, and a relationship with the learnings on individual contriubtion and team dynamics are either unconvincing or lacking. |
+-->
+## Submission guidelines
+
+1.  Upload a single video (media file of a format accepted by Canvas) per group on Canvas;
+<!--2. Upload a separate video for your individual reflections (media file of a format accepted by Canvas). -->
+2. Please, makes sure the videos contains at the very beginning the Group number, group member names and student IDs. Individual reflections should also either be prefixed, or annotated with the speaker's name and student IDs.
+3. Depending on time, we will play a subset of the group videos during the last lecture. 
+4. Group members (unless excused by subject coordinator) must be present to introduce their videos at the last lecture, in person.

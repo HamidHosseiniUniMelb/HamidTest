@@ -1,0 +1,246 @@
+# [Extra] Introduction to Databases
+
+## Learning objectives {background-color="lightPink"}
+
+- Introduce databases, and database management systems (DBMS);
+- Discuss the properties of database systems and link to spatial DB needs;
+
+## Common types of databases
+
+:::{.incremental}
+- Commercial/Accounting databases: Store customers, transactions, ...
+- Image databases: store images and their metadata (cultural heritage, biosciences, X-ray)
+- Text databases and indexes: support search engines
+- Engineering databases: store Building Information Models, Asset Management/Facility Management data (AM/FM)
+- **Spatial database:** store spatial and non-spatial data. Fundamental to support Spatial Data Science and Digital Infrastructure Engineering
+:::
+
+::: {.content-visible when-format="revealjs"}
+## Example - Restaurant data management
+
+### Nutty nuggets [@worboys2004gis]
+
+:::: {.columns}
+::: {.column width="40%"}
+:::{.incremental}
+- **“Nutty Nuggets”:** Vegetarian Fast Food Restaurant
+- **Phase #1**
+    - Simple menu
+    - A list of meals
+:::
+:::
+
+:::{.column width="60%"}
+![](./figs/1_part/10b_introduction_DBMS/nutty.png){width="80%"}
+:::
+
+::::
+
+### Nutty nuggets [@worboys2004gis]
+
+- **Phase #2**
+    - Stock inventory
+    - Relationship between stock and price
+
+![](./figs/1_part/10b_introduction_DBMS/nutty_nuggets2.png){width="50%"}
+
+:::
+
+
+### Nutty nuggets: Problems with #1 and #2
+
+:::{.incremental}
+- **Integrity**: Delete a supplier without deleting their products
+- **Interdependence**: Data and the software are tightly coupled
+- **Security**: Cook can delete a menu item, Sommelier can look at personal data of the cook.
+:::
+
+### Nutty nuggets: Phase #3 - Database
+
+:::: {.columns}
+::: {.column width="50%"}
+- **Integrity**: Rules and Constraints
+- **Independence**: Data separated from operations (access, storage)
+- **Security**: Access control
+- ...and more!
+:::
+
+::: {.column width="50%"}
+![](./figs/1_part/10b_introduction_DBMS/nutty_nuggets2.jpg){width="70%"}
+:::
+::::
+
+## Pros of a Database
+:::{.incremental}
+- Persistent storage of data and their structure (Self-describing)
+- Data Integrity over data lifecycle
+- Security and user management
+- User Views
+- Data Independence
+- Support for concurrency
+- (possible) Support for distributed storage
+- User interaction through a query language or interface
+- High performance
+:::
+
+## Database Systems - Terminology
+
+![Database terminology](./figs/1_part/10b_introduction_DBMS/db_terminology.png){width="80%"}
+
+### Schemas
+
+:::: {.columns}
+::: {.column width="50%"}
+- **External schema:** Partial view of the database for a particular application
+- **Logical schema:** User-oriented data representations
+- **Internal or physical schema:** How the data are physically stored in the database
+:::
+
+::: {.column width="50%"}
+![](./figs/1_part/10b_introduction_DBMS/data_abstraction.png){width="100%"}
+:::
+::::
+
+## Elements of a DBMS
+
+:::: {.columns}
+::: {.column width="40%"}
+![](./figs/1_part/10b_introduction_DBMS/elements_of_dbms.png){width="80%"}
+:::
+
+::: {.column width="60%"}
+1. **Query compiler:** parses, analyses and compiles the query into executable code
+2. **Query optimizer:** finds efficient execution plan
+3. **Constraint enforcer:** enforces integrity constraints
+4. **Runtime DB processor:** executes code
+5. **Stored data manager:** interacts with OS for physical data access
+6. **System catalog:** metadata about the data model: internal, conceptual & views
+7. **Additional units:** DBMS specific
+:::
+::::
+
+## Data Lifecycle and Data Query Languages
+
+DQL enable the operations of the data lifecycle, separating the interface (Query Language) from the structure of the data (application or system specific)
+
+1. The **specification** of data storage structures (e.g., tables)
+2. **Loading** of data into these structures
+3. **Queries** about the data
+4. **Modification** of data in the data structures
+5. **Deletion** of data 
+6. **Discarding** of the storage data structures
+7. **Management** of access and data protection
+
+##
+:::{.content-visible when-format="revealjs"}
+:::{.callout-tip}
+## Exercise: What about spatial DB?
+
+- How may these requirements change when applying to spatial data? 
+- Is there a difference for all of these operations? 
+- Think of examples (a story) of the lifecycle steps used in a Spatial DB project.
+:::
+:::
+
+## Spatial databases
+
+- Share **all** of the mentioned characteristics;
+- Support **all** of the mentioned properties;
+- **Add** extras:
+    - the support for **spatial data types** (conceptual/ logical schema); 
+    - efficient **spatial data storage** (physical schema); and 
+    - efficient spatial **access methods and query methods** (indexes, algorithms);
+    - extend the query language to provide **support for spatial operators** between spatial data.
+
+## Fundamental DB requirements
+
+### Data Integrity and consistency
+
+- **Consistency** and **integrity** should be assured by the DBMS throughout the DB lifecycle;
+- **Integrity**: property of the DB assuring that business rules governing the values of the attributes in the database are adhered to. 
+    - Applies to attributes, records, table
+    - Entity integrity and referential integrity are assured through keys, constraints, triggers
+- **Consistency**: at the completion of all transactions, the database is in a valid state that does not violate any integrity constraints, rules, triggers,...
+
+### Transactions
+
+- **Transaction**: an atomic unit of interaction between user and database:
+    - Insertion,
+    - Deletion,
+    - Modification, or
+    - Retrieval of data
+- **Transactions** are implemented to support **concurrency** (multiple access at the same time) and **recovery management**(retrieval of valid DB state following failure)
+- Transaction provide guarantees that **concurrent interactions** will have the same effect as **serial operations**.
+
+### Transaction management
+
+- Data loss may happen when transactions are incorrectly interleaved:
+
+![](./figs/1_part/10b_introduction_DBMS/transaction_management.png)
+
+
+::: {.content-visible when-format="revealjs"}
+### {.unnumbered}
+:::{.callout-tip}
+## Exercise: Transactions on spatial data
+
+Can you think of transactions that happen on **spatial** data? How might the concept of consistency be impacted?
+
+- Let us first think - what may *spatial* data mean here?
+:::
+:::
+
+::: {.content-visible when-format="revealjs"}
+### {.unnumbered}
+:::{.callout-tip}
+## Exercise: Transactions on spatial data
+
+![](./figs/1_part/12_conceptual_model/flighttracker.png){width="90%"}
+:::
+:::
+
+## ACID Transactions
+
+- Transactions were designed to have the following properties (**ACID**):
+    - **Atomicity** – all or nothing – entire transaction is a single unit;
+    - **Consistency** – after the transaction, the DB will be in a consistent state (= respecting constraints…);
+    - **Isolation** – transactions occur in isolation and interim states are not visible outside the transaction – as if it was a serial execution;
+    - **Durability** – the effects of the transaction persist.
+- **Note**: at the end of the course we may discuss what happens in distributed databases
+
+## Views
+
+- Different users can have different **views** of the same data (based on their access rights or needs)
+
+![](./figs/1_part/10b_introduction_DBMS/views.png)
+
+![](./figs/1_part/10b_introduction_DBMS/views2.png)
+
+![](./figs/1_part/10b_introduction_DBMS/views3.png)
+
+![](./figs/1_part/10b_introduction_DBMS/views4.png)
+
+::: {.content-visible when-format="revealjs"}
+:::{.callout-tip}
+### Exercise: Spatial views
+
+Discuss with neighbor how views might be useable in the spatial context.
+
+![](./figs/1_part/10_spatial_data_modeling/exercise4.mov)
+
+:::
+:::
+
+## Recap {background-color="lightPink"}
+
+1. You have gained an appreciation for databases, and how they support data management. 
+2. You can relate to the way ordinary database qualities apply to spatial data management.
+
+
+<!-- end slides -->
+::: {.content-visible when-format="revealjs"}
+## Next: [Logical model](/13_logical_model.html)
+
+## References {background-color="lightYellow"}
+
+:::

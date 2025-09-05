@@ -1,0 +1,462 @@
+# [L7a] Geometrical analysis
+
+::: {.content-visible when-format="revealjs"}
+## Learning objectives {background-color="lightPink"}
+
+- We will deepen our knowledge of geometries and discuss operations on geometries underpinning geometric queries;
+- You will understand how basic computational geometry algorithms work and what algorithmisation is;
+- You will be able to reason about the computational complexity  of an operation, and hence be able to reflect on the length of time a query may take.
+:::
+
+## Introduction to Computational Geometry
+
+A branch of computer science / applied mathematics concerned with efficient algorithms operating on geometries [@mark2008computational]
+
+Applications in:
+
+- Computer vision, robotics
+- Gaming (3D etc)
+- Logistics
+- Spatial analysis
+
+
+:::{.content-visible when-format="revealjs"}
+## {.unnumbered}
+
+:::{.callout-tip}
+## Exercise {.unnumbered}
+
+Identify real-world geometric computations (possibly happening behind the scenes) in one geospatial/GIS and at least one non-geospatial computer application.
+:::
+
+:::
+
+### Algorithmisation of computational problems
+
+A specification of a computational process
+
+- Given inputs `I`, compute output `O` such that conditions `C` are met;
+- Can be expressed as a **finite set of instructions**, and computes `O` in a **finite set of steps** (not necessarily in a repeatable manner);
+- An algorithm must be **followed rigorously**, but *must not require* ingenuity (intelligence, creativity).
+
+
+### Representations of algorithms - Flow diagram
+
+A formal visual language depicting decision steps in an algorithm.
+
+![](./figs/2_part/20_querying_spatial_data/flow_diagram.png){width="25%"}  
+
+### Representations of algorithms - Pseudocode
+
+- Human readable prose, semi-formal notation and structure;
+- Not executable, but close to a specification in a programming language (~Python)
+
+![https://en.wikipedia.org/wiki/Algorithm](./figs/2_part/20_querying_spatial_data/pseudocode.png){width="40%"}  
+
+### Computational complexity
+
+- An algorithm is characterized by its computational complexity – how many steps must be executed in the **worse case** to complete;
+- Usually the number of steps is proportional to the number of items to be analysed;
+- We care about **efficient** algorithms – requiring the smallest number of steps possible (i.e., optimal algorithms)
+
+## {.unnumbered}
+
+![http://bigocheatsheet.com/](./figs/2_part/21_geometrical_analysis/bigOnotation.png){width="70%"}
+
+:::{.content-hidden when-format="revealjs"}
+
+- Notation: O() (Big-Oh)
+    - $O(\log n)$: binary search – **time required grows slower than problem set** 
+    - $O(n)$: e.g., max/min – **single pass**
+    - $O(n\log n)$: distances of all points to all in a matrix – **e.g., symmetrical relationships do not need to be checked twice**
+
+![](./figs/2_part/21_geometrical_analysis/computational_complexity_table.png){width="80%"}
+
+
+- Average case complexity: more representative than worst case, but harder to calculate due to stochastics;
+- Underlying data structures may alter the average case complexity of an algorithm (e.g., indexes)
+- Complexity analysis may include time (steps) and space (required memory size) complexity
+:::
+
+### Algorithmic strategies for spatial computation
+
+Diverse [strategies](https://en.wikipedia.org/wiki/Algorithmic_paradigm) apply, some common to other problems, some specific to spatial:
+
+- Brute force
+- Divide and conquer – break down problem into two, smaller identical problems, then merge results
+- Greedy algorithm - follow locally optimal choices
+- **Incremental construction** – solve a small problem and add to
+- **Sweep-line / rotating caliper** – common for geometric problems, where inputs can be  ordered in the plane (e.g., along x or y axis) or along a circular domain
+
+:::{.content-visible unless-format="pdf"}
+## {.unnumbered}  
+
+![Sweep line (Source: Wikipedia)](./figs/2_part/21_geometrical_analysis/strategy_computational_problem.gif)
+:::
+
+## Computational geometry - core concepts 
+
+In what follows, we consider a Euclidean 2D plane (or possibly 3D space).
+
+### Linear segment length 
+
+The distance points between successive pairs of points (Pythagoras)
+
+$$ |pq| = \sqrt{(x_{q}-x_{p})^2 + (y_{q}-y_{p})^2}$$
+
+### Triangle area – a fundamental operation
+
+- Determinant of a 2x2 matrix equals the signed area of the parallelogram of 2 column vectors (= 2x the triangle area);
+- The area>0 for counter-clockwise vertex sequence, area<0 for clockwise;
+- Equivalent to deciding if a point is to the right, left, or collinear; 
+- Great demonstrator of computational precision issues in spatial computation - any number represented in the computer has finite precision!
+- [https://observablehq.com/\@mourner/non-robust-arithmetic-as-art](https://observablehq.com/@mourner/non-robust-arithmetic-as-art)
+
+
+```python
+def naiveLeftRight(r, q, p){
+    prx = p[x] - r[x]
+    pry = p[y] - r[y]
+    qrx = q[x] - r[x]
+    qry = q[y] - r[y]
+    return prx * qry - pry * qrx
+}
+```
+
+[V Agafonkin- Github (robust-predicates)](https://github.com/mourner/robust-predicates)
+
+### Line segment intersection
+
+By extension, a series of triangular area inequalities helps decide whether two line segments $\overline{AB}$ and $\overline{CD}$ intersect.
+
+:::: {.columns}
+
+::: {.column width="60%"}
+![](./figs/2_part/21_geometrical_analysis/line_segment_intesection.png){width="80%"}
+:::
+
+::: {.column width="40%"}
+$$side(a, b, c) \neq side(a, b, d)$$ 
+$$side(c, d, a) \neq side(c, d, b)$$
+:::
+::::
+
+If **both** inequalities hold (= true), lines intersect!
+
+
+
+### Polygon Area
+
+Let $P$ be a simple polygon (no boundary self-intersections) with vertices captuired by $x$ and $y$ coordinate pairs:
+
+$(x_{1}, y_{1}), (x_{2},y_{2}), ..., (x_{n},y_{n})$ where $(x_{1},y_{1}) = (x_{n}, y_{n})$ (i.e., the polygon is closed and has the same start and end vertices).
+
+Then, the Area is: 
+
+$$Area(P) = \frac{1}{2} \sum_{i=1}^{n}  x_{i} y_{i+1} - x_{i+1}y_{i} = \frac{1}{2} \begin{vmatrix}
+x_{i} & y_{i+1}  \\ 
+y_{i} & y_{i+1}
+\end{vmatrix}$$ 
+
+## {.unnumbered}
+
+![Shoelace formula](./figs/2_part/21_geometrical_analysis/length_and_area.png){width="35%"}
+
+This is known as the [shoelace formula](http://www.mathopenref.com/coordpolygonarea.html)
+
+### Polygon area – step-by-step
+
+![<http://www.mathopenref.com/coordpolygonarea2.html>](./figs/2_part/21_geometrical_analysis/polygon_area_stepwise.png){width="80%"}
+
+### Polygon area – Warnings! 
+
+:::{.callout-important}
+**Recall**: Polygons that self-overlap, or self intersect, or are invalid (holes are outside of polygons) cannot be correctly evaluated for area!
+:::
+
+:::{.callout-important}
+**Note**: Formulas for the area of a polygon need to be evaluated for the **absolute value** returned, in order to avoid returning some positive, and some negative values in collections with heterogeneous winding directions.
+:::
+
+
+### Centroid of a polygon
+
+The centroid of a simple polygon (or center of gravity) $P = \{(x_{1}, y_{1}), (x_{2}, y_{2}), ..., (x_{n}, y_{n}) \}$ where $(x_{1}, y_{1}) = (x_{n},y_{n})$ is the point at which it would balance if cut out of a sheet of material of uniform density: 
+
+:::: {.columns}
+
+::: {.column width="70%"}
+$$centroid_{x} (P) = \frac{1}{6.area(P)} \sum_{i=1}^{n-1}(x_{i}+x_{i+1})(x_{i} y_{i+1} - x_{i+1} y_{i})$$
+
+$$centroid_{y} (P) = \frac{1}{6.area(P)} \sum_{i=1}^{n-1}(y_{i}+y_{i+1})(x_{i} y_{i+1} - x_{i+1} y_{i})$$
+:::
+
+::: {.column width="30%"}
+![](./figs/2_part/21_geometrical_analysis/centroid_polygon.png){width="80%"}
+:::
+::::
+
+:::{.callout-note}
+There is no guarantee the centroid is inside the polygon!
+:::
+
+### Point on surface
+
+A **heuristic** approach for a point characterising the polygon, **guaranteed** to be **inside** the Polygon.
+
+- Important for geospatial applications (e.g., labelling)
+- PostGIS: `ST_PointOnSurface`
+
+![](./figs/2_part/21_geometrical_analysis/st_point_on_surface.png){width="60%"}
+
+:::{.content-visible when-format="revealjs"}
+## {.unnumbered}
+
+::: {.callout-tip}
+## Is a point inside a polygon? {.unnumbered}
+
+- Try to come up with an approach yourself. Think:
+    - What conditions does a point in a polygon satisfy?
+    - What conditions does a line going through a point inside a polygon satisfy?
+:::
+
+![](./figs/2_part/21_geometrical_analysis/point_polygon.png){width="60%"}
+:::
+
+### Point in Polygon
+:::{.content-hidden when-format="revealjs"}
+
+![](./figs/2_part/21_geometrical_analysis/point_polygon.png){width="60%"}
+
+:::
+
++ **Semi-line algorithm:** check the number of intersections of any semi-line from the tested point, intersecting the polygon:
+    - If even: NOT in polygon
+    - If odd: in polygon
++ **Winding line algorithm:** sum the angles from the point to all the vertices of the polygon:
+    - If 360 deg: in polygon
+    - If <360 deg: outside of polygon
+
+## Common geometric algorithms
+
+### Buffer
+
+- A  geometry defined as a set of points $S$ with a maximum distance $d<=$ to all points of the source geometry $g$.
+- Equivalent to *dilation* (positive buffer) or *erosion* (negative buffer) in image processing
+
+:::{.content-visible when-format="revealjs"}
+## {.unnumbered}
+
+::: {.callout-tip}
+## Exercise - buffer {.unnumbered}
+
+Construct a buffer $d > 0$ of the following geometries:
+
+![](./figs/2_part/21_geometrical_analysis/exercise_buffer.png){width="50%"}
+
+:::
+:::
+
+### Buffer (principle)
+
+- Buffering by a positive or negative distance
+
+![](./figs/2_part/21_geometrical_analysis/buffer_principle.png){width="50%"}
+
+:::{.content-visible when-format="revealjs"}
+## {.unnumbered}
+
+::: {.callout-tip}
+## Exercise: Buffer of multi-geometries {.unnumbered}
+
+How many geometries will be in the result?
+
+![](./figs/2_part/21_geometrical_analysis/buffer_multi_geometries.png){width="30%"}
+
+:::
+:::
+
+### Convex hull
+
+- The convex hull of a set of points $S$ is the smallest convex polygon that encloses $S$
+- **Recall**: A convex polygon has every point **inter-visible**
+- A variety of algorithms: [https://en.wikipedia.org/wiki/Convex_hull_algorithms](https://en.wikipedia.org/wiki/Convex_hull_algorithms)
+
+![Convex hull](./figs/2_part/21_geometrical_analysis/convex_hull.png){width="40%"}
+
+### Jarvis march (gift wrap) $O(n h)$
+
+n – number of points, h - number of pts on hull
+
+:::{.content-hidden when-format="pdf"}
+
+![](./figs/2_part/21_geometrical_analysis/jarvis_march.gif)
+
+:::
+
+### Graham’s scan $O(n \log n)$
+
+1. Find $pt$ with lowest $x$ coord: $p_{0}$
+2. Sort all points in $S$ in increasing order of angle between $x$ axis and $p_{0}$
+3. Add the next point to the stack
+4. Add the next point to the stack, and check whether it’s to the right or left of the previous segment
+5. If right, keep going
+6. If left, remove the point, add next, check again
+
+:::{.content-visible when-format="revealjs"}
+## {.unnumbered}
+:::
+
+![](./figs/2_part/21_geometrical_analysis/grahams_scan.png){width="60%"}
+
+### Convex hull- Quickhull $O(n^2)$
+
+:::{.content-hidden when-format="pdf"}
+![](./figs/2_part/21_geometrical_analysis/quickhull.gif)
+
+:::
+
+:::{.callout-note}
+The algorithmic robustness of the algorithm implementations needs to be evaluated and considered!
+:::
+
+## tessellation (Spatial partitions) 
+
+![Einstein problem](./figs/2_part/21_geometrical_analysis/einstein.png){width=80%}
+
+## {.unnumbered}
+
+- **Spatial Partition (tessellation)**: an division of a surface or space by a set of polygonal areas such that all polygonal areas are pairwise disjoint and jointly exhaustive.
+- **Triangulation**: a tessellation by triangles.
+
+### Voronoi diagrams 
+
+**Voronoi diagram** (also **Thiessen polygons**): a tessellation of space where any point within a Voronoi polygon is closer to the generating site than to any other site. 
+
+**Fortune’s sweep line** enables the computation of weighted Voronoi diagrams, too.
+
+:::{.content-hidden when-format="pdf"}
+
+![](./figs/2_part/21_geometrical_analysis/strategy_computational_problem.gif)
+
+:::
+
+:::{.content-visible when-format="pdf"}
+
+![](./figs/2_part/21_geometrical_analysis/strategy_computational_problem.png)
+
+:::
+
+### Duality with Delaunay triangulation
+
+Bowyer-Watson the **incremental** algorithm exploits the duality (dual graph) between Voronoi diagrams and **Delaunay triangulations** (DT):
+
+- Triangulation such that no point in $P$ is inside the circumcircle of any triangle in $DT(P)$. 
+- Delaunay triangulations maximize the minimum of all the angles of the triangles in the triangulation;
+- Avoids *sliver triangles* (long elongated triangles)
+- Used for meshes in games, computer vision, terrain modelling, CAD
+
+## {.unnumbered}
+
+1. **Delaunay triangulation:** construct triangles in the set $S$ such that circumscribed circles of the triangles do not contain a vertex from the set of points $S$ other than the vertices of the triangle
+
+![](./figs/2_part/21_geometrical_analysis/delaunay_voronoi1.png){width="40%"}
+
+## {.unnumbered}
+
+2. **Voronoi polygons**: find the **dual graph** of the Delaunay triangulation - construct bisectrixes of the triangulation, find their intersections - the vertices of Voronoi polygons.
+
+![](./figs/2_part/21_geometrical_analysis/delaunay_voronoi2.png){width="40%"}
+
+## Applications
+
+The applications of computational geometry are not limited to GIS analyses. The also apply to the representation of data, or even their cartographic or artistic presentation.
+
+![](./figs/2_part/21_geometrical_analysis/application1.jpg)
+
+### Cartographic generalization
+
+The process of selecting and processing spatial data for display appropriate for the scale and purpose of the map, and to the medium of presentation.
+
+![Maps: Swisstopo](./figs/2_part/21_geometrical_analysis/generalization.png)
+
+*Based on slides by Prof R. Weibel, UZH*
+
+### From DB to display
+
+We apply rendering rules (e.g., styling) to data to represent them visually
+
+![](./figs/2_part/21_geometrical_analysis/db_to_display.png)
+
+### Generalization operators
+
+![Figure SGK 2002](./figs/2_part/21_geometrical_analysis/generalization_operators.png)
+
+### (Ramer-)Douglas-Peucker algorithm for line simplification
+
+- Simplifies the shape of a line by removal of *unnecessary vertices* (McMaster and Shea, 1992)
+- Vertices outside a *tolerance band* are considered important and are retained (beware, does not preserve topology!)
+
+![https://en.wikipedia.org/wiki/Ramer-Douglas-Peucker_algorithm](./figs/2_part/21_geometrical_analysis/douglas_peuker_algorithm.jpg){width=60%}
+
+:::{.content-visible when-format="revealjs"}
+### (Ramer-)Douglas-Peucker algorithm for line simplification {.unnumbered}
+:::
+
+:::{.content-visible unless-format="pdf"}
+
+![](./figs/2_part/21_geometrical_analysis/line_simplification.gif)
+:::
+
+- In PostGIS: `ST_Simplify(geom, tolerance)`
+
+### Visvalingham-Whyatt line simplification algorithm
+
+- Uses areal thresholds as opposed to distance thresholds [@visvalingam1993line];
+- Can be precomputed and stored on vertices, and used for adaptive dynamic portrayal.
+
+![isvalingham-Whyatt (from https://bost.ocks.org/mike/simplify/)](./figs/2_part/21_geometrical_analysis/visvalingham_whyatt.png){width=60%}
+
+### Simplification vs smoothing
+
+- Simplification removes vertices	
+- Smoothing adds vertices/points => more data!
+
+![](./figs/2_part/21_geometrical_analysis/simplification.png)
+
+:::{.content-visible when-format="revealjs"}
+## {.unnumbered}
+::: {.callout-tip}
+## Exercise: Douglas-Peucker {.unnumbered}
+
+- Simplify the line with epsilon given
+
+![](./figs/2_part/21_geometrical_analysis/exercise_douglas.png){width="60%"}
+:::
+:::
+
+
+
+
+## Resources 
+
+- [Geometric algorithms](https://www.geeksforgeeks.org/geometric-algorithms/)
+- Comparison of Graham scan and Jarvis march [https://www.chrisharrison.net/index.php/Research/ConvexHull](https://www.chrisharrison.net/index.php/Research/ConvexHull)
+- Notes on computational robustness [https://github.com/mikolalysenko/robust-arithmetic-notes](https://github.com/mikolalysenko/robust-arithmetic-notes)
+- M. Visvalingam, J. D. Whyatt (1993) Line generalisation by repeated elimination of points, *The Cartographic Journal*, Vol. 30(1)
+
+
+
+## Summary {background-color="lightPink"}
+
+- You understand what an algorithm is and you can name some common patterns in geometric algorithms;
+- You understand what algorithm complexity is and why we care about it in applications and in database querying;
+- You can explain and understand how to apply common geometrical algorithms for GIS analysis.
+
+<!-- end slides -->
+::: {.content-visible when-format="revealjs"}
+## Next: [Topological analysis](/22_topological_analysis.html)
+
+## References {background-color="lightYellow"}
+
+:::

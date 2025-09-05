@@ -1,0 +1,375 @@
+# [P6] Geometrical queries
+
+This practical is the first in a series of four on spatial data retrieval, analysis and manipulation using PostgreSQL.
+
+Objectives of this practical:
+
+- You will be introduced to working with spatial data in an Object-Relational DBMS (PostGIS). 
+- You will learn how to investigate basic spatial properties of a database's spatial data. 
+- You will perform simple geometric analysis on objects in the database.
+- You will store spatial data in the database. 
+
+:::{.callout-note}
+A set of SQL queries of interest enabling to demonstrate some of the content from lectures is also here: [Intro to spatial sql](../resources/sql/sql02_intro_spatial.sql) and [geometrical operations](../resources/sql/sql03_geometrical_operations.sql)
+:::
+
+:::{.callout-important}
+Much of the material in this practical does not make sense if you have not been following the lectures!
+:::
+
+:::{.callout-tip}
+All functions starting with `ST_` are documented at the **[PostGIS Reference](https://postgis.net/docs/reference.html)**. This will be a crucial reference for you in the next few weeks.
+:::
+
+## 1. Getting started
+
+You can execute spatial SQL queries using any PostgreSQL client, including pgAdmin. However, QGIS makes it especially easy to visualise our query's results.
+
+During today's practical, your tutor will demonstrate how to use the QGIS DB Manager to run spatial queries and visualise the results on the map.
+
+### 1.1. How geometries are stored
+
+Spatial information represented by vector data is stored using columns of a data type `geometry`.The entire stored record (row), associating *n* attributes with (typically) a *single* geometry column, is often called a *feature*. 
+
+PostGIS and other DBMS allow you to store multiple geometry columns within one table (and this has all sorts of modeling advantages) but it may challenge the interaction with many traditional GIS.^[You can experiment: [QGIS behaviour](https://gis.stackexchange.com/questions/109599/how-to-display-a-table-with-more-than-one-geometry-column-in-qgis) / [ArcGIS: single column, create a view](https://desktop.arcgis.com/en/arcmap/latest/manage-data/using-sql-with-gdbs/rules-for-creating-spatial-tables-to-be-used-with-arcgis.htm)]
+
+::: {.callout-tip title="Your Turn"}
+Open pgAdmin, the QGIS DB Manager, or your preferred PostgreSQL querying tool of choice, and write SQL queries to answer the following questions:
+
+1. Name all the tables in the `spatial` schema that contain spatial data. **HINT:** The geometry columns in PostGIS are listed as data type `USER-DEFINED` in the table `information_schema.columns`. Refer back to [Practical 1b](/practicals/01b_basic_SQL_interaction.html) if you need a refresher.
+2. List the geometry type of each table in the `spatial` schema. **HINT:** The table (or rather, a view) `geometry_columns` (in the 'public' schema) is a little more informative about the geometry data types. Start with a `SELECT *` query on `geometry_columns` to see what data is available, then narrow it down to just the columns and rows required.
+
+If you get stuck on these questions, the full SQL queries are in the "Answers" box below.
+:::
+
+::: {.callout-caution title="Answers" collapse="true"}
+Query 1:
+```sql
+SELECT DISTINCT table_name
+FROM information_schema.columns
+WHERE table_schema = 'spatial' AND data_type = 'USER-DEFINED'
+ORDER BY table_name;
+```
+
+Query 2:
+```sql
+SELECT f_table_name, type
+FROM geometry_columns
+WHERE f_table_schema = 'spatial'
+ORDER BY f_table_name;
+```
+:::
+
+## 2. Information about geometries
+
+We will find out some basic information about the types of geometries, as well as the coordinate systems used to georeference (relate to the Earth) spatial objects. We will use the state of New York (`us_states.state_abrv='NY'`) and other US states.
+
+### 2.1. Geometry types and Well-Known Text
+
+One of the most important pieces of information we need about a specific spatial object is what type of object it is (point, line, polygon, ...). 
+
+This can be retrieved using the following query template, based on the PostGIS function `GeometryType`:
+
+```sql
+SELECT GeometryType(geom)
+FROM spatial._______;
+```
+
+We can also find the [Well-Known Text (WKT) representation](/17_geometries.html#serialisation-of-geometries) of a geometry using the `ST_AsText` PostGIS function:
+
+```sql
+SELECT ST_AsText(geom)
+FROM ...
+```
+
+::: {.callout-tip title="Your Turn"}
+1. In the query you ran in the previous section, you may have noticed that some of the tables in the `spatial` schema, such as `us_rivers` and `world_countries`, had a defined geometry type of `GEOMETRY`. This means they can contain any geometry type. Use the `GeometryType` function to ascertain the geometry types that are actually contained within each of these tables. **HINT:** Use `SELECT DISTINCT` to remove duplicate values from your results.
+2. Find the WKT representation of the location of all McDonald's restaurants in the `us_restaurants` table. **HINT:** Because `'` has a special meaning in SQL, you need to write the restaurant name as `'MCDONALD''S'` with a double apostrophe.
+:::
+
+### 2.2. Spatial reference systems
+
+We need to understand the meaning of the coordinate values encoding vertices of geometries. Without that, we are unable to interpret, e.g., the meaasurement of spatial properties such as areas and distances.
+
+The SRID is a code specifying in what coordinate system spatial data are stored. Most commonly, these codes come from the EPSG database (this is often referred to as *authority*). This database is stored in the `spatial_ref_sys` table. Users can extend this table - just do not overwrite any existing SRIDs! Thus, you can create your own IDs, with your own authority, and specify a SRID with parameters you want. 
+
+::: {.callout-tip title="Your Turn"}
+1. Find out what coordinate system the geometries capturing the state of Georgia are stored in. Use the query template below:
+```sql
+SELECT ST_SRID(geom)
+FROM spatial.us_states
+WHERE ...;
+``` 
+2. The previous query returned an SRID. Look up this SRID in the `spatial_ref_sys` table (note, this table is part of PostGIS and is **not** in the `spatial` schema):
+```sql
+SELECT *
+FROM spatial_ref_sys
+WHERE srid = ____;
+```
+Can you work out the name of this SRS, and whether it is a geographic (longitude/latitude) or projected SRS? **HINT:** Expand your view of the `srtext` and `proj4text` columns and see if you can spot any useful details.
+
+3. Use the resource at [epsg.io](https://epsg.io) to find out more about this SRS.
+:::
+
+::: {.callout-caution title="Answers" collapse="true"}
+- The SRS is **WGS 84**.
+- The row in the `spatial_ref_sys` table holds useful info:
+    - The `srtext` value starts `GEOGCS["WGS 84",...`. So it is a geographic coordinate system. The piece of text after the first `[` is the SRS name. On this case it is "WGS 84".
+    - The `proj4text` value starts `+proj=longlat`, which also tells us it is a geographic coordinate system. 
+:::
+
+### 2.3. Transformations between spatial reference systems
+
+Often, it is necessary to transform data (for instance, during the Extract-Transform-Load process), to correlate them with other data. This may involve complex transformations (see the [lecture on projections and transformations](../16_srs_transformations.html)). 
+
+Two concepts are important here: **source SRS** (given by SRID) and **target SRS**. Typically, for well stored data, a table will have geometries with an assigned SRID (as tested above). Then, this is your **source SRID** and you only need to specify what is the **target SRID** you want to transform into.
+
+To transform geometries with an already assigned SRID to a target SRID:
+
+```sql
+SELECT ST_Transform(geom, targetSRID)
+FROM table_name;
+``` 
+
+Sometimes geometry data lacks an assigned SRID. You then need to **set** it for the given geometries, before you can transform:
+
+```sql
+SELECT ST_Transform(ST_SetSRID(geom, sourceSRID), targetSRID)
+FROM table_name;
+``` 
+
+Understanding the difference between `ST_SetSRID` and `ST_Transform` is crucial. 
+Read the [ST_SetSRID documentation](https://postgis.net/docs/ST_SetSRID.html) and note the difference - `ST_SetSRID` does not perform a transformation, it keeps the coordinates the same and merely overprints/adds the information about the used SRID. On the other hand, `ST_Transform` actually *transforms* the data itself.
+
+::: {.callout-tip title="Your Turn"}
+1. What SRID are the geometries in the `spatial.victoria_police_stations` table in? Is this a geographic or projected coordinate system?
+2. Use the `ST_AsText` function to inspect the coordinates of each police station:
+```sql
+SELECT name, ST_AsText(geom)
+FROM spatial.victoria_police_stations;
+```
+3. Transform the coordinates of `'Branxholme Police Station'` to longitude/latitudes and display these coordinates using `ST_AsText`. 
+4. Search up this police station on Google Maps and right-click on the location on the map – do you see the same coordinates?
+:::
+
+::: {.callout-caution title="Answers" collapse="true"}
+- Remember to query the `spatial_ref_sys` table or look up  [epsg.io](https://epsg.io) to find out details about an SRID (EPSG code).
+- The longitude/latitude of Branxholme Police Station is **141.798761°E 37.858406°S**.
+:::
+
+### 2.4. Geometries vs geographies
+
+PostGIS can be told to intepret geometries stored in a geographic SRS, such as `EPSG:4326`, as **geographies**. It has to be explicitly told to do so! The table will then register its column in the `geography_columns`, see above. PostGIS automatically applies precise spheroidal equations to compute areas, distances and angles on geographies.
+
+This implies:
+
+    - A more limited set of functions
+    - More accurate
+    - More computationally expensive
+
+Users can also tell PostGIS to interpret a given geometry as a geography, by casting: `mygeom::geography`
+
+## 3. Spatial properties of geometries
+
+In addition to coordinates, we can find out a variety of spatial information for our spatial data, by analysing the geometries representing the records. These values do not have to be stored as attributes, but can be computed on the fly.
+
+To work with the geometries in PostGIS, you have to provide a spatial function and its parameter as arguments of the `SELECT` statement. 
+
+### 3.1. Area
+
+Calculate the area of a `Polygon` or `MultiPolygon` geometry like this: 
+    
+```sql 
+SELECT ST_Area(geometry_column)
+FROM ...;
+```
+
+::: {.callout-tip title="Your Turn"}
+1. Find the area of New York state. What are the units of your answer? 
+2. Look up the documentation for `ST_Area` on the web. Note that the function accepts a second parameter, `use_spheroid := true` or `use_spheroid := false`. Investigate what this argument does and what difference it makes to your answer.
+3. Write a query to list the names of the four largest US states by area. Return the results in descending order of area (largest first). Review the [Basic SQL Practical](/practicals/01b_basic_SQL_interaction.html) if you need.
+:::
+
+::: {.callout-caution title="Answers" collapse="true"}
+- The land area of New York state is around **127,000 km²**.
+- The four largest US states, listed with the largest first, are **Alaska**, **Texas**, **California** and **Montana**.
+:::
+    
+### 3.2. Perimeter and length
+
+Two related functions return the length for lines or the perimeter for polygons. The functions are `ST_Length(geometry_column)` and `ST_Perimeter(geometry_column)`. Just as with `ST_Area`, these functions both accept the `use_spheroid` parameter.
+
+::: {.callout-tip title="Your Turn"}
+1. Find the perimeter of New York state in kilometers.
+2. What is the total length of all the rivers (table `us_rivers`) that belong to the 'Colorado' system?
+:::
+
+::: {.callout-caution title="Answers" collapse="true"}
+- The perimeter of New York state is around **2,500 km**.
+- The total length of rivers in the Colorado system is around **4,350 km**.
+:::
+
+### 3.3. Bounding box 
+
+Bounding boxes are an important concept in spatial data handling. They provide the extent of the object along the axes of the coordinate system. 
+
+The functions `ST_XMax(geometry)`, `ST_XMin(geometry)`, `ST_YMax(geometry)`, and `ST_YMin(geometry)` return the coordinates of the constituent parts of the minimum bounding rectangle (MBR) of a geometry. The function `ST_Envelope(geometry)` also provides the MBR as a geometry itself. 
+
+::: {.callout-tip title="Your Turn"}
+1. Find the MBR of New York in two different ways:
+    a. First, use the `ST_XMax`, `ST_XMin`, `ST_YMax`, `ST_YMin` functions.
+    b. Then use the `ST_Envelope` function. Convert the geometry to the human-readable Well-Known Text (WKT) format using the `ST_AsText` function.
+2. Write a single SQL statement to give the minimum and maximum latitude for each state. Label the columns in your statement `name`, `maxlat`, and `minlat`. 
+
+**HINT:** Assign aliases to the outputs of the `SELECT` statement using `AS`:
+
+```sql
+SELECT state AS name, 
+       SomeFunction(parameters...) AS maxlat,
+       ...
+FROM ...;
+```
+:::
+
+::: {.callout-caution title="Answers" collapse="true"}
+![The MBR of New York State](/figs/practicals/p06_new_york_mbr.png)
+:::
+
+## 4. Spatial data storage 
+
+You will now define and create your own table with sample spatial data. At the end of the lab, don't forget to remove the metadata entries, drop the table and indexes.
+
+In this section, you will create a table `petrolstation` with spatial data in a column called `location`. The table will contain the coordinates of three "petrol stations", with the following coordinates:
+
+| Name   | ID | Point(lon, lat) |
+|--------|----|---------------------------|
+| BP   | 1  | -0.3448, 51.5361 |
+| Shell  | 2  | -0.3921, 51.5363 |
+| Esso | 3  | -0.3712, 51.5324 |
+
+
+Use the following templates:
+
+```sql
+INSERT INTO petrolstation VALUES (..., ST_GeomFromText('POINT(x1 x2)', 4326));
+```
+
+
+
+::: {.callout-tip title="Your Turn"}
+1. **Create the table**. When creating a vector geometry column, you can simply specify the data type as `geometry`, which allows any type of vector data. Alternatively, you can *optionally* set a constraint on the column's geometry type: `geometry(Point)` - or even on geometry type and SRID: `geometry(Point, 4326)`.
+2. **Insert the data into the table**. Define geometries using the `ST_GeomFromText` PostGIS function. Alternatively, you can explore the functions `ST_Point` and `ST_MakePoint`. Read the PostGIS documentation, and experiment with alternative ways of creating geometries.
+3. **Verify the creation of the table** by selecting its records. Use the `ST_AsText` function to view the geometries.
+4. **Visualise the spatial data** in the table using QGIS. Where in the world are these petrol stations?
+:::
+
+## 5. Simple geometric analysis
+
+Now we can perform some simple geometric analyses.
+
+### 5.1. Querying distances
+
+The distance between any geometry (point, line, or polygon) and a point can be determined using the function `ST_Distance`. Note that in the case of distance between a line or polygon and a point, the function retrieves the minimum distance. 
+
+For example, try the following query which will provide the distance in metres between two of the petrol stations. 
+
+```sql 
+SELECT ST_Distance(a.location, b.location, use_spheroid:=true) 
+FROM petrolstation a, petrolstation b 
+WHERE a.name='BP' and b.name='Shell';
+```
+
+::: {.callout-tip title="Your Turn"}
+1. Write a query to find the distances between all pairs of petrol stations.
+2. Select the names of the 10 closest restaurants from the restaurant `poi_id = 33625120`(`us_restaurants` table). 
+:::
+
+We can also find places that are *within* a certain distance of each other using the `ST_DWithin` function. Try the following query, inserting a range of sensible values in place of the distance `___`:
+
+```sql
+SELECT *
+FROM petrolstation a, petrolstation b
+WHERE ST_DWithin(a.location, b.location, ___);
+```
+
+### 5.2. Buffers and centroids
+
+A *buffer* creates a new geometry containing all the locations within a specified distance of a input geometry. Create buffers of 1 km around each of the petrol stations, using the following template:
+
+```sql
+SELECT ST_Buffer(geometry_column, distance)
+FROM ...;
+```
+
+Again, beware of the units!
+
+We can also create the centroid (center of gravity) for a polygonal shape using the following template:
+
+```sql
+SELECT ST_Centroid(geometry) 
+FROM ...;
+```
+
+::: {.callout-tip title="Your Turn"}
+1. Find the centroid of the buffer of 1000 m for the Shell petrol station. What do you notice about this centroid and why?
+2. Use QGIS to visualise 1000 m buffers around all the `us_restaurants`. Are there any parts of Washington, DC that are more than 1000 m away from a restaurant?
+:::
+
+### 5.3. Multi* geometries / GeometryCollections and accessing parts of geometries
+
+Some geometries may be of type `GeometryCollection` or `Multi...`, when there are multiple member geometries. It is then convenient to check how many geometry parts are in a multi-geometry, and to access these parts, for instance separating multi-geometries into components. 
+
+You can form a GeometryCollection or Multi* geometry using `ST_Collect`:
+
+```sql
+SELECT ST_Collect(geom)
+FROM ...
+```
+
+Note this is an aggregate function (like `SUM` or `AVG`), so it will take many rows and return a single value. 
+
+The reverse operation – splitting a GeometryCollection out into its component parts – is done using `ST_Dump`:
+
+```sql
+SELECT (ST_Dump(geom_coll)).geom
+FROM ...
+```
+
+You can explore the part of PostGIS documentation related to GeometryCollections.
+
+::: {.callout-tip title="Your Turn"}
+1. Use the `ST_Collect` and `ST_Area` functions to calculate the total area of all US states. Compare this with the area of the United States geometry in the `world_counties` table.
+2. According to the data in the `world_countries` table, how many islands (individual polygons) is Australia made up of? Use `ST_Dump` in your SQL query to answer this question.
+:::
+
+## [Extra] Other ways of importing spatial data
+
+Other than creating data by hand, there are other means of creating content. This may be by modifying/computing geometrical content based on the existing content of other tables (or even the same one), parsing content from textual sources (importing text with coordinates and parsing this into e.g., points through the same processes investigated above), or importing content from GIS tools, or through ETL (Extract-Transform-Load) processes.
+
+Some hints are below.
+
+### From a join
+
+Data can be created from a join, based on other tables. Note that below, you could add a functions to the SQL statement `geom = t2.geom `, e.g., `geom = ST(centroid(t2.geom)`. What would that do? 
+
+```sql
+UPDATE petrolstation as t1
+SET geom = t2.geom 
+FROM otherschema.pois as t2
+WHERE t1.attribute1 = t2.attribute2;
+```
+
+### From a tool
+
+- **From a GIS**: experiment with QGIS, and try to export/save data from a shapefile into the database. This is now as easy as establishing a connection to your database in the **Browser** panel, and dragging some layers of data (e.g., hand digitised, or from a shapefile or similar format) from the **Layers** panel into the schema. Of course, you can be more nuanced.
+- **From an ETL** (extract-transform-load) tool, e.g., FME, [GDAL.org/ogr2ogr](https://gdal.org/programs/ogr2ogr.html) (excellent command line conversion utility). You can experiment with the tool `ogr2ogr` which is part of the QGIS installation (it is what actually powers QGIS). This is one of the most powerful tools in geospatial.
+
+:::{.callout-tip}
+
+**Learn more:** A detailed set of instructions for various import means is here: [https://postgis.net/workshops/en/postgis-intro/loading_data.html](https://postgis.net/workshops/en/postgis-intro/loading_data.html) 
+
+:::
+
+## Resources:
+
+- PostGIS documentation: [https://postgis.net/documentation/](https://postgis.net/documentation/)

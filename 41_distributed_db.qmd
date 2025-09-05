@@ -1,0 +1,173 @@
+# [Extra] Distributed Databases
+
+## Partitioning (~clustering)		
+
++ **Logical (Share everything):** 
+    - Can reside on the same server
+    - Shares CPU, Memory, possibly hard disk ( but has logical partitions)
++ **Physical:**
+    - Resides on different servers/computing environments
+    - Each partition has its own CPU, Memory, Storage
+    - Requires network communication (low-latency) 
+    - One row / data unit is only on a subset of partitions.
+
++ Cluster: Connected physical servers of the same *kind* with balanced loads
+
+For early work, see [@dewitt1992parallel].
+
+### Data partitioning - Horizontal
+
+::::{.columns}
+:::{.column width="50%"}
+Partition of rows by key value range, *sharding*
+
+- different rows in different partitions (and likely on different servers), possibly with redundancy
+- Query processing may require `UNION` of partial results
+- Suited to relational, JSON and document stores
+:::
+
+:::{.column width="50%"}
+![Sharding](./figs/4_part/41_distributed_db/data_partitioning.png){width="70%"}
+:::
+::::
+
+### Data partitioning - Vertical
+
+::::{.columns}
+:::{.column width="50%"}
+
+Partition by column, *Normalization*
+
+- Row splitting by subsets of attributes 
+- Requires joins to re-assemble entire records
+- Suited for columnar databases (OLAP)
+:::
+
+:::{.column width="50%"}
+![Vertical partitioning](./figs/4_part/41_distributed_db/vertical_data_partitioning.png)
+:::
+::::
+
+### Sharding and Geosharding
+
++ Store similar/close values together
++ Store values likely physically accessed from near a given cluster together (e.g., Amazon, FB)
++ Geosharding – using locations describing entities to shard:   
+
+*Store all US restaurant data entries in a data cluster located in the US, and EU restaurant data entries in Europe – assume more users access data of near restaurants*
+
+:::{.content-visible when-format="revealjs"}
+### Geo-Sharding {.unnumbered}
+:::
+
+![Geosharding](./figs/4_part/41_distributed_db/geo_sharding.png){width="70%"}
+
+## Fallacies of distributed computing
+
+[![Fallacies of distributed computing](./figs/4_part/41_distributed_db/fallacies_distributed_computing.png)](http://wiki.aardrock.com/images/2/21/Network_Fallacies.pdf)
+
+### Distributed data processing
+
+- Partitioned data are suited for parallel computation instead of sequential processing;
+- MapReduce is an example: 
+    1. **Map**: filters/sorts data by some attributes - paralleliseable atomic computation e.g., `if(x > 1) then return $a$ else NULL`
+    2. **Reduce**: summary operation, e.g. `mean[a]`, `count[a]`
+- Independence between *map* operations enable running on sharded data storage
+- (Spatial) index processing ( Filter-Refine) requires *deduplication*.
+
+:::{.content-visible when-format="revealjs"}
+### Distributed data processing {.unnumbered}
+:::
+
+![Map-reduce](./figs/4_part/41_distributed_db/map_reduce.png)
+
+See @pavlo2009comparison, for Geo @aji2013hadoop
+
+:::{.content-visible when-format="revealjs"}
+### {.unnumbered}
+::: {.callout-tip}
+### Exercise
+
+- Think of a spatial data operation that would be easily parallelisable by MapReduce
+
+- Think of one that would **NOT** be easily parallelisable by MapReduce
+:::
+:::
+
+## Transactions and distributed databases
+
+
+:::{.content-visible when-format="revealjs"}
+
+![](./figs/4_part/41_distributed_db/oreilly_book.png){width="50%"}
+
+:::
+
+### ACID Transactions and Partitions
+
+- **Atomicity** – entire transaction succeeds or fails
+- **Consistency** – valid state of DB before AND after transaction
+- **Isolation** – concurrent execution results in a state equivalent to serial execution
+- **Durability** – resulting state will be preserved in a persistent manner.
+
+**ACID is problematic with partitions!**
+
+### Partitioning consequences
+
+- **Communication overhead** during synchronisation to assure database consistency after transactions 
+- **Network latency** matters for simultaneous updates in physically distributed DBs (*10km = 67μs -> cache write =10-20μs*!)
+- **Concurrency control** mechanisms needed (locking) to assures exclusive access to a resource (value, row, table)
+- Locking impacts on **availability** ( resource temporarily inaccessible to users)
+
+## Brewer’s CAP Theorem: Pick 2
+
+- **Consistency**: Guaranty to return the most recent value to any client;
+- **Availability**: Guaranty that every request to a DB node receives a response;
+- **Partition tolerance**: System continues to operate despite message loss during network partition.
+
+![Brewer's theorem](./figs/4_part/41_distributed_db/brewers_cap.png){width="30%"}
+
+See @gilbert2002brewer
+
+### AP database – Consistency violation
+
+![Available and partitioned](./figs/4_part/41_distributed_db/cap_illustration.png){width="80%"}
+
+### CP database – Availability violation
+
+![Consistent and partitioned](./figs/4_part/41_distributed_db/cap_illustration2.png){width="80%"}
+
+### CA database – Partition tolerance violation
+
+![CA - a single server or utopia](./figs/4_part/41_distributed_db/cap_illustration3.png){width="80%"}
+
+:::{.content-visible when-format="revealjs"}
+### {.unnumbered}
+::: {.callout-tip}
+### Exercise
+
+- Discuss with neighbour 2 spatial application scenarios when you would sacrifice C or A in a spatially partitioned database system. 
+:::
+:::
+
+### Solutions
+
+- PAXOS protocol (consensus or quorum based techniques) and others (aka, [NewSQL](https://en.wikipedia.org/wiki/NewSQL) databases)
+- *Basically* Available, *Eventual* consistency
+- Ultimately ( eventually) all reads will be the same (will converge). Until then may get stale values.
+- Example: a browser showing an old Website, or you Gmail account when offline – you need to refresh the cache (because the cache is a distributed DB). 
+
+See @brewer2012cap
+
+
+
+## Resources
+
+- [Data Partitioning](https://en.wikipedia.org/wiki/Partition_(database))
+
+<!-- end slides -->
+::: {.content-visible when-format="revealjs"}
+
+## References {background-color="lightYellow"}
+
+:::

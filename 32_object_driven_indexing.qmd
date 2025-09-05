@@ -1,0 +1,179 @@
+# [L11] Object-driven indexes
+
+
+::: {.content-visible when-format="revealjs"}
+
+## Learning objectives {background-color="lightPink"}
+
+- You will understand object-driven indexing, based on adaptive splitting or aggregations of objects in space;
+- You will be able to link general indexing principles ( sorting, simplified representation) to object-driven indexes;
+- You will be able to reason about the pros and cons of object-driven indexing.
+
+:::
+
+## Object driven indexes
+
+- Adapt to the distribution of objects (approximated by bounding shapes) in the plane/space;
+- Can be based on aggregations of objects ( bottom-up) or divisions of objects/space (top-down);
+- Do not fully cover space – only space occupied by spatial objects;
+- Result in balanced hierarchical structures with direct mapping into a disk space (page)
+
+:::{.content-visible when-format="revealjs"}
+### Object driven indexes {.unnumbered}
+:::
+
+![Bounding geometries and spatial indexes](./figs/3_part/32_object_driven_indexing/object_driven_indexes.png){width="60%"}
+
+## KD Tree ( for points)
+
+![KD_Tree - adaptive division of a point cloud](./figs/3_part/32_object_driven_indexing/kdtree.png){width="60%"}
+
+[Mapbox writeup](https://blog.mapbox.com/a-dive-into-spatial-search-algorithms-ebd0c5e39d2a)
+
+
+## R-Tree indexes
+
++ **Main principle:**
+    - **Depth-balanced tree** (maps well to $B^{+}$ Tree) – all leaves on the same level;
+    - Each node corresponds to a disk page
+    - Each leaf node contains an array of leaf entries [*(mbb: o_id)*];
+    - Non-leaf nodes contain an array of node entries [*(mbb: node_id)*];
+    - Number of entries in node is *m< x< M*, where *m in [0,M/2]* (here, *M=4*, recall B-Tree)
++ **Various refinements**: $R^{*}$ Tree, $R^{+}$ Tree, STR-Tree…
+
+:::{.content-visible when-format="revealjs"}
+### R-tree {.unnumbered}
+:::
+
+![RTree](./figs/3_part/32_object_driven_indexing/rtree_indexes.png){width="75%"}
+
+[Other Rtree demo](https://mourner.github.io/rbush/viz/viz-cluster.html)
+
+### R-Tree based window query
+
+1. **Coarse Filter**: Compares the query window for collision with all the nodes‘ Minimum Bounding Boxes (MBBs) (directory or leaf) in the tree, hierarchically. Returns the geometries of the leafs.
+2. **Refine**: The geometries identified based on incident bounding boxes are matched with the spatial predicate in detail.
+
+:::{.content-visible when-format="revealjs"}
+### R-Tree based window query {.unnumbered}
+:::
+
+![RTree window query](./figs/3_part/32_object_driven_indexing/rtree_indexes_lookup.png){width="70%"}
+
+### R-Tree: Insertion
+
+For all entries of each node, check:
+
+1. Object inside of a MBB? $\rightarrow$ Select entry
+2. Object inside multiple MBBs? $\rightarrow$ Select entry with smallest area so far
+3. Object outside, or cut? $\rightarrow$ Select entry that needs to be extended by smallest amount
+
+
+
+![RTree insertion of X](./figs/3_part/32_object_driven_indexing/rtree_insertion.png){width="75%"}
+
+### R-Tree: Insertion (cont.)
+
+Consider the maximum capacity of a node *M=4*.
+
+![RTree insertion of X](./figs/3_part/32_object_driven_indexing/rtree_insertion2.png){width="75%"}
+
+:::{.content-visible when-format="revealjs"}
+
+### R-Tree: Insertion (cont.) {.unnumbered}
+
+:::
+
+We must apply split algorithms to find the right place for *z*, based on a *packing* heuristic.
+
+![RTree insertion of Z](./figs/3_part/32_object_driven_indexing/rtree_insertion3.png){width="75%"}
+
+### R-Tree indexes: Deletion
+
+Two situations:
+
+1. Deletion of leaf results in a node that is not underfilled
+    - Leaf is deleted
+    - MBBs and references fixed in parent nodes, all the way to the root
+2. Deletion of leaf results in underfilled parent node
+    - Remaining leaves need to be re-inserted into the R-Tree;
+    - Their references and MBBs are first deleted all the way to root, then re-computed (within the branch).
+
+**Underfilling:** if the limit for $m$ is not satisfied
+$m < x < M$, where $m > (M/2)$. 
+
+### R-Tree indexes: Problem cases
+
+::::{.columns}
+
+:::{.column width="50%"}
+- R-trees are sensitive to the order in which objects are inserted;
+- Many insertions/deletions can deteriorate the quality of the resulting R-tree, requiring full re-indexing.
+- Packing strategies distinguish the $R^{*}$ Tree, $R^+$ Tree and the SRT Tree.
+:::
+
+:::{.column width="50%"}
+![Insertions leading to suboptiomal packing](./figs/3_part/32_object_driven_indexing/rtree_problem_cases.png){width="100%"}
+:::
+::::
+
+:::{.content-visible when-format="revealjs"}
+### R-Tree: suboptimal and optimal packing {.unnumbered}
+:::
+
+![Re-indexing is required to optimise packing](./figs/3_part/32_object_driven_indexing/rtree_solution.png){width="75%"}
+
+### R-Trees packing
+
++ Find two seed elements for new nodes;
+    - Compare all pairs of objects ($\text{O}(N^{2})$ complexity)
+    - Minimize area of each new node;
+    - Minimize *total* area of the two new nodes;
+    - Minimize *overlap* of the two new nodes
++ These conditions are in conflict - heuristic used:
+    - Maximise dead space between both seed elements; 
+    - Iteratively expand to include additional elements, minimizing space/distance/number of elements.
+
+:::{.content-visible when-format="revealjs"}
+
+### R-Trees packing (cont.) {.unnumbered}
+
+:::
+
+
+
+![Situation](./figs/3_part/32_object_driven_indexing/rtree_seed.png){width="70%"}
+
+:::{.content-visible when-format="revealjs"}
+
+### R-Trees packing (cont.) {.unnumbered}
+
+:::
+
+![Comparison](./figs/3_part/32_object_driven_indexing/rtree_seed2.png){width="70%"}
+
+:::{.content-visible when-format="revealjs"}
+
+### R-Trees packing (cont.) {.unnumbered}
+
+:::
+
+![Final layout](./figs/3_part/32_object_driven_indexing/rtree_seed3.png){width="50%"}
+
+
+
+
+
+
+## Geography: minimum bounding circle and PreparedGeometries
+
+- Minimum-bounding circles and links to Prepared Geometries (indexing segments of geometries)
+
+![Concept of prepared geometry](./figs/3_part/32_object_driven_indexing/geography.png)
+
+[Prepared geometry](https://trac.osgeo.org/geos/wiki/PreparedGeometry)
+
+
+## Resources
+
+- [Postgres GiST index](https://medium.com/postgres-professional/indexes-in-postgresql-5-gist-86e19781b5db)

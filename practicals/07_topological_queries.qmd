@@ -1,0 +1,369 @@
+# [P7] Topological queries and spatial analysis
+
+In the previous [practical](./06_geometrical_queries.qmd) you have learned how to determine the basic properties of (mostly) a single spatial object, and perform some simple geometric operations upon those objects (e.g., compute distances). You are also well aware of the complexities of computing distances and other spatial characteristics in geographical and planar spatial reference systems. 
+
+Here we analyse spatial relations of multiple objects of different types (polygons, lines, and points).
+We then discuss how these relations can be used in more advanced analysis, as well as for the maintenance of constraints on the relationships between spatial entities (triggers).
+
+### Objectives 
+
+By the end of this practical you should be able to:
+
+- Retrieve information about objects based on their spatial properties and relations; and
+- Analyse spatial relations of several objects, and combine and jointly analyse the attributes captured in related tables based on a spatial relationship. 
+
+:::{.callout-note}
+A set of SQL queries of interest enabling to demonstrate some of the content from lectures is here: [Topological operations](../resources/sql/sql04_topological_operations.sql). If you are interested in creating persistent topological structures on spatial partitions, you can try to base your approach on the script [Persisting topology](../resources/sql/sql05_persistingTopology.sql).
+:::
+<!--
+### Nearest neighbor 
+
+In the previous practical, you found the 10 closest restaurants to a particular reference restaurant using the `ST_Distance` function. However, it is also possible to use the `<->` PostGIS operator to perform the same query. You should read the detailed explanation of this PostGIS operator in the documentation - [https://postgis.net/docs/geometry_distance_knn.html](https://postgis.net/docs/geometry_distance_knn.html). By changing the limits in this query, we can find the *k-nearest neighbors* to our reference point, referred to as the k-nearest neighbors problem. Try to find the 10 closest restaurants to 'KUNG FU PIZZA' using the following template (nearest neighbor operator), using the table `spatial.us_restaurants`:
+
+```sql
+SELECT a.name FROM a, b WHERE ... ORDER BY a.geom <-> b.geom LIMIT 10;
+```
+
+Note that `<->` is really only `ST_Distance`, but when used in the `ORDER BY` clause it results in a KNN operator. You should also read the entire documentation (linked above) and pay special attention to the *Notes* there. Reflect on what it means (and if you cannot figure it out *yet*, you will learn what it means in the lectures on Indexes, later). 
+
+**Closest interstate:** Now try to use the techniques you have already learned above to select the interstate (highway) closest to the KUNG FU PIZZA restaurant. You will find a full range of PostGIS operators here: [https://postgis.net/docs/reference.html#Operators](https://postgis.net/docs/reference.html#Operators). The `<->` operator is only one of them. Some provide only approximate results, based on BBOX queries (reason what this means). Nevertheless, they can still be useful, especially for efficient queries.
+
+You can substitute these operators by the more legible functions `ST_xxx`.
+-->
+
+## 1. Extending the previous practical
+
+### 1.1. Retrieving vertex information
+
+It is possible to retrieve the coordinates of a point geometry in a straightforward way. 
+
+::: {.callout-tip title="Your Turn"}
+1. List the longitude and latitude values of restaurants located in ZIP code (`postal_code`) 20012 in a table containing columns `name`, `x`, `y`. The general pattern of the query function is:
+
+```sql
+SELECT ST_X(pointgeom), ST_Y(pointgeom)
+FROM table ...;
+```
+
+2. In the previous practical, you encountered the related functions for retrieving the `x` and `y` coordinates of the bounding box of a polyline or polygon geometry. Refresh your memory by retrieving the maximum and minimum `x` and `y` coordinates of the bounding boxes of the *three longest rivers* in the `spatial.us_rivers` table.
+:::
+
+### 1.2. Aggregate queries 
+
+::: {.callout-tip title="Your Turn"}
+Determine the total area *in square kilometres* of US states with a population of more than 15 million people. You will select spatial objects based on non-spatial attributes and determine a *joint spatial property*. Use the `SUM` operator together with the `ST_Area` function to get the total value. It is recommended that you first check what is the nature of the spatial reference system (check `SRID`) of the dataset. 
+
+```sql
+SELECT SUM(ST_Area(a.geom,...))
+FROM table a...;
+```
+
+Alternatively, you can also merge geometries together using `ST_Union` (see below).
+:::
+
+## 2. Topological analysis
+
+### 2.1. Topological relationships
+
+In the previous practical we focused on geometrical queries. These involve spatial measurements such as distance and area.
+
+Another very common type of spatial query is the *topological query*. Topological relationships are those that do not change under continuous affine transformation (e.g., stretching, rotation, translation).
+
+You already know how to find the US cities in a particular state, because there is a (non-spatial) attribute on the `us_cities` table that tells you the state of each city:
+
+```sql
+SELECT city, state
+FROM spatial.us_cities INNER JOIN spatial.us_states ON us_cities.state_abrv = us_states.state_abrv
+WHERE state = 'California';
+```
+
+But what if this information wasn't pre-computed as an attribute? We could get the same results by querying the topological relationship between the geometries of the states and the geometries of the cities:
+
+```sql
+SELECT city, state
+FROM spatial.us_cities INNER JOIN spatial.us_states ON ST_Contains(us_states.geom, us_cities.location)
+WHERE state = 'California';
+```
+
+We want only cities lying within California, based on the geometry of the outline of the border of California. This is achieved using the `ST_Contains` function in a restriction to an SQL query. The function returns `true` if `a.geom` contains `b.geom`.
+
+```sql
+ST_Contains(a.geom, b.geom)
+```
+
+`ST_Contains` is just one of a set of operations for determining the topological relations between geometries. These include the other seven named 9-intersection relationships:
+
+- `ST_Within`  (not to be confused with `ST_DWithin` or `ST_DFullyWithin` - study their differences)
+- `ST_Covers`
+- `ST_CoveredBy`
+- `ST_Equals`
+- `ST_Disjoint`
+- `ST_Overlaps`
+- `ST_Touches`
+
+In addition, other related topological operations are also available, such as:
+
+- `ST_Crosses`
+- `ST_Intersects`
+- `ST_Relate` (this is an extremely powerful method to capture nuanced relationships based on a relate matrix)
+
+::: {.callout-tip title="Your Turn"}
+Use the query template above to answer the following questions:
+
+1. Find all the interstates (highways) that cross the state of New York. **HINT:** You can use `ST_Intersects`, which results in any binary combination of objects that are not disjoint.
+2. Find all the states that border (*touch*, aka *meet*) the state of New York.
+3. Retrieve the name of the US state in which *Wah Mee Restaurant* is located (i.e., contained), based on the coordinates of its location (this means, do not solve the problem by simply looking at an attribute that may include the address).
+4. List all the states which the `'I95'` interstate passes through.
+5. List all the interstates which cross the Potomac river.
+6. Find all the US states that border (touch) exactly one other US state. (This is quite tricky!)
+:::
+
+::: {.callout-caution title="Answers"}
+1. Your result should have **28** rows.
+
+No answers are provided for the remaining questions. Use QGIS to check your work – drag the relevant tables from the QGIS **Browser** panel onto your map and verify your answers by eye (e.g. by identifying New York State and counting the number of states that border it).
+:::
+
+This is a key area of knowledge for working with spatial data. These relationships are based on the theory proposed by @egenhofer1991point based on point-set intersections. It has been standardised by the Open Geospatial Consortium (OGC) and the [OGC/ISO standard OpenGIS Simple Features Implementation Specification for SQL](http://www.opengeospatial.org/standards/sfs). This means that these exact same functions and their meanings are present in other geospatial DBMS, as well as programming libraries (in Python *Shapely, Geopandas*, in R *sf*, in Java *JTS*).
+
+### 2.2. The 9-intersection model
+
+In this week's lecture we looked at the [9-intersection model](/22_topological_analysis.qmd#formalisation-of-topological-relationships) as a way to systematically represent the topological relationship between two spatial objects.
+
+The `ST_Relate(geometry_a, geometry_b)` function generates the DE9IM (dimensionally extended 9-intersection model) matrix for two spatial entities. 
+
+PostGIS expresses the DE9IM matrix as one long string, reading across. For example, the spatial relationship "A touches B", where A and B are polygons, has the following DE9IM matrix: 
+
+$$
+\begin{bmatrix}
+\varnothing & \varnothing & 2 \\
+\varnothing & 0\text{ or }1 & 1 \\
+2 & 1 & 2
+\end{bmatrix}
+$$
+
+PostGIS represents this matrix as `FF2F01212` or `FF2F11212`.
+
+::: {.callout-tip title="Your Turn"}
+1. Work out, by hand, the DE9IM matrix for the topological relationship between [Wyoming state and the United States itself](https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Map_of_USA_WY.svg/1024px-Map_of_USA_WY.svg.png). 
+2. Now use `ST_Relate` to generate the DE9IM matrix for the topological relationship between Wyoming state (`us_states` table) and the United States itself (`world_countries` table). Is it what you expected?
+2. Use `ST_Relate` to generate the DE9IM matrix for the topological relationship between Wyoming state (`us_states` table) and the Yellowstone river (`us_rivers` table). What does the matrix tell you about how these two entities are related?
+:::
+
+### 2.3. Overlay operations
+
+As well as using the topological operations to find the relationship between two spatial objects, we can combine spatial objects into new objects using set-based operators, like *intersection*, *union*, and *difference*. 
+
+:::{.callout-note}
+Note, that this is a set operation on geometries (modelled as point sets). It applies in a similar way (but using different syntax) to how you can apply set operations on entire tables, as noted in the [documentation](https://www.postgresql.org/docs/latest/sql-select.html) (`UNION`, `INTERSECT`, `EXCEPT`) of the general pattern of SQL.
+:::
+
+**Union**: The union of two geometries can be constructed using the `ST_Union` function, with the template below. 
+
+```sql
+SELECT ST_Union(geometry1, geometry2)
+FROM ...
+```
+
+::: {.callout-tip title="Your Turn"}
+Create the region that is the union of France and Germany.  Output the long/lat coordinates of the centroid of the union of France and Germany.
+:::
+
+::: {.callout-caution title="Answer" collapse="true"}
+**5.816°E 48.458°N**
+:::
+
+**Intersection**: The *intersection* of two geometries can be constructed using `ST_Intersection`, which works similarly to `ST_Union`. Note the difference between the exercise of *constructing* the intersection (as a new geometry) vs evaluating *whether or not* two geometries intersect (as a boolean function, `ST_Intersects`, shown above). 
+
+::: {.callout-tip title="Your Turn"}
+1. What would be the *geometry type* of the intersection of an interstate and a river?
+2. Find the intersection of the `I81` interstate and the St. Lawrence river. Was it the geometry type you expected?
+3. How far away from the intersection of the `I81` and the St. Lawrence river is the intersection of the `I66` and the Potomac river?
+:::
+
+::: {.callout-caution title="Answer" collapse="true"}
+2. **`POINT(-75.99 44.31)`**
+3. **622 km**
+:::
+
+
+## 3. Spatial analysis 
+
+### 3.1. Spatial joins
+
+You have probably been using spatial joins already, without realising it. 
+
+The term *spatial join* refers to performing a relational join of attributes on tables based on a spatial criterion. This is one of the most fundamental operations in spatial analysis, allowing to analyse the attributes captured in disparate (possibly normalised) tables jointly, based on  spatial relationship.
+
+You can use the topological operators explored earlier to specify the relationship of geometries from two or more tables.
+
+You can do so using variants of the basic syntax 
+
+```sql
+SELECT <a.attributes>, <b.attributes>
+FROM table1 AS a, table2 AS b
+WHERE ST_Intersects(a.geom, b.geom)
+ORDER BY ...
+LIMIT ...;
+```
+
+This syntax can be also expressed as an `INNER JOIN`, resulting in a *spatial join*:
+
+```sql
+SELECT <a.attributes>, <b.attributes>
+FROM table1 a INNER JOIN table2 b ON ST_Intersects(a.geom, b.geom) 
+ORDER BY ...
+LIMIT ...;
+```
+
+A deeper treatment of spatial joins is in the PostGIS [documentation](https://www.postgis.net/workshops/postgis-intro/joins.html). Note the use of diverse functions that can be used for the join (`ST_Intersects` is not the only one, you can use any of the topological functions above, but also other binary functions). 
+
+::: {.callout-tip title="Your Turn"}
+1. Find the restaurant that is closest to the intersection of "*I81*" and the "*St. Lawrence*" river (in one query). How far away is it (in kilometres)? 
+2. Now filter these only to restaurants that are in a given direction, such as to the South, or to the North. Consider using `ST_Azimuth`. Would you consider only those that are exactly at Azimuth 0 deg, or 180 deg? Can you try to work with an interval? Consider the use of the `CASE` [statement](https://www.postgresql.org/docs/current/functions-conditional.html#FUNCTIONS-CASE), as in:
+
+```sql
+SELECT a,
+       CASE WHEN a = value THEN output_value2
+            WHEN a = value2 THEN output_value2
+            ELSE else_value
+       END
+    FROM table;
+```
+:::
+
+You may like Investigate other overlay functions in PostGIS including `ST_SharedPaths`, `ST_SymDifference`, and `ST_Split`.
+
+### 3.2. Multicriteria analysis 
+
+Spatial multicriteria analysis is an area for which traditional GIS systems are heavily used, and for which spatially-enabled DBMS are important.
+
+At the core of spatial multicriteria analysis is the ability to combine multiple criteria for an outcome. How these criteria are determined is beyond the scope of this practical, but the expressive power of SQL makes the combinations quite straightforward.
+
+Investigate how you can combine operations that capture spatial properties and relationships, including: 
+
+a. Distance
+b. Topological and other qualitative spatial relationships;
+c. Aggregate operations and weighting (multiplication by constants or functions in the `SELECT` part of the statement);
+d. Spatial joins; 
+e. Logical operators (`AND`, `IN`, `NOT`); and
+f. Set-based operations (Union, Intersection, Difference (Except/Not)).
+
+::: {.callout-tip title="Your Turn"}
+Here is a very simple multicriteria analysis that involves only "hard constraints". Let's build it up step by step:
+
+1. Find all US states that are less than 200,000 km² in area.
+2. Find all US states that are less than 200,000 km² in area and more than 250 km away from Canada (use `world_countries` table).
+3. Find all US states that are less than 200,000 km² in area, more than 250 km away from Canada and contain at least five cities in the `us_cities` table.
+4. Find all US states that are less than 200,000 km² in area, more than 250 km away from Canada, contain at least five cities in the `us_cities` table, and do not border the state of Georgia.
+:::
+
+::: {.callout-caution title="Answer" collapse="true"}
+The states that satisfy all four criteria are **Connecticut** and **Virginia**.
+:::
+
+## 4. Maintaining spatial constraints and logical relationships
+
+We have briefly noted *triggers* (see [Logical design](04_logical_design.html)) as a mechanism that allows to maintain constraints in the database that cannot be maintained by Primary Keys and Foreign Keys. The principle is the following:
+
+- You use an existing, or define a user-defined function that you want to execute;
+- Call this function in a trigger automatically upon a transaction being executed on a table (`INSERT/UPDATE/DELETE`).
+
+You will find an example script on how to use a trigger based on a custom (user) defined function in the attached sql script noted [above](../resources/sql/sql04_topological_operations.sql). 
+
+In the spatial context, we will often use spatial relationship checks before a functio ncan be executed (e.g., is this *point* from a given table, **inside** a *polygon* from another table?).
+
+### 4.1. Trigger example
+
+Define the function:
+
+```sql
+-- let's make sure that any new point we add is within a polygon (topological constraint)
+-- user-defined function
+
+CREATE OR REPLACE FUNCTION check_pointWithinPolygon()
+RETURNS trigger AS $$
+BEGIN
+  IF TG_OP = 'INSERT' THEN
+    IF ((SELECT count(*) FROM (SELECT s.gid FROM soil AS s WHERE st_Within(NEW.geom, s.geom)) as foo) > 0) THEN
+      RETURN NEW; 
+    ELSE
+      RAISE DEBUG 'inserted feature GID:% , LABEL: % is not within a soil patch', NEW.gid, NEW.label_sample;
+    END IF;
+  END IF;
+END;
+$$ 
+LANGUAGE plpgsql;
+```
+
+It is also good to note what the `$$` that encloses the function means in the example script. This is simply a way to *escape* the content of the string defining the function, to avoid having to escape all single quotes in the function (possibly necessary when defining, e.g. the schema that your function applies to in qualified table names). 
+
+Read [more](https://stackoverflow.com/questions/12144284/what-are-used-for-in-pl-pgsql/12172353#12172353).
+
+Now you can define the trigger:
+
+```sql
+
+-- use the trigger function in a trigger
+-- requires the mention of the table on which it is used
+-- specify WHEN a trigger is called - here, BEFORE an INSERT or UPDATE event
+CREATE TRIGGER myPointInSoil BEFORE INSERT OR UPDATE 
+ON mypoints FOR EACH ROW -- specifies the scope of the function
+EXECUTE PROCEDURE check_pointWithinPolygon();
+```
+
+The generic schema for a trigger is:
+
+```sql
+CREATE TRIGGER trigger_name 
+   {BEFORE | AFTER} { event }
+   ON table_name
+   [FOR [EACH] { ROW | STATEMENT }]
+       EXECUTE PROCEDURE trigger_function
+```
+
+### 4.2. Read more on triggers in Postgres and PostGIS
+
+Triggers can be used for a wealth of [uses](http://cliffpatterson.ca/blog/2017/10/29/postgresqlpostgis-trigger-functions/), such as:
+
+- Tracking edit history on data and populating metadata;
+- Adding computed values to a table, or even automated input processing (reprojection, upon insert).
+
+Read more on triggers [here](https://www.postgresqltutorial.com/postgresql-triggers/creating-first-trigger-postgresql/)
+
+## [Extra] Derived geometries
+
+Often, we want to derive a geometry from current geometries, in a process that characterises e.g., the area occupied by discrete objects, often points. We can characterise this area, in the simplest case, by finding the Bounding Box, as we have already discussed.
+
+But this is not a very faithful representation of such an area. It may be more desirable to find the convex hull (the minimum convex area (see lecture on convex geometries)) occupied by a set of points. PostGIS offers the function `ST_ConvexHull` [documentation](http://www.postgis.net/docs/manual-dev/ST_ConvexHull.html). Similarly, a less well defined, but more closely fitting area is achieved by finding the concave hull (allowing for concavities in its boundary). Investigate the use of `ST_ConcaveHull`, `ST_ConvexHull` and others, such as `ST_AlphaShape`. Note that generally you will need to combine these functions with `ST_Collect`, if you are using these hulls on subsets of records from a table. The general pattern for both is:
+
+
+```sql
+
+SELECT grouping_attribute,
+    ST_ConvexHull( ST_Collect(a.geom) ) AS geom
+  FROM table a
+  GROUP BY grouping_attribute;
+
+```
+
+or
+
+```sql
+SELECT grouping_attribute,
+    ST_ConcaveHull( ST_Collect(a.geom), param ) AS geom
+  FROM table a
+  GROUP BY grouping_attribute;
+```
+
+## [Extra] Advanced spatial analysis
+
+At this stage, you can explore advanced functions in PostGIS (or even beyond). Here are a few pointers for functions that may be of interest:
+
+1. **Spatial clustering** - investigate how geometries cluster in space. For instance, can you find clusters of restaurants in New York? Investigate the function [ST_ClusterDBSCAN](postgis.net/docs/manual-dev/ST_ClusterDBSCAN.html).
+
+2. **User defined functions** bring in huge power. A common spatial function to investigate the distribution of objects in space is the Kernel Density Estimation method (sometimes, incorrectly, confused with heat maps).
+
+Here is an [implementation](https://github.com/ptal-io/postgis_functions/blob/master/kernel_density_bandwidth.sql) that is based on a custom [user-defined](https://www.postgresql.org/docs/current/xfunc.html) [function](https://www.postgresql.org/docs/current/xfunc-sql.html). 
+
+

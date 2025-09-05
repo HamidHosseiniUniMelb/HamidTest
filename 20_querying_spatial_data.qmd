@@ -1,0 +1,91 @@
+# [L6b] Querying spatial data 
+
+This part of the subject will focus on the computational foundations of the queries we execute to analyse spatial data. We will explore the wealth of analytical capabilities enabled by the simple combination of these diverse queries, evaluating non-spatial, geometrical, topological (and other qualitative relationships), and relational (network) properties of spatial data. 
+
+::: {.content-visible when-format="revealjs"}
+## Learning objectives {background-color="lightPink"}
+
+- We now progressively outline the four main types of operations (query types) on spatial data (spatial entities), with  a perspective anchored in computational geometry algorithms.
+     - geometrical, 
+     - topological, 
+     - network
+- These can be combined using set-based queries.
+:::
+
+### Querying spatial databases (Thematic)
+
+- Querying **thematic properties** (i.e., non-spatial):
+    - Return all `areas` where `landuse` is `crop`
+    - Return all `parcels` where `owner` is `Joe Bloggs`
+    - We get a **subset** of spatial entities that satisfy a *non-spatial* condition (restriction)
+
+::: {.fragment}
+**Thematic** 
+
+```sql
+SELECT s.state, s.totpop
+FROM spatial.us_states AS s 
+WHERE s.state = ‘New York’
+```
+:::
+
+### Querying spatial databases (Geometric)
+
+- Querying **geometric** properties:
+    - What is the `distance` from `NY` to `MEL`?
+    - Return the `area` of `radius` `100km` around `Melbourne`.
+    - What is the `region` where `pine trees` grow in this forest?
+    - Is `Bendigo` north of `Melbourne`?
+
+::: {.fragment}
+**Geometric** 
+
+```sql
+SELECT s.state, ST_Area(s.geom::geography) 
+FROM spatial.us_states AS s
+WHERE ST_Area(s.geom::geography) > 1000000
+```
+:::
+
+### Querying spatial databases (Topological)
+
+- Querying **topological** properties:
+    - Is `Parkville` `adjacent` to `Carlton`?
+    - What are the `suburbs` `surrounding` the suburb where ` uni` is?
+    - What is the tram `route` between `Melbourne Uni` and `St Kilda Beach`?
+
+::: {.fragment}
+**Topological (e.g., spatial join)**
+
+```sql
+SELECT s.state, r.name
+FROM spatial.us_states as s 
+JOIN spatial.us_rivers as r ON ST_Within(r.geom,s.geom)
+```
+:::
+
+### Querying spatial databases (Combined)
+
+- **Combined** properties (based on set-theoretic operations):
+    - `Union`/`Intersection`/`Difference` – e.g., create geometry based on outcomes of a topological test
+    - What is the `part of` the `Yarra river `that is `within` `Melbourne`?
+
+::: {.fragment}
+**Combined for complex analyses**
+
+```sql
+SELECT s.state, r.name
+FROM spatial.us_states as s 
+JOIN spatial.us_rivers as r ON ST_Within(r.geom,s.geom)
+WHERE ST_AREA(s.geom) > 1000000 and
+r.name LIKE 'Poto'
+```
+:::
+
+<!-- end slides -->
+::: {.content-visible when-format="revealjs"}
+## Next: [Geometrical analysis](/21_geometrical_analysis_short.html)
+
+## References {background-color="lightYellow"}
+
+:::

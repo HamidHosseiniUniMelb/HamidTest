@@ -1,0 +1,76 @@
+# [A1] Basic GIS and SQL interaction
+
+## Objective
+
+Assignment 1 is a self-paced, introductory assignment to get you familiarised with a desktop GIS, and with writing SQL queries (non-spatial). It is a hurdle, but it is not assessed.
+
+The main purpose is to start thinking about:
+
+- the different types of data we may be looking at,
+- the way you interact with a GIS (and the limitations of the interaction with many data organised in layers),
+- how data records are described by a variety of attributes, and
+- how the spatial footprint of things in space (their geometry) is anchored into locations defined by a spatial reference system (or projection).
+
+All these aspects should challenge you to think about them, not necessarily understanding them in depth yet. They will make you think about the content of this whole semester. Lecture 1 provides an intro about spatial thinking.
+
+## Your task
+
+This is a 0-marks assignment. You just need to submit it -- but it is a *Hurdle* -- you must submit it!
+
+The assignment has two parts:
+
+-   **Part 1:** Use a DBMS (Database Management System) to query non-spatial data;
+-   **Part 2:** Interaction with a basic GIS software (e.g., QGIS), and using it to display spatial data.
+
+This practical should require about 10 hours to complete.
+
+### Part 1: Database interaction
+
+This self-guided assessment will introduce the basic elements of the structure query language (SQL) and you will learn how to interact with the Postgres database management system (DBMS). We will use sample data from the US Census Bureau and the Digital Chart of the World. Only non-spatial operations will be covered/assessed here.
+
+The assessment will let you gain proficiency with the basics of connecting to the database, gaining an overview of the data available, and producing queries executing simple analyses.
+
+- Details on how to connect to the database are in [Practical 1a](/practicals/01_connecting_to_DB.qmd).
+
+- Follow the content of [Practical 1b](/practicals/01b_basic_SQL_interaction.qmd) to practice your SQL interaction before attempting the assignment.
+
+### Part 2: GIS interaction
+
+This self-guided assessment will introduce the basic interaction with QGIS, an open-source GIS system. The way we use QGIS is very similar to any other GIS (incl ESRI's proprietary ArcGIS). You will explore the layer system, load data, change their order, and produce simple maps.
+
+This assessment here is focused on the basics of loading data, and understanding their properties, which we will build on later in the subject.
+
+To deepen your knowledge, you are asked to self-enrol into the **Geographic Information Systems (GIS) For Engineers: QGIS Module** on Canvas. You need to first [enrol](https://catalog.lms.unimelb.edu.au/browse/communities/courses/geographic-information-systems-gis-for-engineers--qgis-module) into this module. The materials for the module are then in [https://canvas.lms.unimelb.edu.au/courses/143983](https://canvas.lms.unimelb.edu.au/courses/143983). 
+
+In this subject, we will be using QGIS to directly read data from our Postgres database. This is not covered in the GIS for Engineers QGIS module, so we have provided additional material on this topic for you in [Practical 2](/practicals/02_basic_GIS_interaction.qmd).
+
+## Assessment tasks
+
+### Part 1:
+
+Complete the quiz in Canvas, requiring you to write SQL answers to the questions below. These questions all concern the tables `us_cities` and `us_states` (contains demographic data for US states) which may both be accessed from the `spatial` schema the course database, using the same techniques as in the practical exercises. 
+
+Your assignment is to provide SQL statements to answer to the following 10 questions:
+
+1.  List the columns and data types of the `us_cities` table.
+2.  List in alphabetical order the names of all cities with populations of greater than 500,000 but fewer than 9,000,000 people.
+3.  Find the average population of those cities in the state of California (state abbreviation `CA`) listed in the database.
+4.  List the names of states that have an elderly population over 65 (column `age65_up`) that is more than three quarters of the size of the child population (column `age0_17`) in that state.
+5.  List the names of US cities that end with `land` along with the name of the state (not the state abbreviation) in which each city is located. Order your list in descending order of state name (i.e., `Z` first).
+6.  Cities in the `us_cities` table are ranked according to population (`rank90`). Display a table that lists each state name along with the ranks of the highest and lowest ranking cities in that state in terms of population. Order your table in alphabetical order of state name.
+7.  List the names of any cities that are amongst the top 10 largest cities (in terms of population), but are not located in the one of the top 10 largest states (in terms of population).
+8.  Create a new table with the following relation scheme: `mycities(city: VARCHAR(32), pop90: NUMBER)`.
+9.  Populate your new table with appropriate data from the `us_cities` table for only the 20 largest cities in terms of population.
+10. Delete your new `mycities` table.
+
+### Part 2:
+
+1.  Complete the "GIS concepts" and "Vector data in practice" sections of the **Geographic Information Systems (GIS) For Engineers: QGIS Module** described above. (Note: The "Raster data in practice" section of this module is recommended, but optional.)
+2.  Using QGIS, connect to our PostGIS server as outlined in Practical 2. 
+
+## Assignment submission
+
+-   Submit to Canvas the map you made at the completion of the "Vector data in practice" section of the QGIS module (as png file, including student number) and answer the questions using plain SQL statements.
+-   The due date for the assignment is clearly stated on the course Canvas web site.
+-   NO LATE ASSIGNMENTS WILL BE ACCEPTED. It is your responsibility to ensure you are aware of the assignment due date posted on the course web site.
+ 

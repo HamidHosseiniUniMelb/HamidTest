@@ -1,0 +1,771 @@
+# [L8] Network models and analysis
+
+::: {.content-visible when-format="revealjs"}
+## Learning objectives {background-color="lightPink"}
+
+- We will introduce the concepts of network modelling, and network representation, and you will appreciate their distinction;
+- You will understand the fundamentals of graphs, the mathematical structures for the representation and analysis of networks;
+- You will understand the principles of algorithms operating on networks, in particular those applied for solving routing problems.
+:::
+
+
+## Networks around us
+
+![Melbourne from the air](./figs/2_part/23_network_analysis/network_support_lives.png){width="70%"}
+
+::: {.content-visible when-format="revealjs"}
+### Networks occur naturally
+
+![River delta](./figs/2_part/23_network_analysis/networks_occur_naturally.png){width="70%"}
+:::
+
+
+## Networks 
+
+A collection of objects *linked* into a structure (that can in turn be itself be viewed as an object). The connected (*topological*) structure of the network supports complex *processes* and enables to *characterise* the network [@kuhn2012core;@kuhn2021semantics]. 
+
+:::{.content-visible when-format="revealjs"}
+### Networks (cont.){.unnumbered}
+:::
+
+:::{.incremental}
++ **Topology defines, ...** The connectivity structure of networks is the *fundamental* carrier of their properties:
+    - Do *these* tram lines connect at *this* stop? 
+    - Can I fly to London *via* Dubai?
++ **...metrics refine.** We *quantify* the cost of the connection between entities:
+    - number of links (topological distance), metric distance, time, litres of petrol, energy needed
+    - links may be asymmetrical (inequal costs in reverse direction): (e.g., energy needed for bike-riding uphill vs downhill)
+    - How many *changes* of flights between London and Auckland?
+:::
+
+Before you can quantify and refine, the connections must exist.
+
+### Spatial networks
+
+::::{.columns}
+::: {.column width="60%"}
+:::{.incremental}
++ Capture connectivity between entities located in *space* (1..nD)
++ Links can be material or immaterial:
+    - Links between two junctions are streets; or
+    - Links between two streets are junctions;
+    - Links between two tram lines are tram interchanges;
+    - Links between people (spatial entities!) are their places of work (*also* spatial entities);
+    - Links between people are their Facebook connections (*non-material links*)
+:::
+:::
+
+::: {.column width="40%"}
+![Street network around the University of Melbourne, and public transport stops](./figs/2_part/23_network_analysis/spatial_networks.png){width="100%"}
+
+:::
+
+::::
+
+
+### Modelling networks
+
+A conceptualisation process singling out the elements of the network *we want to study the properties of* (main components) by analysing their place in the network, for which we need to identifying their *relevant relationships*. 
+
+:::{.content-hidden when-format="revealjs"}
+There may be *many* relationships between any network  components, and typically only a subset of them are of relevance for any specific analysis.
+:::
+
+::: {.content-visible when-format="revealjs"}
+
+### {.unnumbered}
+
+::: {.callout-tip}
+
+## Network DB for a tram network
+
+To manage the tram network rail infrastructure, you need a database of the parameters of each network component. If a rail gets broken, you need to compute which routes will need to be redirected.
+
+What will you conceptualise as edges and nodes in your network database? Justify!
+:::
+:::
+
+### Modelling street networks
+
+![Models of street networks [@marshall2018street]](./figs/2_part/23_network_analysis/modelling_street_networks.png){width="100%"}
+
+Many ways to *model* a street network, i.e., to decide what is an *element*, and what are elements' *connections*. 
+
+:::{.content-hidden when-format="revealjs"}
+These models result in very different *graph representations*, leading to highly variable *analytical results*! [@marshall2018street].
+:::
+
+## Graph representations of networks
+
+Graphs are mathematical structures that **represent** networks, and abstract the topological structure and properties of real-world networks **necessary** for analysis.
+
+**Definition**: Graph $G(N,E)$, with a set of **nodes** $N$ and a set of **edges** $E$ defined as *pairs* of nodes from $N$.
+
+:::{.content-hidden unless-format="revealjs"}
+### Graph representations of networks (cont.)
+:::
+
+- Edge $e={n1,n2}$ connecting $n1$ and $n2$;
+- Arc is an oriented edge, if the direction of traversal from $n1$ to $n2$ matters;
+- Edges (arcs) and nodes can have *attributes*: e.g., Streets have *names*, *length*, Stations have *opening hours*
+- Edges (arcs) can be *weighted* by those attributes (length, cost of travel)
+
+### Defining the unit of analysis
+
+- The basic unit of analysis identified during network modelling is represented as the *node* in the graph $G$;
+- The edges represent the existence of a relationship identified during network modeling (a connection).
+
+### From model to graph 
+
+Consider junctions $J_{1} .. J_{4}$ and road segments connecting them. Two modelling approaches will lead to distinct graph structures:
+
+![Modelling a street network. Model 1: Junctions as nodes. Model 2: segments as nodes](./figs/2_part/23_network_analysis/modelling_networks.png)
+
+:::{.content-hidden when-format="revealjs"}
+- Model 1 focuses on connections between *junctions*, 
+- Model 2 focuses on connections between *road segments* (or even lanes). 
+:::
+
+::: {.content-hidden when-format="revealjs"}
+Model 2 does not easily allow to place the resulting network in space (the centroid of a street segment may not be a nice representative point for the entire geometry), yet it is a valid, and useful representation that can be easily attached to the geometrical representation used in a cartographic output.
+
+Note, you may lose information if you convert from one model to another -- you cannot fully reverse back.
+:::
+
+### Graph properties
+
++ **Number of nodes** (sometimes also called vertices, beware)
++ **Number of edges**
++ **Adjacent nodes**: if connected by edge
+    - Degree of node $n$: number of edges incident with $n$
+    - Degree, or In/Out degree (distinct in directed graphs): number of adjacent nodes of $n$ 
+    - Max/Average degree, degree distribution
+
+
+### Graphs, subgraphs, and connectivity
+
+:::: {.columns}
+
+::: {.column width="60%"}
++ **Connected graph:** graph where all nodes are connected
+    - Subgraph: subset of $G$
+    - Connected (sub)graph: all nodes reachable by a sequence of edges (both directions = strongly connected).
++ **Walk**: sequence of adjacent edges 
+    - **Path**: walk with all edges distinct.
+    - **Reachable nodes**: if a path exists
+    - **Diameter**: longest shortest path in the graph
+:::
+
+::: {.column width="40%"}
+![Graph](./figs/2_part/23_network_analysis/graph_properties.png){width="100%"}
+:::
+
+::::
+
+### Graph types 
+
+::::{.columns}
+::: {.column width="60%"}
+- **Complete graph**: a graph where each nodes is adjacent to each other node
+- **Directed graph** (digraph): a graph where edges are only traversable in a specific direction (= arcs)
+- **Weighted graph**: a graph where the cost of traversal of an edge is not equal. 
+- **Tree**: a connected, undirected graph without cycles, where any two nodes are connected by exactly one path. An ordered tree is ordered, and rooted. 
+:::
+
+
+::: {.column width="40%"}
+![Graph and a closed walk, tree](./figs/2_part/23_network_analysis/closed_tree_graph.png){width="100%"}
+:::
+
+::::
+
+::: {.content-visible when-format="revealjs"}
+### Graph types {.unnumbered}
+:::
+
+- **Planar graph**: a graph that can be draw on a plane without intersecting edges.
+- **Bi-partite graph**: the node set consists of two subsets $N={N_1,N_2}$ (e.g., *researchers* are *connected* by the *conferences* they attend, and vice-versa) (generalizes as **multi-partite** graphs).
+
+![Planar graphs vs non-planar graphs. Bipartite graph with coloured nodes](./figs/2_part/23_network_analysis/planar_vs_nonplanar.png){width="100%"}
+
+::: {.content-visible when-format="revealjs"}
+
+## {.unnumbered}
+
+::: {.callout-tip}
+
+## Exercise
+
+:::: {.columns}
+::: {.column width="50%"}
+- Node with max degree?	
+- Degree $n_{1}$: 			
+- Is $n_{2}$ adjacent to $n_{3}$?	
+- Is $G$ connected?  	
+- Path $n_{4}- n_{2}$:
+- Diameter of $G$?	
+:::
+
+::: {.column width="50%"}
+![](./figs/2_part/23_network_analysis/exercise1.png){width="100%"}
+:::
+
+::::
+
+:::
+
+## {.unnumbered}
+
+::: {.callout-tip}
+
+## Solution
+
+:::: {.columns}
+::: {.column width="50%"}
+- Node with max degree?	            **n1**
+- Degree $n_{1}$: 		            **6**
+- Is $n_{2}$ adjacent to $n_{3}$?	**No**
+- Is $G$ connected?   	            **yes**
+- Path $n_{4}- n_{2}$ : 		        [$n_{8},n_{5},n_{2}$]
+- Diameter of $G$?	                **4** (blue)
+:::
+
+::: {.column width="50%"}
+![](./figs/2_part/23_network_analysis/exercise1_solution.png){width="100%"}
+:::
+
+::::
+
+:::
+
+## {.unnumbered}
+
+::: {.callout-tip}
+## Exercise
+- Give examples of spatial networks that you would represent using the following kinds of graphs:
+    - Non-connected graph
+    - Directed graph
+    - Weighted graph
+    - Non-planar graph
+
+:::
+
+:::
+
+
+
+## Graph duality
+
+:::{.content-hidden when-format="revealjs"}
+
+Recall our discussion on *modelling* networks! Such decisions are highly important.  
+
+- *Poincaré duality*: when you can fully reverse from one representation to another without information loss (defined between manifolds). 
+- Pseudo-duality: you cannot reverse without information loss [@marshall2018street]. The term *dual* is then incorrect!
+
+:::
+
+![Voronoi diagram is the Poincaré dual of the Delaunay triangulation, and land parcels are the duals of their connectivity graph. But the street segment network is a pseudo dual graph of the network of junctions [@marshall2018street]](./figs/2_part/23_network_analysis/graph_duality.png)
+
+
+## Graph encoding and storage
+
+### Undirected networks - Edge list
+
+(Similar to, but not same as, *adjacency list*)
+
+:::: {.columns}
+
+::: {.column width="50%"}
+ ```
+G (8,10)
+Edges:
+N1,N3
+N1,N2
+N1,N4
+N2,N4
+N3,N4
+N3,N5
+N4,N5
+N7,N8
+N7,N6
+N6,N8
+```
+:::
+
+::: {.column width="50%"}
+![](./figs/2_part/23_network_analysis/graph_representation.png){width="100%"}
+:::
+
+::::
+
+### Undirected networks - Adjacency matrix (undirected)
+
+:::: {.columns}
+
+::: {.column width="50%"}
+- Symmetrical
+- Sparse (lots of 0s)
+- Easy to compute degree distribution as row sums (degree N8 = 2)
+
+![](./figs/2_part/23_network_analysis/adjacency_matrix.png){width="70%"}
+
+:::
+
+::: {.column width="50%"}
+![](./figs/2_part/23_network_analysis/graph_representation.png){width="100%"}
+:::
+
+::::
+
+### Directed networks - Edge list
+
+:::: {.columns}
+
+::: {.column width="50%"}
+```
+G (8,10)
+Arcs:
+N1,N3
+N1,N2
+N1,N4
+N2,N4
+N3,N4
+N3,N5
+N4,N5
+... all above are bidirectional, so repeated
+N3,N1
+N2,N1
+...
+N8,N7
+N7,N6
+N6,N8
+N8,N6
+```
+:::
+
+::: {.column width="50%"}
+![](./figs/2_part/23_network_analysis/directed_adjacency_list.png){width="100%"}
+:::
+
+::::
+
+Weights and other attributes follow in additional columns (e.g., `N8,N6,30,Swanston St, ...`)
+
+### Directed networks - Adjacency matrix 
+
+:::: {.columns}
+
+::: {.column width="50%"}
+- Asymmetrical
+- Easy to compute in/out degree distribution
+
+![](./figs/2_part/23_network_analysis/directed_adjacency_matrix.png){width="100%"}
+:::
+
+::: {.column width="50%"}
+![](./figs/2_part/23_network_analysis/directed_adjacency_list.png){width="100%"}
+:::
+
+::::
+
+### Weighted directed networks - Adjacency matrix 
+
+:::: {.columns}
+
+::: {.column width="50%"}
+- Asymmetrical
+- Must distinguish between cost of travel, i.e., weight = 0, or possibly even negative; and non-existent arc (NULL)!
+![](./figs/2_part/23_network_analysis/weighted_directed_matrix.png){width="100%"}
+
+:::
+
+::: {.column width="50%"}
+![](./figs/2_part/23_network_analysis/weighted_directed_graph.png){width="70%"}
+:::
+
+::::
+
+
+:::{.content-visible when-format="revealjs"}
+### {.unnumbered}
+::: {.callout-tip}
+## Exercise: Graph analysis	
+
+- What problems would you compute using a graph?
+:::
+:::
+
+## Graph analysis
+
+### History
+
+**Problem**: *Devise a walk through the city of Königsberg that would cross each bridge once and only once.*
+
+![Map of Königsberg (Source: Wikipedia), Leonhard Euler's *Seven Bridges of Königsberg* problem (1736)](./figs/2_part/23_network_analysis/exercise2_graph_problem.png){width="70%"}
+
+
+:::{.content-visible when-format="revealjs"}
+### History (cont.) {.unnumbered}
+:::
+
+Euler's approach - represent land masses as nodes, bridges as edges. Then:
+
+*Eulerian walk*: You need $0$ or $2$ nodes of odd degree to achieve this! (recall Euler characteristic from the topology lesson)
+
+*Eulerian circuit*: If you start and end at the same node (then all nodes must have an even degree)
+
+### Types of graph analysis
+
+:::{.incremental}
+- **Influence analysis**: centrality measures (of nodes, of edges), e.g., Degree, Betweenness, Closeness centrality;
+- **Traversal** (search) and **neighbourhood** analysis (k-Nearest Neighbour);
+- **Accessibility analysis**: least-cost path, k-shortest paths, travelling salesman problem;
+- **Cost analysis**: what destinations are within-cost/distance;
+- **Set operations**: subgraphs, intersections, unions, cliques, motifs
+:::
+
+:::{.content-hidden when-format="revealjs"}
+An excellent overview of spatial networks and their analysis is in @barthelemy2011spatial.
+:::
+
+## Influence measures: centrality
+
+Node the distinct properties of the networks revealed by the different centrality measures [@crucitti2006centrality].
+
+![Centrality measures applied on the city of Venice by [@crucitti2006centrality]](./figs/2_part/23_network_analysis/network_street_centrality_measures.png){width="60%"}
+
+:::{.content-visible when-format="revealjs"}
+## Influence measures: centrality {.unnumbered}
+:::
+
+:::: {.columns}
+
+::: {.column width="50%"}
+- **Degree centrality** is a *local measure* (only requires the analysis of neighbours)
+- **Closeness** and **betweenness** (and other) centralities are *global measures* (unless defined with a distance cut-off.)
+:::
+
+::: {.column width="50%"}
+![Betweenness centrality of named streets in Melbourne [@tomko06:exploring]](./figs/2_part/23_network_analysis/tomko_betweenness_namedstreets.png){width="60%"}
+:::
+
+::::
+
+## Graph search (traversal)
+
++ Graph search problems - scan the graph and identify a node of a given property (i.e, whether a node of a given property exists, and if so, which one it is)
++ Graph traversal:
+    - **Depth-first search** (DFS) - search from a given start node (often *root* node in tree graphs) and explore each branch of the graph, until its end, then backtrack to the last branching point
+    - **Breadth-first search** (BFS) - search from a given start node and analyse all neighbouring nodes, then continue exploring their neighbours, then continue another level of depth further until the searched node is found (or all nodes have been visited). 
+ 
+### Search in spatial networks
+
+![Depth-first search](./figs/2_part/23_network_analysis/spatial_search_dfs.png){width="30%"}
+
+:::{.content-visible when-format="revealjs"}
+## Search in spatial networks (cont.) {.unnumbered}
+:::
+
+![Breadth-first search](./figs/2_part/23_network_analysis/spatial_search_bfs.png){width="30%"}
+
+::: {.content-visible when-format="revealjs"}
+### In nature {.unnumbered}
+
+![](./figs/2_part/23_network_analysis/lighting.gif){width="80%"}
+:::
+
+## Routing: search for optimal paths
+
+*The optimal path between vertices $u$ and $v$ is any path $p_{uv}$ of minimal cost.*
+
+- What is optimal depends on the chosen cost function
+- There might be several equal paths
+
+:::{.content-visible when-format="revealjs"}
+## {.unnumbered}
+::: {.callout-tip}
+## How do I get from Melbourne to Sydney? {.unnumbered}
+
+![Depends on who you ask](./figs/2_part/23_network_analysis/exercise3_bestpath.png){width="60%"}
+
+:::
+
+### {.unnumbered}
+
+Options, options, options:
+
+- Fastest
+- Shortest 
+- Most scenic
+- Using least petrol/electricity
+- With least turns (if you are a long truck)
+- With simplest instructions (easy to describe turns)
+- For a tall truck
+- ...
+
+:::
+
+### Typology of routing problems
+
++ From a single source to a single destination (SSSD)
+    - routing
++ From a single source to all other vertices (SSAD)
+    - spanning tree
++ From all vertices to all other vertices (ASAD)
+    - distance matrix
++ Related:
+    - Optimal cycles (travelling salesperson problem)
+    - Optimal connection between locations (network construction; Steiner problem)
+
+:::{.content-visible when-format="revealjs"}
+## {.unnumbered}
+:::{.callout-tip}
+### Exercise: Find the least-cost path from $a$ to $f$
+
+![](./figs/2_part/23_network_analysis/search_optimal_path.png){width="30%"}
+:::
+
+## {.unnumbered}
+:::{.callout-tip}
+### Solution: Optimal path from $a$ to $f$
+
+![](./figs/2_part/23_network_analysis/search_optimal_path_solution.png){width="30%"}
+:::
+:::
+
+
+
+### Dijkstra algorithm
+
+Single pair shortest path algorithm:
+
+- Exact solution, faster then breadth first/depth first
+- Requires a connected weighted graph (non-negative costs)
+- Complexity $O(N^2)$
+
+#### Dijkstra algorithm - worked out solution
+
+::::{.columns}
+:::{.column width="45%"}
+Find shortest path from $n_{7}$ to $n_{2}$:
+
+1. d=0, all other nodes set to inf, and put to unvisited. 
+2. Consider unvisited neighbours of current node, calculate tentative distances (dist)
+3. If $(dist + new edge) < dist$, update dist, set node in prev, repeat ( and backtrack if needed)
+:::
+
+:::{.column width="55%"}
+![Dijkstra, Initialisation](./figs/2_part/23_network_analysis/dijkstra_algorithm.png){width="80%"}
+:::
+
+::::
+
+::: {.content-visible when-format="revealjs"}
+#### Dijkstra algorithm - worked out solution {.unnumbered}
+:::
+
+::::{.columns}
+:::{.column width="45%"}
+Find shortest path from $n_{7}$ to $n_{2}$:
+
+1. d=0, all other nodes set to inf, and put to unvisited. 
+2. Consider unvisited neighbours of current node, calculate tentative distances (dist)
+3. If $(dist + new edge) < dist$, update dist, set node in prev, repeat ( and backtrack if needed)
+:::
+
+:::{.column width="55%"}
+![Dijkstra, Step 2+3](./figs/2_part/23_network_analysis/dijkstra_algorithm2.png){width="80%"}
+:::
+
+::::
+
+::: {.content-visible unless-format="revealjs"}
+
+![Dijkstra, cont.](./figs/2_part/23_network_analysis/dijkstra_algorithm3.png){width="80%"}
+
+![Dijkstra, cont.](./figs/2_part/23_network_analysis/dijkstra_algorithm4.png){width="80%"} 
+
+![Dijkstra, cont.](./figs/2_part/23_network_analysis/dijkstra_algorithm5.png){width="80%"}
+
+![Dijkstra, cont.](./figs/2_part/23_network_analysis/dijkstra_algorithm6.png){width="80%"}
+
+![Dijkstra, cont.](./figs/2_part/23_network_analysis/dijkstra_algorithm7.png){width="80%"}
+
+![Dijkstra, cont.](./figs/2_part/23_network_analysis/dijkstra_algorithm8.png){width="90%"}
+
+:::
+
+::: {.content-visible when-format="revealjs"}
+
+#### Dijkstra algorithm - worked out solution {.unnumbered}
+
+::: {.r-stack}
+![Dijkstra, Initialisation](./figs/2_part/23_network_analysis/dijkstra_algorithm.png){.fragment .fade-in-then-out width="80%"}
+
+![Dijkstra, Step 2+3](./figs/2_part/23_network_analysis/dijkstra_algorithm2.png){.fragment .fade-in-then-out width="80%"}
+
+![Dijkstra, cont.](./figs/2_part/23_network_analysis/dijkstra_algorithm3.png){.fragment .fade-in-then-out width="80%"}
+
+![Dijkstra, cont.](./figs/2_part/23_network_analysis/dijkstra_algorithm4.png){.fragment .fade-in-then-out width="80%"}
+
+![Dijkstra, cont.](./figs/2_part/23_network_analysis/dijkstra_algorithm5.png){.fragment .fade-in-then-out width="80%"}
+
+![Dijkstra, cont.](./figs/2_part/23_network_analysis/dijkstra_algorithm6.png){.fragment .fade-in-then-out width="80%"}
+
+![Dijkstra, cont.](./figs/2_part/23_network_analysis/dijkstra_algorithm7.png){.fragment .fade-in-then-out width="80%"}
+
+![Dijkstra, cont.](./figs/2_part/23_network_analysis/dijkstra_algorithm8.png){.fragment .fade-in width="90%"}
+:::
+
+
+:::
+
+
+
+::: {.content-visible unless-format="revealjs"}
+#### Dijkstra algorithm - pseudocode
+
+![https://en.wikipedia.org/wiki/Dijkstra's_algorithm](./figs/2_part/23_network_analysis/dijkstra_pseudocode.png)
+:::
+
+#### Dijkstra’s multi-source optimal path algorithm
+
+::::{.columns}
+:::{.column width="50%"}
+An accident has happened; which emergency team should be sent? Should the hospital at $a$ or $f$ send out the emergency vehicle?
+:::
+
+
+:::{.column width="50%"}
+![](./figs/2_part/23_network_analysis/dijkstra_optimal_path.png){width="60%"}
+:::
+
+::::
+
+#### Dijkstra’s multi-source optimal path algorithm
+
+::::{.columns}
+:::{.column width="50%"}
+**Approach:** Insert a *virtual* node with 0-cost edges to all origins, and then apply a standard Dijkstra algorithm.
+:::
+<!-- ![](./figs/2_part/23_network_analysis/dijkstra_optimal_path2.png){width="70%"}
+
+![](./figs/2_part/23_network_analysis/dijkstra_optimal_path3.png){width="70%"}
+-->
+
+:::{.column width="50%"}
+![](./figs/2_part/23_network_analysis/dijkstra_optimal_path4.png){width="100%"}
+:::
+
+::::
+
+
+<!--![](./figs/2_part/23_network_analysis/dijkstra_optimal_path5.png){width="70%"}
+
+![](./figs/2_part/23_network_analysis/dijkstra_optimal_path6.png){width="70%"}
+-->
+#### Dijkstra’s search strategy
+
+:::{.content-visible unless-format="revealjs"}
++ Dijkstra applies a *radial* search strategy, starting from source, searches in all directions for next nearest node
+
+![Dijstra's search strategy](./figs/2_part/23_network_analysis/dijkstra_search_radial.png){width="60%"}
+:::
+
+::::{.columns}
+:::{.column width="50%"}
++ **Bi-directional modification** of Dijkstra: 
+    - Start from source and destination
+    - Form two trees until they meet
+:::
+
+::: {.column width="50%"}
+![Bi-directional Dijkstra search algorithm](./figs/2_part/23_network_analysis/bidirectional_dijkstra.png){width="100%"}
+:::
+
+::::
+
+### The $A^{*}$ algorithm
+
+::::{.columns}
+:::{.column width="50%"}
+- $A^{*}$ shortest path algorithm applies a *heuristic* (an *estimate*) for the remaining distance to travel and adds it to the cost of travel to the *next* node evaluated.
+:::
+
+::: {.column width="50%"}
+![A-star](./figs/2_part/23_network_analysis/a_star.png){width="100%"}
+:::
+
+::::
+
+::: {.callout-important}
+A-star requires a definition of embedding space for the distance metric (e.g., Euclidean, Manhattan). Experiment here: [https://qiao.github.io/PathFinding.js/visual/](https://qiao.github.io/PathFinding.js/visual/)
+:::
+
+### Travelling salesperson problem (TSP)
+
+- Find a **shortest closed path** through a set of locations in a graph.
+- NP complete (hard) problem – optimal solution can reliably be found only by checking all options ($O 2^n$ where the number of cities is $n$)
+
+:::{.content-visible when-format="revealjs"}
+
+![https://en.wikipedia.org/wiki/Travelling_salesman_problem](./figs/2_part/23_network_analysis/travelling_salesman_problem.gif)
+
+:::
+
+:::{.content-hidden unless-format="pdf"}
+
+![https://en.wikipedia.org/wiki/Travelling_salesman_problem](./figs/2_part/23_network_analysis/travelling_salesman_problem.svg)
+
+:::
+
+:::{.content-visible when-format="revealjs"}
+## {.unnumbered}
+
+![XKCD: Solving the TSP](./figs/2_part/23_network_analysis/travelling_salesman_problem2.png)
+:::
+
+### Steiner problem
+
+Given a set of locations, find the shortest possible path that connects them all. Intermediate vertices (Steiner points) may be added. 
+
+![](./figs/2_part/23_network_analysis/steiner_problem.png){width="50%"}
+
+::: {.content-visible when-format="revealjs"}
+### Steiner problem {.unnumbered}
+:::
+
+:::: {.columns}
+:::{.column width="50%"}
+- NP Hard, Approximate solution computable in *polynomial time* by solving the all-pairs shortest paths problem, then 2) solving the minimum spanning tree problem.
+- **But physics may help:** [Physical determination of the Steiner problem](https://www.youtube.com/watch?v=dAyDi1aa40E)
+:::
+
+:::{.column width="50%"}
+![](./figs/2_part/23_network_analysis/steiner_problem2.png){width="100%"}
+:::
+
+::::
+
+::: {.content-visible when-format="revealjs"}
+## Summary {background-color="lightPink"}
+
+- You understand the process of modelling and representing spatial networks;
+- You can relate your knowledge of topology, and topological structures to network problems;
+- You understand graphs as structures that enable to represent, store, and analyse properties of networked object
+- You understand the complexities of routing and searching graph algorithms.
+:::
+
+
+<!-- end slides -->
+::: {.content-visible when-format="revealjs"}
+## Next: [Raster analysis](/24_raster_analysis.html)
+
+## References {background-color="lightYellow"}
+
+:::
+
+
+
+

@@ -1,0 +1,329 @@
+# [L2b] Conceptual Modelling
+
+## Learning objectives {background-color="lightPink"}
+
+- Understand the process of modelling as abstraction and generalisation of properties of things that matter for a specific purpose, as part of DB design;
+- Appreciate the need to clearly and unambiguously capture and communicate conceptual models
+- Understand the independence of conceptual design from subsequent database design steps (e.g., logical design).
+
+## Database design
+
+The design of the **logical** and **physical structure** of a database (in a given DBMS or DB paradigm) so that it contains **all** the **information required** by the **user** and for the efficient behaviour of the whole **information system** for all users, **applications** and user **interactions**.
+
+![](./figs/1_part/12_conceptual_model/1_db_design_process.png)
+
+### Database design aims
+
+- **Identify what to store:** all the information required by all applications and use-cases that should be supported by the data stored in the database
+- **Identify what NOT to store:** only store data related to the information needs of the use cases
+- **Store it smartly:** To reduce the redundancy of the stored data (structure, computation)
+
+:::{.content-visible when-format="revealjs"}
+## {.unnumbered}
+:::{.callout-tip}
+## Activity: Draw an object {.unnumbered}
+
+Ask your colleague as specifically as possible to draw an object 
+
+Pick something that is not in this room, do not point
+
+You both should sketch it as faithfully as you can.
+:::
+
+## {.unnumbered}
+:::{.callout-tip}
+## Activity: Draw an object {.unnumbered}
+Compare the drawings. Discuss the similarities and differences you see. 
+
+
+- How did you find the specifications for the drawing? 
+- Were there points that were unclear?
+- What did you specify well?
+:::
+
+## {.unnumbered}
+
+:::{.callout-note}
+
+## Experience {.unnumbered}
+- Colleague's instructions => *requirements*.
+- Your own drawing => depiction of a *model* in your head.
+:::
+:::
+
+## What is conceptual modelling?
+
+A model of the **essential** properties of the desired (information) system - as identified during requirements analysis.
+
+It describes the system's *components* and their *properties*, their *relationships* as well as the properties of these relationships.
+
+A conceptual model for a spatial information system/spatial database will include *spatio-temporal* properties of the components and their *spatial* relationships.
+
+### Formalisation of the model
+
+A conceptual model is _encoded_ into a _language_ that enables unambiguous understanding of the model content by other *human* readers. 
+
+To do so, formal *languages* (textual or visual) are used to capture conceptual models. 
+
+We will use the formalism called *Entity-Relationship Models* (ERM) or *Entity-Relationship diagrams* [@chen1976entity] .
+
+## Entity-Relationship Models
+
++ Identification of components (**entity types**) we want to describe in the **database**, their **relationships** and **attributes** based on requirements analysis:
+
++ Definition of **entities** (i.e, things) belonging to a small set of **entity types**;
++ Definition of **attributes** that **describe** and/or **identify** these entities;
++ Description of **relationships** between things (can also be abstracted into **types of relationships**);
+    - sometimes, relationships can be defined as attributes.
+
+```
+DEPARTMENT 
+Name, Number, {Locations}, Manager, Manager_start_date
+```
+
+## Entities
+
+- **Entity**: a *thing* in the real world with an independent existence that can be characterised through a set of attributes.
+    - *physical entities*: Alan Thomas; Yarra River; the computer in this room
+    - *abstract entities*: Google; GEOM90008
+
+- **Entity type**: a *concept* that defines entities with the *same attributes* (as a template), but *different attribute values*:
+    - *physical entity types*: person; watercourse; computer
+    - *abstract entity types*: company; University subject
+
+- Often, the terms "entity type" and "entity" are used interchangeably when it is clear what is meant.
+
+- In ER diagrams, we represent entity types as:
+
+![Person entity type](./figs/1_part/12_conceptual_model/entity_type.png)
+
+## Attributes
+
+- **Attribute:** A particular property that *describes* an entity. Attributes have a **name** and **data type**. 
+
+    - *Each* entity is described through the *values* of its attributes.
+    - *Each* attribute of an entity has *a value*.
+    - All possible values of attributes of the same attribute type form the **domain** of the attribute.
+
+`(Age: non-negative integer)`
+
+An entity with attributes:
+
+```
+e1 = {Name: Joe Bloggs; Address: 30 Baker St, Melbourne VIC 3010; Years_employed: 25; Phone: 045 9998 844}
+```
+
+![Entity of an employee](./figs/1_part/12_conceptual_model/2_er_attribute.png){#fig-fig2}
+
+### Attribute types
+
+- **Simple, single-valued attribute**
+
+![](./figs/1_part/12_conceptual_model/simple_attribute.png){width="10%"}
+
+- **Simple** vs. **Composite**
+
+`Address (Street, Postcode, City, State)`
+
+![](./figs/1_part/12_conceptual_model/3_single_vs_composit.png){width="20%"}
+
+- **Single-valued** vs. **multi-valued**
+
+`Car_colour {dark blue, yellow}` 
+
+![](./figs/1_part/12_conceptual_model/4_single_vs_multi_valued.png){width="20%"}
+
+- **Stored** vs. **derived**
+
+`Age` (*DOB - current date*)
+
+![](./figs/1_part/12_conceptual_model/stored_vs_derived.png){width="20%"}
+
+- **Complex** (composite + multi-valued)
+    - A Person with multiple Employers has multiple work address and at each multiple phone numbers
+
+### Spatial attribute types
+
+- Linking a system component with an attribute capturing information about its location and extent;
+- For the moment, let's remain at the conceptual level of objects and fields, we will re-visit this once we discuss spatial data *representation*.
+
+
+![Spatial entity types](./figs/1_part/12_conceptual_model/spatial_entity_types.png)
+
+
+<!--
+- An entity with a geometry
+ attribute is called a **feature**, the entity type is then a **Feature Type**;
+- A feature has one or more geometries (geometry attributes), and one or more non-geometry attributes.
+
+ ![](./figs/1_part/12_conceptual_model/geom_attribute.png){width="10%"}
+-->
+<!--
+![](./figs/1_part/12_conceptual_model/geomety_postgis.png){width="80%"}
+
+
+:::{.callout-note}
+### PostGIS
+`ST_GeometryType(g)` - Return the geometry type of an attribute `g` of type `ST_Geometry`
+:::
+-->
+
+## Relationships 
+
+A **relationship** links one or more (normally two) **entities** together. 
+
+Or more formally:
+
+- **Relationship type:** defines an association amongst entities of certain **entity types**.
+
+- Entities **participate** in a relationship.
+- Entities may participate in **spatial** relationships.
+ 
+Read as: *Employee leads Department.*
+
+
+:::{.content-visible when-format="revealjs"}
+##
+:::{.callout-tip}
+## Exercise: Think of spatial relationships
+
+What explicitly spatial relationships may be modelled in a navigation systems database?
+
+![SatNav](./figs/1_part/12_conceptual_model/satnav.jpg){width="20%"}
+
+:::
+:::
+
+:::{.content-visible when-format="revealjs"}
+##
+:::{.callout-tip}
+## Exercise: Think of spatial relationships
+
+- A car must drive on the road;
+- A house must stand on a single parcel;
+- A hydrant must be close to a house;
+:::
+:::
+
+### Relationship Degree
+
+Number of participating **entity types**:
+
+1. Recursive: Degree 1
+
+2. Binary: 2 entity types
+
+3. Ternary (or N-ary): 3+ entity types
+
+
+
+### Relationship constraints
+
+Number of entities that *can* participate in a relationship may be constrained:
+
++ **Cardinality ratio constraint:** *maximum* number of relationship **instances** that an entity can participate in.
+    - 1:1 (one-to-one), 1:N (one-to-many), M:N (many-to-many)
++ **Participation constraint (partial, total):** *minimum* number of relationship **instances** that an entity can participate in. The existence of an entity **depends** on the relationship with another entity **through this  relationship type**. 
+    - **Total PC**: each entity present in the entity set must mandatorily participate in at least one relationship instance of that relationship set (Mandatory participation);
+    - **Partial PC**: each entity in the entity set may or may not participate in the relationship instance of the relationship set (optional).
+
+:::{.callout-note}
+
+`0 < Player play in Soccer team <= 11`
+
+Participation constraint <= *n* <= cardinality ratio constraint
+:::
+
+![](./figs/1_part/12_conceptual_model/decoding_constraints.png)
+
+
+Constraints on the relationships can be specified more precisely:
+    - **At least** how many entities must participate
+    - **A maximum** of how many entities can participate
+
+![](./figs/1_part/12_conceptual_model/decoding_constraints2.png)
+
+
+### Relationship attributes
+
+- Relationship: <u>You</u> have a **tenancy** for your <u>apartment</u>
+- This <u>tenancy</u> **starts** at some date, and is backed by some *$AUD* exchanging hands (**rent**);
+- You have a **deposit** with a certain value.
+- **These are relationship attributes** that relate to the **properties of the relationship between two entities**
+
+Another example:
+
+
+Relationship attributes modelling options:
+
+- 1:1 Relationship (both alternatives shown)
+
+![](./figs/1_part/12_conceptual_model/1-1_relationship.png){width="50%"}
+
+- 1:n Relationship
+
+![](./figs/1_part/12_conceptual_model/1-n_relationship.png){width="50%"}
+
+- m:n Relationship
+
+![](./figs/1_part/12_conceptual_model/m-n_relationship.png){width="50%"}
+
+## Weak entity types
+
+- Some things **cannot** have an autonomous existence
+- They are modeled as **weak entity types** (or dependent entity types)
+- Note for later: DBMS assure referential integrity 
+
+Modelling notation:
+- **Weak entity**: Entity type with double lines 
+- **Identifying relationship**: relationship symbol with double lines
+
+![](./figs/1_part/12_conceptual_model/weak_entity_type_notation.png)
+
+![](./figs/1_part/12_conceptual_model/weak_entity_type_example.png){width="80%"}
+
+### Weak entity types, space and time
+
+- Many things change dynamically through time, or only exist if other entities come together;
+- It may be practical to model their *state* using weak entity types
+
+- Spatio-Temporal example: Car trips
+    - A `CAR` has a persistent **identity**;
+    - A `CAR` is part of many `TRIPs` in time (**moves**);
+    - A `DRIVER` can drive multiple `CARs`;
+    - A `TRIP` cannot exist without a `CAR` and a `DRIVER`.
+    - `TRIP` is a weak entity.
+
+## Spatial example: Glacier
+
+- Has a persistent **identity**
+    - Example: Aletsch glacier, Switzerland
+- Changes its **state** throughout time (melts)
+- May break into multiple parts over time, each can be measured or named differently
+
+![](./figs/1_part/12_conceptual_model/glacier.png){width="60%"}
+
+![](./figs/1_part/12_conceptual_model/glacier_er.png){width="40%"}
+
+
+
+
+
+<!--
+:::{.content-hidden when-format="pdf"}
+![Figure: Tomko, Data: Sygic 2016](./figs/1_part/12_conceptual_model/sygic.gif){width=100%}
+:::
+-->
+## Recap {background-color="lightPink"}
+
+1.  You have gained an appreciation for conceptual modeling as a means to abstract and communicate about a problem domain;
+2. You have an appreciation for the different ways entities (and entity types) relate, and what is the nature of these relationships, including spatial;
+3.  You had a glimpse of some of the fundamental considerations for the representation and analysis of spatial phenomena in the computer;
+3.  You may be thinking about how the conceptual model of the world may influence the way we will represent information in the computer.
+
+<!-- end slides -->
+::: {.content-visible when-format="revealjs"}
+## Next: [Intro to DBMS](/12b_introduction_DBMS.html)
+
+## References {background-color="lightYellow"}
+:::

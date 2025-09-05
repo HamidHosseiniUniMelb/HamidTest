@@ -1,0 +1,15 @@
+/.quarto/
+/.ipynb_checkpoints/
+/docs/
+/slides/
+.DS_Store
+*.aux
+*.log
+*.tex
+*.toc
+*.html
+*_files
+
+# don't commit the main _quarto.yml
+# you need to copy from _quarto_book.yml or _quarto_revealjs.yml
+_quarto.yml

@@ -1,0 +1,27 @@
+# [A3] Spatial data querying
+
+This is an individual assignment, where you have to write SQL queries that answer the 10 questions published on Canvas, similar to what you have done in A1. This should take you about 15 hours to complete. Prepare your questions as we go from week to week, and do not underestimate Network and Raster queries.
+
+All details regarding this assignment, including the questions you need to answer, are **available on Canvas** under Assignments > Assignment 3. This page contains hints and tips, as well as practice material.
+
+## Hints and tips
+
++ **Units:** Beware of the difference between **geometries** and **geographies** (data types). You need to think of how different units relate to the measurement of e.g., distances and areas, and deal with this in your queries. 
+
++ **Projections:** Furthermore, to find the solutions for the questions, you should consider whether you need to reproject data or not. If you can, avoid reprojection and use functions operating on spheroid. If you do need to re-project, use the most applicable Projected Coordinate Reference System for the area, e.g., one that is a US State grid, or projected systems applicable for Victoria. You need to identify respective EPSG codes yourself.
+
+    - Use the spatial reference system `GDA2020 / Vicgrid` for any work in a planar coordinate system that extends Victoria-wide, or
+    - Use the spatial reference system `GDA2020 / MGA zone 55` for any work in a planar coordinate system in the eastern part of the state (including Melbourne) and `GDA2020 / MGA zone 54` for any work in the western part of the state. Check the UTM zones of the world to identify the right zone, e.g. see [Australian CRS choices](https://esriaustraliatechblog.wordpress.com/2021/03/31/understanding-spatial-references-in-australia/).
+
++ **Rasters and projections:** You should avoid reprojecting raster data and rather adapt vector data to the raster data (transform your vectors, to reduce data loss), as much as possible.
+
++ **Networks:** For network queries with the tables `spatial.carlton_edges` and `spatial.carlton_nodes`, you will encounter boolean attributes such as `car` and `car_rev` (as well as `bike` and `foot`). A true value means that you can navigate along the edge, using the specified mode of transport in the given direction (from start to end node), or in reverse, respectively. You should carefully check the results, but note that these are older data capturing the network around the university about a decade ago. Traffic management may have changed since, so the paths computed may not fully reflect your current experience. 
+
+## Practice material
+
+We provide a set of training queries with corresponding answers:
+
+- [Training questions (no solutions)](/figs/assessment/A3_sample_Qonly.pdf). We suggest you use these to practice, without looking at the answers.
+- [Questions, solutions and query outputs](/figs/assessment/A3_sample_QA.pdf). You can use these to check your results.
+- [Answers to the sample questions as SQL script](/figs/assessment/A3_sample_Aonly.sql). This enables you to play with the queries.
+

@@ -1,0 +1,89 @@
+# [Extra] Performance - Indexing
+
+## Objectives
+
+You may have imported extensive data, or you have realised that for some of your analyses, you would profit of a spatial index. While the gain may not be obvious in the small database structures used in this subject, you may also want to demonstrate that you understand what indexes can be generated.
+
+:::{.callout-note}
+
+A basic script accompanying the indexing practical is [here](/resources/sql/sql08_indexing.sql)
+:::
+
+## Creating an index in Postgres/Postgis
+
+Indexes may be generated on any column of any table in a database, or even on a collection of columns. Indexes are automatically generated on all columns that are primary keys, or that have constraints (such as `NOT NULL`). Only one index in a table can be a clustered index, where the records get actually re-shuffled physically on the disk.
+
+If a table is to be written into only a few times, but read  from many times, the maintenance of an index is not going to be tedious. 
+
+To generate an index, Postgres/PostGIS automatically decide on a default type of index (but it is good practice to specify the one for spatial columns as `GIST`), and at this stage we do not need to concern ourselves more with fine tuning those.
+
+### Creating an index on a no-spatial column
+
+```sql
+CREATE INDEX mytable_myattrib_idx
+ON mytable (myattrib);
+```
+
+### Creating an index on a spatial column
+
+```sql
+-- it is good practice to name the index so that it is clear 
+-- what column it is indexing
+CREATE INDEX mytable_geom_idx
+ON mytable
+USING GIST (geom);
+
+```
+
+### Maintaining an index
+
+To maintain an existing index after a large number of updates, inserts and deletes, it is important to `VACUUM` the index:
+
+```sql
+VACUUM ANALYZE mytable;
+```
+
+Vaccum Analysze recreates the index, and updates the statistics about the distributions of entries by values ( e.g., spatial distribution of the record geometries). This enables the query palnner to plan queries effectively.
+
+
+
+### Is there an index?
+
+It is useful to be able to find whether an index exists on a table -- of course, you can check in PGAdmin visually ( click on  a table, and check indexes). But it may be convenient to script this:
+
+```sql
+-- find if you have an index 
+
+select 
+    t.relname as table_name, 
+    i.relname as index_name, 
+    a.attname as column_name 
+
+from 
+    pg_class t, 
+    pg_class i, 
+    pg_index ix, 
+    pg_attribute a 
+
+where   
+    t.oid = ix.indrelid 
+    and i.oid = ix.indexrelid
+    and a.attrelid = t.oid 
+    and a.attnum = ANY(ix.indkey) 
+    and t.relkind = 'r'
+    and t.relname like 'table_name' 
+
+order by 
+    t.relname, 
+    i.relname; 
+
+```
+
+|table_name|index_name|column_name|
+|---|---|---|
+|table_name|myschema.table_name_GEOM_idx|geom|
+
+
+## Resources
+
+- [PostGIS Indexing](https://postgis.net/workshops/postgis-intro/indexing.html)

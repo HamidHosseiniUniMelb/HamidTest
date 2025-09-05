@@ -1,0 +1,19 @@
+{
+    "cSpell.enableFiletypes": [
+        "quarto"
+    ],
+    "cSpell.words": [
+        "callout",
+        "revealjs",
+        "Tobler's"
+    ],
+    "spellright.language": [
+        "en"
+    ],
+    "spellright.documentTypes": [
+        "markdown",
+        "latex",
+        "plaintext",
+        "quarto"
+    ]
+}

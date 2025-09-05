@@ -1,0 +1,420 @@
+# [L9] Raster data handling and analysis
+
+::: {.content-visible when-format="revealjs"}
+
+## Learning objectives {background-color="lightPink"}
+
+- We will introduce the main concepts supporting raster data storage and analysis;
+- You will understand the fundamentals of raster bands, resolution, and transformations;
+- You will gain an understanding of raster analysis based on operations of map algebra (raster algebra);
+- You will be able to relate these operators to real-world analytical operations on raster data.
+
+:::
+
+## Raster data representation
+
+### What are rasters?
+
+- **Raster**: Regular partition of covered space into equal areas (**pixels** or **cells**), each assigned a single value per **band**.
+- May be:
+    - Single-band (e.g. DEM - height above sea level), or
+    - Multi-band, by spectrum (e.g. R, G, B, IR, UV), theme, or time slice.
+- Special NODATA value for `NULL`
+
+### Raster data sources
+
++ via photography (optical imaging): <span style="color:red;">central projection</span> of terrain/subject on a photo-sensitive plane (chip), locally distorted by perspective
+    - Vertical vs oblique photography: satellite imagery, plane or drone vs terrestrial photography
+    - Distortion removal - e.g., Orthorectification
++ via data processing from active sensors - LIDAR point clouds, Synthetic Aperture Radar (SAR)
++ via interpolation, from point measurements (e.g., topographic mapping)
++ via conversion (Vector to Raster)
+
+::: {.content-visible when-format="revealjs"}
+### Raster data sources (cont.)
+:::
+
+![Image acquisition by aerial imaging - central projection](./figs/2_part/24_raster_analysis/image_acquisition.png){width="40%"}
+
+::: {.content-visible when-format="revealjs"}
+### Raster orthorectification
+:::
+
+:::{layout-ncol="2"}
+
+![Orthorectification](./figs/2_part/24_raster_analysis/orthorectification.png){width="50%"}
+
+![Worldview 3 Image (c) DigitalGlobe](./figs/2_part/24_raster_analysis/WV3_18-Dec-14_ShanghaiSkyscrapers-670x377px.jpg){width="70%"}
+
+:::
+
+Orthorectification requires the use of a DEM/DSM, and/or stereo pairs to determine the true (X,Y,Z) coordinates of the feature.
+
+### Raster presentation
+
+:::{layout-ncol="3"}
+
+![Raw data within the range of the band](./figs/2_part/24_raster_analysis/dem_greyscale.png){width="90%"}
+
+![Paletted, a colour ramp is applied](./figs/2_part/24_raster_analysis/dem_paletted.png){width="90%"}
+
+![Analytical result, e.g., hillshade](./figs/2_part/24_raster_analysis/dem_hillshade.png){width="90%"}
+
+:::
+
+
+### Raster bands
+
+A raster can only have one value per cell (it is an array of values), but can consist of multiple *bands* (dimensions). These are often interpreted together.
+
+:::{.content-hidden when-format="revealjs"}
+
+![](./figs/2_part/24_raster_analysis/multiband.png){width="30%"}
+
+This separation is useful for single-band analysis, or for compositing bands in special ways (in particular, Near infra red bands are good at capturing vegetation).
+:::
+
+:::{layout-ncol="4"}
+
+![RGB composite](./figs/2_part/24_raster_analysis/rgb_image.png){width="90%"}
+
+![Red band](./figs/2_part/24_raster_analysis/R_image.png){width="90%"}
+
+![Green band](./figs/2_part/24_raster_analysis/B_image.png){width="90%"}
+
+![Blue band](./figs/2_part/24_raster_analysis/G_image.png){width="90%"}
+
+:::
+
+### Raster dimensions and georeferencing
+
+:::{.incremental}
+Rasters are characterised by:
+
+- their dimensions (width, height)
+- the coordinates and spatial reference ID of the raster's origin (LL or UL corner, and whether center or boundary)
+- cell size (ground resolution)
+
+Two distinct meanings can be assigned to a raster cell - it can either be a *value of the region covered* (**raster**), or of a point *at the center of the region* (**grid**).
+:::
+
+::: {.content-visible when-format="revealjs"}
+### Raster cell value interpretation (cont.)
+:::
+
+:::{layout-ncol="2"}
+
+![Area](./figs/2_part/24_raster_analysis/raster_dims.png){width="90%"}
+
+![Point](./figs/2_part/24_raster_analysis/grid_dims.png){width="90%"}
+
+:::
+
+:::{.content-hidden when-format="revealjs"}
+:::{.callout-note}
+**Note:** If implementing algorithms, you need to check the referencing of your raster format. For instance, geoTIFF references the center of the Upper Left corner cell by geographic coordinates. ESRI Grid references the Lower Left corner. This is now managed by libraries (GDAL)
+
+:::
+:::
+
+### Raster resolution vs ground resolution
+
+- A raster captures the world at a finite resolution.
+- Geospatial raster resolution relates to the *ground* resolution of each pixel/grid cell. We need the information about the ground size of a pixel. 
+- This value is usually only approximate, averaged for the entire raster, unless it is *orthorectified*.
+
+:::{layout-ncol="2"}
+
+![Raster (as hillshade)](./figs/2_part/24_raster_analysis/dem_hillshade.png){width="90%"}
+
+![Zoomed in raster](./figs/2_part/24_raster_analysis/dem_zoomed.png){width="90%"}
+
+:::
+
+### Anatomy of a Raster
+
+Raster metadata retrieved using the GDAL `gdalinfo` command line utility.
+
+```
+Driver: GTiff/GeoTIFF
+Files: Victorian-coast_Bathy_10m.tiff
+Size is 92606, 42454
+Coordinate System is:
+PROJCRS["GDA94 / Vicgrid",
+    BASEGEOGCRS["GDA94",
+        DATUM["Geocentric Datum of Australia 1994",
+            ELLIPSOID["GRS 1980",6378137,298.257222101,
+                LENGTHUNIT["metre",1,
+...
+ ```
+
+:::{.content-hidden unless-format="revealjs"}
+
+### Raster metadata (cont.) {.unnumbered}
+
+:::
+
+```
+...
+Data axis to CRS axis mapping: 1,2
+Origin = (2030378.972059397026896,2489891.173680020496249)
+Pixel Size = (9.999995130734613,-9.999814851054600)
+Metadata:
+  AREA_OR_POINT=Area
+  DataType=Generic
+Image Structure Metadata:
+  COMPRESSION=LZW
+  INTERLEAVE=BAND
+Corner Coordinates:
+Upper Left  ( 2030378.972, 2489891.174) (139d43'20.50"E, 36d58'25.53"S)
+Lower Left  ( 2030378.972, 2065359.034) (139d26'39.25"E, 40d47'22.28"S)
+Upper Right ( 2956438.521, 2489891.174) (150d 7'47.22"E, 36d58'48.90"S)
+Lower Right ( 2956438.521, 2065359.034) (150d24' 0.54"E, 40d47'46.81"S)
+Center      ( 2493408.747, 2277625.104) (144d55'26.20"E, 39d 0'11.92"S)
+Band 1 Block=128x128 Type=Float32, ColorInterp=Gray
+  NoData Value=-3.402823e+38
+  Metadata:
+    RepresentationType=ATHEMATIC
+```
+
+
+
+### Resampling
+
+The change of raster resolution covering the same ground area with a different number of pixels:
+
+- *Upsampling* - increasing resolution (more, smaller pixels)
+- *Downsampling* - decreasing resolution (less, larger pixels)
+
+![Feature respresented at different resolutions](./figs/2_part/24_raster_analysis/resolution.png){width="30%"}
+
+### Raster pyramids/overviews
+
+- **Pyramid** (also called **overview**): sequence of (sets of) rasters with height/width dimensions of $2^n$ (2,4,16,...), of coarser and coarser resolution. 
+- Implies storage overhead.
+- Function for resolution transition is defined (median, mean, mode)
+- Used for quick viewing when zoomed out, and speeding up multi-resolution analysis
+
+![Image pyramid](/figs/2_part/24_raster_analysis/image_pyramid.png){width="20%"}
+
+### Transformation
+
+Rasters are acquired and georeferenced to specific spatial reference system. It is advisable to avoid reprojections as much as possible, as they lead to data loss.
+
+Note the change in area of cells: 13 vs 14 (transformed), and the distinct neighbourhoods.
+
+::: {.content-visible when-format="revealjs"}
+### Transformation (cont.)
+:::
+
+:::{layout-ncol="2"}
+
+![Raster orignal](./figs/2_part/24_raster_analysis/raaster_orig.png){width="90%"}
+
+![A rotated raster, with the same geometry](./figs/2_part/24_raster_analysis/raster_transformed.png){width="90%"}
+
+:::
+
+## Raster operations
+
+### Raster neighbourhood - Contiguity
+
+Raster neighbourhood is fundamental to define raster metrics.
+
+:::{layout-ncol="2"}
+
+![4-neighbourhood (rook)](./figs/2_part/24_raster_analysis/4neighbourhood.png){width="50%"}
+
+![8-neighbourhood (queen)](./figs/2_part/24_raster_analysis/8neighbourhood.png){width="50%"}
+
+:::
+
+## Map Algebra 
+
+An approach to conceptualising spatial analysis of rasters, proposed by @tomlin1979mathematical .
+
++ Set of objects (domains), here, raster arrays.
++ Set of operations are combined using standard operators, *with closure* (result is itself member of the domain): 
+    - arithmetic (`+` `-` `*` `/`), 
+    - statistical (mean, median, stdev, max, min)
+    - logical (`AND`, `OR`, `XOR`, `NOT`) and 
+    - comparison (`>`, `<`, `=`)
+    - GIS specific (reclassify), other...
++ The operators can be classified into four kinds: **local**, **focal**, **zonal**, and **global**.
+
+### Local operators
+
+- Act on individual cells themselves, one at a time.
+
+:::{layout-ncol="2"}
+
+![Local operation - Multiply by constant](/figs/2_part/24_raster_analysis/raster_local_multipl.png){width="80%"}
+
+![Local operation - Binary mask](/figs/2_part/24_raster_analysis/raster_local_greater_mask.png){width="80%"}
+:::
+
+Comparison operations are often used to create *binary mask* rasters.
+
+::: {.content-hidden unless-format="revealjs"}
+### Local operators (cont.)
+:::
+
+Consider that we want to find a location for a new primary school.
+
+We compute:
+
+- Raster $A$ characterizing the suitability of locations by demographic profile
+- Raster $B$ characterizing the suitability of locations by road infrastructure
+- New layer $C = A + B$ characterizing the suitability by both criteria (in equal weighting)
+- Alternatively, a new layer $C = 2A + B$ characterizes the suitability by both criteria but with higher weight for the criteria $A$
+
+### Focal operations
+
+- Operations on the *neighbourhood* of a cell (called a *kernel* or *window*)
+- The value of the *current* cell is a function of its neighbours (aka *filtering* in computer vision)
+- Require a definition of an *odd* kernel (3×3 cells, 5×5 cells, ...)!
+- Additional settings guide behaviour at the outermost edge of the input raster, otherwise the output is smaller than the original raster
+
+![](figs/2_part/24_raster_analysis/raster_focal_max.png){width="50%"}
+
+### Focal operations
+
+- Smoothing: consider the application of a local mean or median filter. Extreme values will be *smoothed* over. Equals to cell-wise multiplication of values by a *weight* and then summation (convolution).
+$$cel_{val} = \frac{\sum(weight*cell)}{n}$$
+
+:::{layout-ncol="2"}
+
+![4 neighbourhood, mean smoothing filter weights](./figs/2_part/24_raster_analysis/4nei_smoothing_avg.png){width="50%"}
+
+![8 neighbourhood, mean smoothing filter weights](./figs/2_part/24_raster_analysis/8nei_smoothing_avg.png){width="50%"}
+
+:::
+
+### Focal operations -- derivation
+
+- Distinct weight filters are applied in the $x$ and $y$ direction. Example - computation of a gradient of slope.
+
+:::{layout-ncol="2"}
+
+![4 neighbourhood, derivation](./figs/2_part/24_raster_analysis/4nei_deriv.png){width="80%"}
+
+![8 neighbourhood, derivation](./figs/2_part/24_raster_analysis/8nei_deriv.png){width="80%"}
+:::
+
+### Zonal operations
+
+- operations defined on a raster, where cells are within a specified area (possibly based on a mask from another raster).
+- *What is the average temperature in Victoria*: requires a raster of temperatures, and a definition of the area (zone) of Victoria.
+
+![Zonal mean](./figs/2_part/24_raster_analysis/zonal_op.png){width="50%"}
+
+### Global operations
+
+- Require the analysis of *all* the cells in the raster.
+- Statistical operations: maximum, minimum, StdDev, median, mode
+- "Cost distance" rasters (cell value is the cell's distance from a target geometry)
+
+### Distance transform/Proximity analysis
+
+- Cost distance (incl. complex cost functions, e.g., energy expenditure)
+- Euclidean distance (Pythagorean theorem) does not apply well to rasters (what would be the cell reference point?)
+- Neighbourhood is therefore important:
+    - Manhattan neighbourhood (i.e., taxicab distance): sum of absolute differences of Cartesian coordinates (4-neighbourhood)
+    - Chebyshev: chessboard distance
+
+![Distance transform between multiple sites.](./figs/2_part/24_raster_analysis/proximity.png){width="30%"}
+
+### Raster analysis: Boolean overlay
+
+- A fundamental enabler of multi-criteria analysis;
+- A chain of multiple local, focal, zonal and global operations, typically combined using logical operators;
+- Additional weights may be applied to individual operands
+
+$$House_{val} = (0.5dist_{shop} \times \frac{1}{price} + 2n_{rooms}) \times [value<1\,000\,000]$$
+
+:::{.content-visible when-format="revealjs"}
+### {.unnumbered}
+:::
+
+![Boolean overlay (source: ESRI)](./figs/2_part/24_raster_analysis/mapalgebra_esri.png)
+
+## Imagery analysis
+
+- Imagery: classification, object detection, segmentation. 
+
+![](./figs/2_part/24_raster_analysis/microsoft_buildings.png){width="50%"}
+
+
+## Analysing digital elevation models (DEMs)
+
+Two kinds of DEMs: Surface models (as scanned) and terrain models (bare ground, with buildings/vegetation removed)
+
+DEMs are often processed (gridding) from irregular points (topographic mapping, LIDAR scanning) by *interpolation*.
+
+### Terrain analysis:
+
+- Slope - Gradient and Aspect (based on derivatives)
+- Terrain curvature - curvature of terrain along the vertical or horizonatal plane
+- Hillshade
+- Advanced: Terrain roughness, local dominance, Sky-view factor
+
+### Slope: Gradient and aspect
+
+- Gradient - angle (maximum gradient) of the slope with a plane tangent at a given cell (direction of water flow)
+- Aspect - azimuth of the maximum gradient (flow direction)
+- Simple computation of both by [Sobel filter](https://en.wikipedia.org/wiki/Sobel_operator), a 3x3 moving window focal operation
+- Note: when computing water products, DEMs are first analysed for sinks (local minima, need to be in-filled).
+
+
+:::{.content-hidden when-format="revealjs"}
+
+### Image convolutions
+
+- You would have heard about Convolutional Neural Networks, a way to *learn* meaningful convolutions on images that enable to undertake machine learning tasks.
+- These are zonal operations, with *filters* that are not designed, but learned.
+
+:::
+
+
+## Computational storage of rasters 
+
+### Raster formats
+
+- A variety of raster formats exist, often based on common image formats: **JPEG, TIFF, ...**.
+    - JPEG, ... cannot store georeferencing information (image-to-world transformation). A *world file* (`.jgw`, ...) carries this metadata.
+- Most common format now is **GeoTIFF** (TIFF with *embedded* projection information).
+    - Can carry compressed or uncompressed data
+    - Allows multi-band storage
+
+::: {.content-visible when-format="revealjs"}
+### Raster formats (cont.)
+:::
+
+- [Cloud Optimised GeoTIFF](https://www.cogeo.org/) is a recent, backwards compatible enhancement supporting range queries natively based on *http* GET parameters, if hosted on a HTTP fileserver or HTTP Object storage (e.g., S3). Internally, COGs carry tiles and overviews (pyramids).
+- More specialised formats exist for massively multi-dimensional/time-series raster data cubes (NetCDF, GRIB, HDF5, Zarr)
+
+### Rasters and databases
+
+- In database: Rasters can be stored either as a sequence of (tiled) raster binary objects (see your practicals' database)
+- Out-of-DB: Rasters can be stored as path references (urls) to external raster files (preferred for larger projects)
+- The DB acts as a query language *interface*.
+
+::: {.content-visible when-format="revealjs"}
+
+## Summary {background-color="lightPink"}
+
+- You understand how raster data are acquired;
+- You understand how data values are stored in raster data, and the problems with raster transformation and resampling;
+- You appreciate the beauty of map algebra and are able to devise analysis based on map algebra;
+- You understand how raster data are used in database systems.
+:::
+
+
+<!-- end slides -->
+::: {.content-visible when-format="revealjs"}
+## Next: [Spatial indexing](/31_spatial_indexing.html)
+
+## References {background-color="lightYellow"}
+
+:::
+

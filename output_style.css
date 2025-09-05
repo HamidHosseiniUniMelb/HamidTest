@@ -1,0 +1,24 @@
+.udot {
+  /*text-decoration-line: underline;
+  text-decoration-style: dashed;*/
+  border-bottom: 2px dashed;
+}
+
+.unorm {
+  text-decoration-line: underline;
+}
+
+.callout-caution .callout-icon-container {
+  display: none;
+}
+
+.red {
+  color: red;
+}
+ 
+.highlight {
+  background-color: #ffff00;
+}
+/* .highlight {
+  background-color: #ffff00;
+} */

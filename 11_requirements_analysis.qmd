@@ -1,0 +1,263 @@
+# [L2a] Requirements Analysis
+
+Requirements analysis is a structured process of distilling what *matters* in a project and separating it from what is *not necessary*.
+
+## Learning objectives {background-color="lightPink"}
+- Appreciate the complexity of gathering information system requirements;
+- Understand the impact of scope creep;
+- Reflect on the varieties of spatial information/data, and therefore *spatial* requirements
+- Undertake requirements analysis based on a document.
+
+::: {.content-visible when-format="revealjs"}
+## {.unnumbered}
+:::{.callout-tip}
+## Exercise: Draw a sketch of a plane {.unnumbered}
+
+Draw as faithfully as you can.
+
+Compare your sketch with your colleagues. Discuss the similarities and differences you see. Besides artistic skills, what could have caused these?
+
+*Note:* keep your drawings, we may get back to them!
+:::
+:::  
+
+::: {.content-visible when-format="revealjs"}
+
+## Motivating example: Illustration
+
+::: {.incremental layout="[[25,25,25,25], [100]]"}
+![Paper Plane](./figs/1_part/11_requirements_analysis/paper_plane.png)
+
+![Paper plane model](./figs/1_part/11_requirements_analysis/paper_plane_model.png)
+
+![Hydroplane](./figs/1_part/11_requirements_analysis/hydroplane.png)
+
+![Passenger plane](./figs/1_part/11_requirements_analysis/passenger_plane.png)
+
+:::
+
+![Principle](./figs/1_part/11_requirements_analysis/airfoil.png){fig-align="center"}
+
+::: {.notes}
+Reflect on the principle vs realisation
+:::
+
+:::
+
+## Requirements analysis
+
+### What is involved?^[Adapted from: [https://www.smartsheet.com/content/requirements-analysis](https://www.smartsheet.com/content/requirements-analysis)]
+
+:::{.incremental}
+
+- **Business Requirements:** high-level (company/project) requirements that map to business objectives. Understand what the project/business *aims* to accomplish, how they may plan to develop (expand scope) in the future, and what is *not* within scope. Includes specification of constraints;
+- **Customer Requirements:** Product expectations of a specific user group -- understand *who* will be using the system, understand their *workflows* and particular *pain* points. If possible, interact with all targeted user types;
+- **Social Responsibility:** Product expectations of people that are covered by the data (possibly geographically) -- understand *who* will be captured by the data, and who's knowledge, lifes and needs the data portray, and whether this is done with their awareness and consent.
+- **Design Requirements:** capture design features based on customer and product requirements -- *what actions* will the system have to support, how will the users *access* the system, do they have any particular *accessibility needs*?;
+- **Functional Requirements:** product requirements describing the *service* that a system *must deliver* based on specific *behaviors* of features and *functions*;
+- **Non-Functional Requirements:** general qualities of a solution, such as a *performance expectations* (e.g., uptime guarantees). 
+
+:::
+
+Requirements are summarised in a **Product/Service Requirements Document** that captures the purpose, characteristics, functions, and features of a product. 
+
+::: {.content-hidden when-format="revealjs"}
+
+This is a foundation for the next steps - conceptual development and implementation.
+:::
+
+### Gathering requirements
+
+::: {.incremental}
+:::{layout="[[20],[20],[20]]"}
+- ![Documentation](./figs/1_part/11_requirements_analysis/document.png) Documentation, incl regulations, specifications, standards, operating procedures, contracts;
+
+- ![Users](./figs/1_part/11_requirements_analysis/user.png) User interviews and focus groups with different user types;
+
+- ![User observation](./figs/1_part/11_requirements_analysis/user_observation.png) Observation of user interaction with existing systems, incl. log analysis, eye tracking, shadowing
+:::
+:::
+
+#### Requirements from documentation
+
+System requirements are often *implicitly* specified in documentation. 
+
+They are usually not explicitly targeted at a particular information system, but *can* be used to capture the main requirements of the system.
+
+::: {.content-hidden when-format="revealjs"}
+These documents contain rich information about system requirements:
+
+- Laws and Regulations
+- Standards (ISO, OpenGeospatialConsortium, IEEE)
+- Standard Operating Procedures, training materials
+:::
+
+::: {.content-visible when-format="revealjs"}
+## {.unnumbered}
+:::{.callout-tip}
+## Activity: Examples of spatial requirements
+
+Can you give examples of codified rules that have a **spatial** component?
+
+Discuss the spatial components of your example with a colleague. Which of those may need to be implemented in a spatially-enabled information system?
+
+:::
+:::
+
+### Spatial requirements
+
+Many domains have requirements with respect to the **spatial** and **spatio-temporal properties** of a system and its components.
+
+These may include specifications for the required:
+
+- spatial properties of *things* (e.g., the size of a regulation AFL or soccer pitch or size of a parking lot);
+- the requirements on the *determination* of these spatial properties (e.g., the accuracy of measuring a land ownership boundary);
+- or how *things* interact/relate (e.g., the minimal distance between a road and a house, or speed on a freeway).
+
+Sometimes these requirements are specified vaguely (*near*, *slow*, *next to*) 
+
+
+::: {.content-visible when-format="revealjs"}
+## {.unnumbered}
+:::{.callout-tip}
+## Exercise: What would be documented in specs of info sys for {.unnumbered}
+
+- [Traffic - Road rules](https://www.vicroads.vic.gov.au/safety-and-road-rules/road-rules)
+- [Electrical infrastructure](https://esv.vic.gov.au/technical-information/electrical-installations-and-infrastructure/no-go-zones/)
+- [Mobile coverage](https://amta.org.au/coverage-questions/)
+
+What aspects may be documented in the specs from these applications?
+:::
+:::
+
+
+## Spatial data vs spatial information
+
+- **Data**: records of observations, measurements, or registrations. Results of a data capature process.
+- **Spatial data**: records of **location** (located extent) and **time** linked with other attributes. For interpretability, locations are recorded as **position data**, grounded in a **spatial reference system**.
+- **Information**: data interpreted for a specific decision process or information need (= purpose).
+- **Spatial information**: selects, aggregates, and interprets spatial data to answer **where** questions (and possibly when, what, how as a consequence).
+
+### Location and Position
+
+- **Location**: the "footprint" of a *thing* in space and time (*locus*)
+- **Position**: the identifiable location of a *thing* given with respect to something else - establishing a **reference system**.
+
+Examples:
+
+- Named location -- Place name (*My home*, *here*, *Melbourne*)
+- Relative position (*bearing: 36 deg, distance: 37.5m from **here**)
+- Qualitative and relative to a named location (*North of the Yarra river*)
+- Named (identifiable) location in a partition of space (*Postcode: 3010*)
+- Quantitative, shared origin, along a 1D feature -- Linear Referencing system (56km of Monash FWY [from Melbourne GPO])
+- Position in a 2+D coordinate system (*lon: 144.960, lat: -37.799 in WGS84*)
+- Named in a hierarchical system (*700 Swantson St, Parkville 3010, VIC*)
+- Position in a trajectory (*[07/03/2023,144.960,-37.799],[08/03/2023,0,0]*)
+
+### Spatial scale
+
+Often, you see the term **Geographical information**. This is purely a question of scale [@montello2005scale] .
+
+![Spatial scales](/figs/1_part/11_requirements_analysis/scale.png)
+
+## Issues in requirements analysis
+
+### Hard and Soft requirements
+
+- **Hard**: the requirements **must** always be met;
+- **Soft**: the requirements **should** be met whenever possible, or as much as possible (or practicable).
+
+**BUT**
+
+- requirements may still be **ambiguous**
+- requirements may still be **vague**
+
+::: {.content-visible unless-format="revealjs"}
+A nice treatise of uncertainty applied to spatial *objects* is in [@fisher99models], but can be extended to functions and processes. For well defined objects, we deal with *probabilistic* uncertainty in their location. For poorly defined objects, we distinguish between *vagueness* ( when the definition of the class of an object is poor). In contrast, object class *ambiguity* refers to confusion over the definition of the class, that may be undistinguishabel from another. Ambiguity has two ways of manifestation: (1) when an object is well defined, but may be a member of two classes, wee talk of class definition *discord*. This happens often when fusing datasets with different classifications; in contrast to (2) non-specificity, where the classification of an object to a classs is subject to interpretation.
+:::
+
+
+::: {.content-visible when-format="revealjs"}
+## {.unnumbered}
+:::{.callout-tip}
+## Exercise: CASA - Drone Rules
+
+Identify spatial and non-spatial requirements, and hard and soft requirements.
+Identify vague and ambiguous requirements.
+
+::: {.incremental layout="[[10,10,10,10,10,10],[10,10,10,10,10,10]]"}
+![Height](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_icons_height_ceiling.svg)
+
+![Distance](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_icons_30m_away.svg)
+
+![Single drone](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_one_drone_at_a_time.svg)
+
+![Line of sight](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_line_of_sight.svg)
+
+![Away from people](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_not_over_people.svg)
+
+![Privacy](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_privacy.svg)
+
+![Aerodrome](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_5.5k_from_aerodrome.svg)
+
+![Hazards](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_icons_no_hazard.svg)
+
+![Daytime](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_daytime.svg)
+
+![Away from emergency](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_icons_not_near_an_emergency.svg)
+
+![Avoid traffic](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_5.5km_avoid_traffic.svg)
+
+![Non-commercial](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_non_commercial.svg)
+
+[CASA rules: https://www.casa.gov.au/knowyourdrone/drone-rules](https://www.casa.gov.au/knowyourdrone/drone-rules)
+:::
+:::
+:::
+
+### Scope creep
+
+**Scope creep:** *When a project's completion requirements uncontrollably exceed planned requirements.*
+
+**Effects of scope creep:**
+
+:::{.incremental}
+- Project runs out of time;
+- System is too complex/resource intensive/maintenance intensive;
+- System runs out of budget
+:::
+
+[Read more](https://softwarehut.com/blog/it-project-management/changing-the-project-scope-in-it-projects)
+
+### Project Management strategies
+
+Requirements analysis is also the start of the project management lifecycle. 
+
+There are many approaches to project management. We will mention two. 
+
+That said -- there are variants, and each project develops some modifications to their own approach.
+
+- **Waterfall:** a (traditional) top down planning process, with steps:
+
+![Waterfall project management](/figs/1_part/11_requirements_analysis/waterfall.png)
+
+- **Agile:** an approach acknowledging changes in requirements are inevitable, attempting to deliver a minimum-working product with the majority of important properties/functions of the project at regular iterations. As such, it breaks the waterfall to a series of small, manageable waterfalls executed over a short period of time (sprint, say 2 weeks)
+
+![Agile project management](/figs/1_part/11_requirements_analysis/agile.png)
+
+## Recap {background-color="lightPink"}
+
+1. You have gained an appreciation for the complexities of requirements analysis;
+2. You appreciate the role that different sources of information can complement each other to identify project requirements;
+3. You have thought about particular spatial requirements that an information system or database may need to support.
+4. You now have tools at your disposal to undertake requirements analysis (see [Practical](/practicals/03_requirements_conceptual.qmd) )
+
+<!-- end slides -->
+
+::: {.content-visible when-format="revealjs"}
+
+## Next: [Conceptual modelling](/12_conceptual_model.html)
+
+## References {background-color="lightYellow"}
+
+:::

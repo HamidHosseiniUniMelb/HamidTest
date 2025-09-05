@@ -1,0 +1,194 @@
+# Requirements Analysis
+
+Requirements analysis is a structured process of distilling what *matters* in a project and separating it from what is *not necessary*.
+
+## Learning objectives {background-color="lightPink"}
+- Appreciate the complexity of gathering information system requirements;
+- Understand the impact of scope creep;
+- Reflect on the varieties of spatial information/data, and therefore *spatial* requirements
+- Undertake requirements analysis based on a document.
+
+::: {.content-visible when-format="revealjs"}
+## {.unnumbered}
+:::{.callout-tip}
+## Exercise: Draw a sketch of a plane {.unnumbered}
+
+Draw as faithfully as you can.
+
+Compare your sketch with your colleagues. Discuss the similarities and differences you see. Besides artistic skills, what could have caused these?
+
+*Note:* keep your drawings, we may get back to them!
+:::
+:::  
+
+::: {.content-visible when-format="revealjs"}
+
+## Motivating example: Illustration
+
+::: {.incremental layout="[[25,25,25,25], [100]]"}
+![Paper Plane](./figs/1_part/11_requirements_analysis/paper_plane.png)
+
+![Paper plane model](./figs/1_part/11_requirements_analysis/paper_plane_model.png)
+
+![Hydroplane](./figs/1_part/11_requirements_analysis/hydroplane.png)
+
+![Passenger plane](./figs/1_part/11_requirements_analysis/passenger_plane.png)
+
+:::
+
+![Principle](./figs/1_part/11_requirements_analysis/airfoil.png){fig-align="center"}
+
+::: {.notes}
+Reflect on the principle vs realisation
+:::
+
+:::
+
+## Requirements analysis - scope^[Adapted from: [https://www.smartsheet.com/content/requirements-analysis](https://www.smartsheet.com/content/requirements-analysis)]
+
+:::{.incremental}
+
+- **Business Requirements:** high-level (company/project) requirements that map to business objectives. Project/business *aims*, visions of future scope, and what is *not* within scope. Includes constraints;
+- **Customer Requirements:** Understand *who* will be using the system and how. If possible, interact with all targeted user types;
+- **Social Responsibility:** Product expectations of people that are covered by the data (possibly geographically), and whether this is done wih their awareness and consent.
+
+:::
+
+## Requirements analysis - scope (cont.)
+
+:::{.incremental}
+
+- **Design Requirements:** capture design features based on customer and product requirements;
+- **Functional Requirements:**  *service* that a system *must deliver* based on specific *behaviors* of features and *functions*; 
+- **Non-Functional Requirements:** *performance expectations* (e.g., uptime guarantees). 
+
+:::
+
+
+
+
+## Gathering requirements
+
+::: {.incremental layout="[[20,20,20,20,20]]"}
+ 
+
+![Documentation](./figs/1_part/11_requirements_analysis/document.png)
+
+![Users](./figs/1_part/11_requirements_analysis/user.png) 
+
+![User observation](./figs/1_part/11_requirements_analysis/user_observation.png) 
+
+ 
+:::
+
+## Spatial requirements
+
+Requirements with respect to the **spatial** and **spatio-temporal properties** of a system.
+
+These may include:
+
+- spatial properties of *things*;
+- the requirements on the *determination* (e.g., measurement accuracy) of these spatial properties;
+- or how *things* interact/relate.
+
+Sometimes these requirements are specified vaguely (*near*, *slow*, *next to*) 
+
+
+::: {.content-visible when-format="revealjs"}
+## {.unnumbered}
+:::{.callout-tip}
+## Exercise: Spatial requirements {.unnumbered}
+
+Think about spatial requirements for the following systems:
+
+- [Traffic - Road rules](https://www.vicroads.vic.gov.au/safety-and-road-rules/road-rules)
+- [Electrical infrastructure - safely working around power lines](https://esv.vic.gov.au/technical-information/electrical-installations-and-infrastructure/no-go-zones/)
+- [Mobile network coverage](https://amta.org.au/coverage-questions/)
+- [Street trees and nature strip vegetation](https://www.victoriawalks.org.au/trees/)
+
+Select **one** of these topics. Discuss with your neighbour to think of one **spatial** requirement under each of the following types:
+
+- quantitative (numeric, precise in nature)
+- qualitative (specified using words, may be vague)
+- a property of a single thing
+- a relationship between two (or more) things
+:::
+:::
+
+## Location and Position
+
+- **Location**: the "footprint" of a *thing* in space and time (*locus*)
+- **Position**: the identifiable location of a *thing* given with respect to something else - establishing a **reference system**.
+
+## Location and Position
+:::{.incremental}
+- Named location -- Place name (*My home*, *here*, *Melbourne*)
+- Relative position (*bearing: 36 deg, distance: 37.5m from **here**)
+- Qualitative and relative to a named location (*North of the Yarra river*)
+- Named (identifiable) location in a partition of space (*Postcode: 3010*)
+- Quantitative, shared origin, along a 1D feature -- Linear Referencing system (56km of Monash FWY [from Melbourne GPO])
+- Position in a 2+D coordinate system (*lon: 144.960, lat: -37.799 in WGS84*)
+- Named in a hierarchical system (*700 Swantson St, Parkville 3010, VIC*)
+- Position in a trajectory (*[07/03/2023,144.960,-37.799],[08/03/2023,0,0]*)
+:::
+
+## Spatial scale
+
+Often, you see the term **Geographical information**. This is purely a question of scale [@montello2005scale] .
+
+![Spatial scales](/figs/1_part/11_requirements_analysis/scale.png)
+
+## Hard and Soft requirements
+
+- **Hard**: the requirements **must** always be met;
+- **Soft**: the requirements **should** be met whenever possible, or as much as possible (or practicable).
+
+**BUT**
+
+- requirements may still be **ambiguous**
+- requirements may still be **vague**
+
+::: {.content-visible when-format="revealjs"}
+## {.unnumbered}
+:::{.callout-tip}
+## Exercise: CASA - Drone Rules
+
+Identify spatial and non-spatial requirements. Are these hard or soft / vague or ambiguous requirements?
+
+::: {.incremental layout="[[10,10,10,10,10,10],[10,10,10,10,10,10]]"}
+![Maximum Height](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_icons_height_ceiling.svg)
+
+![Minimum Distance](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_icons_30m_away.svg)
+
+![Single drone](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_one_drone_at_a_time.svg)
+
+![Line of sight](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_line_of_sight.svg)
+
+![Away from people](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_not_over_people.svg)
+
+![Privacy](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_privacy.svg)
+
+![Aerodrome](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_5.5k_from_aerodrome.svg)
+
+![Hazards](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_icons_no_hazard.svg)
+
+![Daytime](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_daytime.svg)
+
+![Away from emergency](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_icons_not_near_an_emergency.svg)
+
+![Avoid traffic](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_5.5km_avoid_traffic.svg)
+
+![Non-commercial](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_non_commercial.svg)
+
+[CASA rules: https://www.casa.gov.au/knowyourdrone/drone-rules](https://www.casa.gov.au/knowyourdrone/drone-rules)
+:::
+:::
+:::
+
+::: {.content-visible when-format="revealjs"}
+
+## Next: [Conceptual modelling](/12_conceptual_model_short.html)
+
+## References {background-color="lightYellow"}
+
+:::

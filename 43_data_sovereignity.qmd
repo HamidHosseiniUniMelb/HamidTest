@@ -1,0 +1,19 @@
+# Data Sovereignity
+
+::: {.content-visible when-format="revealjs"}
+
+## Learning objectives {background-color="lightPink"}
+
+- 
+
+:::
+
+
+
+
+## References
+
+@hummel2021data
+@kukutai2016indigenous
+@walter2021indigenous
+@lovett2019good

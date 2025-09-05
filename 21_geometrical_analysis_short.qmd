@@ -1,0 +1,472 @@
+# Geometrical Analysis
+
+::: {.content-visible when-format="revealjs"}
+## Learning objectives - Geometrical Analysis (cont.) {background-color="lightPink"}
+
+- We will deepen our knowledge of geometries and discuss operations on geometries underpinning geometric queries;
+- You will understand how basic computational geometry algorithms work and what algorithmisation is;
+- You will be able to reason about the computational complexity  of an operation, and hence be able to reflect on the length of time a query may take.
+:::
+
+## Computational geometry - core concepts 
+
+In what follows, we consider a Cartesian 2D plane/ 3D space.
+
+### Linear segment length 
+
+The distance points between successive pairs of points (Pythagoras)
+
+$$ |pq| = \sqrt{(x_{q}-x_{p})^2 + (y_{q}-y_{p})^2}$$
+
+
+### Triangle area – a fundamental operation
+
+- Determinant of a 2x2 matrix equals the signed area of the parallelogram of 2 column vectors (= 2x the triangle area);
+- Area>0 for counter-clockwise vertex sequence, Area<0 for clockwise;
+- Beware of computational precision issues - any number represented in the computer has finite precision!
+- [https://observablehq.com/\@mourner/non-robust-arithmetic-as-art](https://observablehq.com/@mourner/non-robust-arithmetic-as-art)
+
+
+```python
+def naiveLeftRight(a, b, c){
+    abx = a[x] - b[x]
+    aby = a[y] - b[y]
+    cbx = c[x] - b[x]
+    cby = c[y] - b[y]
+    return abx * aby - cby * cbx
+}
+```
+
+[V Agafonkin- Github (robust-predicates)](https://github.com/mourner/robust-predicates)
+
+### Line segment intersection
+
+By extension, a series of triangular area inequalities helps decide whether two line segments $\overline{AB}$ and $\overline{CD}$ intersect.
+
+:::: {.columns}
+
+::: {.column width="60%"}
+![](./figs/2_part/21_geometrical_analysis/line_segment_intesection.png){width="80%"}
+:::
+
+::: {.column width="40%"}
+$$side(a, b, c) \neq side(a, b, d)$$ 
+$$side(c, d, a) \neq side(c, d, b)$$
+:::
+::::
+
+If **both** inequalities hold (= true), lines intersect!
+
+### Polygon Area
+
+Let $P$ be a simple polygon (no boundary self-intersections) with vertices captured by $x$ and $y$ coordinate pairs. The polygon is closed and has the same start and end vertices.
+
+:::{.content-visible unless-format="revealjs"}
+$(x_{1}, y_{1}), (x_{2},y_{2}), ..., (x_{n},y_{n})$ where $(x_{1},y_{1}) = (x_{n}, y_{n})$ 
+:::
+
+:::: {.columns}
+
+::: {.column width="50%"}
+Then, the Area is: 
+
+$$Area(P) = \frac{1}{2} \sum_{i=1}^{n}  x_{i} y_{i+1} - x_{i+1}y_{i}$$
+
+$$= \frac{1}{2} \begin{vmatrix}
+x_{i} & y_{i+1}  \\ 
+y_{i} & y_{i+1}
+\end{vmatrix}$$ 
+:::
+
+:::{.column width="50%"}
+
+![](./figs/2_part/21_geometrical_analysis/length_and_area.png){width=50%}
+
+[Shoelace formula](http://www.mathopenref.com/coordpolygonarea.html)
+:::
+::::
+
+
+### Polygon area – step-by-step
+
+![<http://www.mathopenref.com/coordpolygonarea2.html>](./figs/2_part/21_geometrical_analysis/polygon_area_stepwise.png){width="80%"}
+
+:::{.content-visible unless-format="revealjs"}
+### Polygon area – Warnings! 
+
+:::{.callout-important}
+**Recall**: Polygons that self-overlap, or self intersect, or are invalid (holes are outside of polygons) cannot be correctly evaluated for area! Recall the Jordan curve theorem!
+:::
+
+:::{.callout-important}
+**Note**: Formulas for the area of a polygon need to be evaluated for the **absolute value** returned, in order to avoid returning some positive, and some negative values in collections with heterogeneous winding directions.
+:::
+
+:::
+
+### Centroid of a polygon
+
+The centroid of a simple polygon (or center of gravity) $P = \{(x_{1}, y_{1}), (x_{2}, y_{2}), ..., (x_{n}, y_{n}) \}$ where $(x_{1}, y_{1}) = (x_{n},y_{n})$ is the point at which it would balance if cut out of a sheet of material of uniform density: 
+
+:::: {.columns}
+
+::: {.column width="70%"}
+$$centroid_{x} (P) = \frac{1}{6.area(P)} \sum_{i=1}^{n-1}(x_{i}+x_{i+1})(x_{i} y_{i+1} - x_{i+1} y_{i})$$
+
+$$centroid_{y} (P) = \frac{1}{6.area(P)} \sum_{i=1}^{n-1}(y_{i}+y_{i+1})(x_{i} y_{i+1} - x_{i+1} y_{i})$$
+:::
+
+::: {.column width="30%"}
+![](./figs/2_part/21_geometrical_analysis/centroid_polygon.png){width="80%"}
+:::
+::::
+
+:::{.callout-note}
+There is no guarantee that the centroid is inside the polygon if it is non-convex!
+:::
+
+### Point on surface
+
+A **heuristic** approach for a point characterising the polygon, **guaranteed** to be **inside** the Polygon.
+
+- Important for geospatial applications (e.g., labelling)
+- Postgis: `ST_PointOnSurface`
+
+::: {.content-visible unless-format="revealjs"}
+![](./figs/2_part/21_geometrical_analysis/st_point_on_surface.png){width="60%"}
+:::
+
+::: {.content-visible when-format="revealjs"}
+::: {.r-stack}
+![](./figs/2_part/21_geometrical_analysis/st_point_on_surface_1.png){.fragment .fade-out width="50%"}
+
+![](./figs/2_part/21_geometrical_analysis/st_point_on_surface_2.png){.fragment width="60%"}
+
+![](./figs/2_part/21_geometrical_analysis/st_point_on_surface.png){.fragment width="60%"}
+:::
+:::
+
+:::{.content-visible when-format="revealjs"}
+### Point In Polygon {.unnumbered}
+
+::: {.callout-tip}
+## Is a point inside a polygon? {.unnumbered}
+
+- Try to come with an approach yourself. Think:
+    - What conditions does a point in a polygon satisfy?
+    - What conditions does a line going through a point inside a polygon satisfy?
+:::
+
+![](./figs/2_part/21_geometrical_analysis/point_polygon.png){width="60%"}
+:::
+
+### Point in Polygon
+:::{.content-hidden when-format="revealjs"}
+
+![](./figs/2_part/21_geometrical_analysis/point_polygon.png){width="60%"}
+
+:::
+
++ **Semi-line algorithm:** check the number of intersections of any semi-line from the tested point, intersecting the polygon:
+    - If even: NOT in polygon
+    - If odd: in polygon
++ **Winding line algorithm:** sum the angles from the point to all the vertices of the polygon:
+    - If 360 deg: in polygon
+    - If <360 deg: outside of polygon
+
+## Common geometric algorithms
+
+### Buffer
+
+- A  geometry defined as a set of points $S$ with a maximum distance $d<=$ to all points of the source geometry $g$.
+- Equivalent to *dilation* (positive buffer) or *erosion* (negative buffer) in image processing
+
+:::: {.columns}
+
+::: {.column width="40%"}
+![Source geometries](./figs/2_part/21_geometrical_analysis/prebuffer.png){width="90%"}
+:::
+
+::: {.column width="40%"}
+![Buffered geometries](./figs/2_part/21_geometrical_analysis/buffer.png){width="90%"}
+:::
+::::
+
+
+:::{.content-visible when-format="revealjs"}
+## {.unnumbered}
+
+::: {.callout-tip}
+## Exercise - buffer {.unnumbered}
+
+Construct a buffer $d > 0$ of the following geometries:
+
+![](./figs/2_part/21_geometrical_analysis/exercise_buffer.png){width="50%"}
+
+:::
+:::
+
+### Buffer (principle)
+
+- Buffering by a positive or negative distance
+
+![](./figs/2_part/21_geometrical_analysis/buffer_principle.png){width="50%"}
+
+:::{.content-visible when-format="revealjs"}
+## {.unnumbered}
+
+::: {.callout-tip}
+## Exercise: Buffer of multi-geometries {.unnumbered}
+
+How many geometries will be in the result?
+
+![](./figs/2_part/21_geometrical_analysis/buffer_multi_geometries.png){width="30%"}
+
+:::
+:::
+
+### Convex hull
+
+- The convex hull of a set of points $S$ is the smallest convex polygon that encloses $S$
+- **Recall**: A convex polygon has every point **inter-visible**
+- A variety of algorithms: [https://en.wikipedia.org/wiki/Convex_hull_algorithms](https://en.wikipedia.org/wiki/Convex_hull_algorithms)
+
+![Convex hull](./figs/2_part/21_geometrical_analysis/convex_hull.png){width="40%"}
+
+### Jarvis march (gift wrap) $O(n h)$
+
+n – number of points, h - number of pts on hull
+
+:::{.content-hidden when-format="pdf"}
+
+![](./figs/2_part/21_geometrical_analysis/jarvis_march.gif)
+
+### Graham’s scan $O(n \log n)$
+
+1. Find $pt$ with lowest $x$ coord: $p_{0}$
+2. Sort all points in $S$ in increasing order of angle between $x$ axis and $p_{0}$
+3. Add the next point to the stack
+4. Add the next point to the stack, and check whether it’s to the right or left of the previous segment
+5. If right, keep going
+6. If left, remove the point, add next, check again
+
+:::{.content-visible when-format="revealjs"}
+## {.unnumbered}
+:::
+
+::: {.content-visible unless-format="revealjs"}
+![](./figs/2_part/21_geometrical_analysis/grahams_scan.png){width="60%"}
+:::
+
+::: {.content-visible when-format="revealjs"}
+::: {.r-stack}
+![](./figs/2_part/21_geometrical_analysis/grahams_scan_1.png){.fragment width="60%"}
+
+![](./figs/2_part/21_geometrical_analysis/grahams_scan_2.png){.fragment width="60%"}
+
+![](./figs/2_part/21_geometrical_analysis/grahams_scan_3.png){.fragment width="60%"}
+
+![](./figs/2_part/21_geometrical_analysis/grahams_scan_4.png){.fragment width="60%"}
+
+![](./figs/2_part/21_geometrical_analysis/grahams_scan_5.png){.fragment width="60%"}
+:::
+:::
+
+
+
+### Convex hull- Quickhull $O(n^2)$
+
+![](./figs/2_part/21_geometrical_analysis/quickhull.gif)
+
+:::
+
+:::{.callout-note}
+The algorithmic robustness of the algorithm implementations needs to be evaluated and considered!
+:::
+
+## tessellation (Spatial partitions) 
+
+![Einstein problem](./figs/2_part/21_geometrical_analysis/einstein.png){width=80%}
+
+## {.unnumbered}
+
+- **Spatial Partition (tessellation)**: an division of a surface or space by a set of polygonal areas such that all polygonal areas are pairwise disjoint and jointly exhaustive.
+- **Triangulation**: a tessellation by triangles.
+
+### Voronoi diagrams 
+
+**Voronoi diagram** (also **Thiessen polygons**): a tessellation of space where any point within a Voronoi polygon is closer to the generating site than to any other site. 
+
+**Fortune’s sweep line** enables the computation of weighted Voronoi diagrams, too.
+
+:::{.content-hidden when-format="pdf"}
+
+![](./figs/2_part/21_geometrical_analysis/strategy_computational_problem.gif)
+
+:::
+
+:::{.content-visible when-format="pdf"}
+
+![](./figs/2_part/21_geometrical_analysis/strategy_computational_problem.png)
+
+:::
+
+### Duality with Delaunay triangulation
+
+The Bowyer-Watson incremental algorithm exploits the **duality** between Voronoi diagrams and **Delaunay triangulations** (DT):
+
+- Triangulation such that no point in $P$ is inside the circumcircle of any triangle in $DT(P)$. 
+- Delaunay triangulations maximizes the minimum of all the angles of the triangles in the triangulation;
+- Avoids *sliver triangles* (long elongated triangles)
+- Used for meshes in games, computer vision, terrain modelling, CAD
+
+## {.unnumbered}
+
+1. **Delaunay triangulation:** construct triangles in the set $S$ such that circumscribed circles of the triangles do not contain a vertex from the set of points $S$ other than the vertices of the triangle
+
+
+
+::: {.content-visible unless-format="revealjs"}
+![](./figs/2_part/21_geometrical_analysis/delaunay_voronoi1.png){width="40%"}
+:::
+
+::: {.content-visible when-format="revealjs"}
+::: {.r-stack}
+![](./figs/2_part/21_geometrical_analysis/delaunay_voronoi_0.png){.fragment  width="40%"}
+
+![](./figs/2_part/21_geometrical_analysis/delaunay_voronoi_1.png){.fragment .fade-in-then-out width="40%"}
+
+![](./figs/2_part/21_geometrical_analysis/delaunay_voronoi_2.png){.fragment .fade-in-then-out width="40%"}
+
+![](./figs/2_part/21_geometrical_analysis/delaunay_voronoi_3.png){.fragment .fade-in width="40%"}
+
+:::
+:::
+
+
+
+## {.unnumbered}
+
+2. **Voronoi polygons**: find the **dual graph** of the Delaunay triangulation - construct bisectrixes of the triangulation, find their intersections - the vertices of Voronoi polygons.
+
+::: {.content-visible unless-format="revealjs"}
+![](./figs/2_part/21_geometrical_analysis/delaunay_voronoi2.png){width="40%"}
+:::
+
+::: {.content-visible when-format="revealjs"}
+::: {.r-stack}
+![](./figs/2_part/21_geometrical_analysis/delaunay_voronoi_4.png){.fragment .fade-out width="50%"}
+
+![](./figs/2_part/21_geometrical_analysis/delaunay_voronoi_5.png){.fragment .fade-in width="50%"}
+:::
+:::
+
+
+## Applications
+
+The applications of computational geometry are not limited to GIS analyses. The also apply to the representation of data, or even their cartographic or artistic presentation.
+
+:::: {.columns}
+
+::: {.column width="40%"}
+![](./figs/2_part/21_geometrical_analysis/application1.jpg){width=100%}
+:::
+
+::: {.column width="60%"}
+![](./figs/2_part/21_geometrical_analysis/aurin_zoom_generalisation.gif){width=100%}
+:::
+
+:::: 
+
+### Cartographic generalization
+
+The process of selecting and processing spatial data for display appropriate for the scale and purpose of the map, and to the medium of presentation.
+
+![Maps: Swisstopo](./figs/2_part/21_geometrical_analysis/generalization.png)
+
+*Based on slides by Prof R. Weibel, UZH*
+
+### From DB to display
+
+We apply rendering rules (e.g., styling) to data to represent them visually
+
+![](./figs/2_part/21_geometrical_analysis/db_to_display.png){width=60%}
+
+### Generalization operators
+
+![Figure SGK 2002](./figs/2_part/21_geometrical_analysis/generalization_operators.png)
+
+### (Ramer-)Douglas-Peucker algorithm for line simplification
+
+- Simplifies the shape of a line by removal of *unnecessary vertices* (McMaster and Shea, 1992)
+- Vertices outside a *tolerance band* are considered important and are retained.
+
+![https://en.wikipedia.org/wiki/Ramer-Douglas-Peucker_algorithm](./figs/2_part/21_geometrical_analysis/douglas_peuker_algorithm.jpg){width=50%}
+
+
+:::{.content-visible when-format="revealjs"}
+Beware, does not preserve topology!
+:::
+
+:::{.content-visible when-format="revealjs"}
+### (Ramer)-Douglas-Peucker algorithm for line simplification {.unnumbered}
+:::
+
+:::{.content-visible unless-format="pdf"}
+
+![](./figs/2_part/21_geometrical_analysis/line_simplification.gif)
+:::
+
+- In PostGIS: `ST_Simplify(geom, tolerance)`
+
+### Visvalingham-Whyatt line simplification algorithm
+
+- Uses areal thresholds as opposed to distance thresholds [@visvalingam1993line];
+- Can be precomputed and stored on vertices, and used for adaptive dynamic portrayal.
+
+![Visvalingham-Whyatt (from https://bost.ocks.org/mike/simplify/)](./figs/2_part/21_geometrical_analysis/visvalingham_whyatt.png){width=60%}
+
+### Simplification vs smoothing
+
+- Simplification removes vertices	
+- Smoothing adds vertices/points => more data!
+
+![](./figs/2_part/21_geometrical_analysis/simplification.png)
+
+
+:::{.content-visible when-format="revealjs"}
+## {.unnumbered}
+::: {.callout-tip}
+## Exercise: Douglas-Peucker {.unnumbered}
+
+- Simplify the line with epsilon given
+
+![](./figs/2_part/21_geometrical_analysis/exercise_douglas.png){width="60%"}
+:::
+:::
+
+
+
+
+## Resources 
+
+- [Geometric algorithms](https://www.geeksforgeeks.org/geometric-algorithms/)
+- Comparison of Graham scan and Jarvis march [https://www.chrisharrison.net/index.php/Research/ConvexHull](https://www.chrisharrison.net/index.php/Research/ConvexHull)
+- Notes on computational robustness [https://github.com/mikolalysenko/robust-arithmetic-notes](https://github.com/mikolalysenko/robust-arithmetic-notes)
+- M. Visvalingam , J. D. Whyatt (1993) Line generalisation by repeated elimination of points, The Cartographic Journal, Vol. 30(1)
+
+
+
+## Summary {background-color="lightPink"}
+
+- You understand what an algorithm is and you can name some common patterns in geometric algorithms;
+- You understand what algorithm complexity is and why we care about it in applications and in database querying;
+- You can explain and understand how to apply common geometrical algorithms for GIS analysis.
+
+<!-- end slides -->
+::: {.content-visible when-format="revealjs"}
+## Next: [Topological analysis](/22_topological_analysis_short.html)
+
+## References {background-color="lightYellow"}
+
+:::

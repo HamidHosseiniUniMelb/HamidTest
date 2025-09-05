@@ -1,0 +1,399 @@
+# [L5a] Spatial Reference Systems
+
+*The Earth is not flat... Trouble...*
+
+::: {.content-visible when-format="revealjs"}
+## Learning objectives {background-color="lightPink"}
+
+- We will discuss what information is needed to interpret coordinates;
+- You will appreciate the complexity of determining the position of things on earth
+- You will be able to interpret coordinate systems and navigate their transformations;
+- You will appreciate how spatial DBMS handle information about spatial reference systems.
+:::
+
+:::{.content-hidden unless-format="revealjs"}
+## {.unnumbered}
+::: {.callout-tip}
+# Exercise: What are these values?
+
+:::{.incremental}
+- (2469635.336, 2354632.026)
+
+- (144.651, ‐38.320)
+
+- (144.658, ‐38.309)
+:::
+:::
+:::
+
+
+## Positioning things
+
+We need to reason about **locations** of objects. 
+
+For this, we express them as **positions** wrt a *datum*, either:
+
+- Relative positioning: positions are relative *within* a set of objects 
+- Linear (1D) Referencing: relative to a chosen main reference object (datum) along a linear feature ( single dimension); 
+- Cartesian systems: systems with orthogonal dimensions and a chosen origin;
+- Absolute positioning: to a spatial reference external to the set of objects we care about -- aka *"absolute positioning"*. Note: there is **no such thing as an absolute reference point**, anywhere in space.
+
+If the world was flat, we could just reason in a 3D space, with an origin at any location. 
+
+:::{.content-visible when-format="revealjs"}
+## {.unnumbered}
+
+:::{.callout-tip}
+## Exercise: How can we position things in space?
+
+- What coordinate system could you design?
+- What would be its parameters (axes, units, origin)?
+- How would you measure their values?
+:::
+
+:::
+
+## Coordinate systems
+
+A coordinate system:
+
+- Defines the set of axes that span the coordinate space;
+- Number of axes is the same as the system’s dimension;
+- Defines attributes of the axes – in which *direction* coordinates increment along each axis, names and abbreviations and units of the axes, the order of the axes (and thus the order of recorded coordinates);
+
+This is not enough: Where would be the origin? How would you orient the axes?
+
+### Linear Referencing
+
+Spatial referencing in which the locations of features are based on measurements along a linear element (road, river, or pipeline), based on:
+
+- A defined **reference linear element**;
+- A defined **origin** *along the reference linear element*;
+- The (potential non-0) **starting value** at the origin;
+- The **measurement unit** for the reference system;
+- Locations encoded as **distances** from the origin along reference element, and (potential) **offsets** from the reference element.
+
+Simple coordinate system for managing infrastructure data (e.g., road networks or utility lines) with natural reference elements.
+
+### Linear Referencing (cont.)
+
+
+![Linear Referencing](./figs/assessment/linear_referencing.svg){width=70%}
+
+:::{.content-visible unless-format="revealjs"}
+
+**If origin is at 0:**
+
+- A is at 10
+- B is at A+10 (relative linear reference )
+- c spans from 30-70 (interval)
+- d spans 20 units from 60
+
+:::
+
+### Uncertainty in Linear Referencing 
+
+![Linear Referencing](./figs/assessment/linear_referencing_uncertainty.svg){width=70%}
+
+:::{.content-visible unless-format="revealjs"}
+
+2D (3D) Measurement uncertainty is reduced to uncertainty in kilometrage along the linear feature (+ offset uncertainty, if relevant). 
+
+:::
+
+### Positioning with reference to Earth
+
+- To position things, we need a shared **spatial reference system**. 
+
+- The Earth itself provides an option -- a coordinate system centered in the center of the Earth. 
+
+- Values of Latitude, Longitude and Height to locate things on the surface of Earth (Geographic Coordinate System) **depend** on the shape of the Earth!
+
+We need a mathematical definition of the Earth's shape -- a **Datum**.
+
+:::{.content-visible when-format="revealjs"}
+## {.unnumbered}
+:::
+
+![Geographic CS (by UTwente)](./figs/1_part/17_crs_for_db/geographicCS.png){width=60%}
+
+### Geoid
+
+Closest mathematical approximation of the Earth is the **Geoid**. 
+
+:::{.content-visible unless-format="pdf"}
+![Figure by ESA](./figs/1_part/17_crs_for_db/2103_061_AR_EN.mp4)
+:::
+
+:::{.content-visible when-format="pdf"}
+![Figure by ESA](./figs/1_part/17_crs_for_db/world_not_flat.png){width="80%"}
+:::
+
+:::{.content-hidden when-format="revealjs"}
+The geoid is an idealised *geopotential* surface which coincides with the mean sea-level over the ocean, and extends under the continents. It is an idealisation of the distribution of the mass of the Earth under the influence of gravity, rotation but excluding tidal influences.
+
+*Equipotential*: all points on the geoid have the same geopotential. The surface is continuous and derivable at all points.
+:::
+
+Geoid: Surface of reference for very high accuracy geodetic computations, computationally expensive and not practical for routine measurement. 
+
+### Simpler approximations of the shape of the Earth
+
+1. **Spheroid** – an ellipsoid of revolution (equal semi-axes).
+2. **Sphere** – an ellipsoid with a single axis (a radius). 
+
+![](./figs/1_part/17_crs_for_db/surface_comparison.png){width="60%"}
+
+### Spheroid – Ellipsoid of revolution
+
++ Sphere *flattened* at the poles by about 22km
++ Parameters: $a$ (major semi-axis), $b$ (minor semi-axis), flattening $f = (a-b)/a$ (or inverse flattening $1/f$)
++ e.g., Geodetic Reference System (GRS 1980) by the International Union of Geodesy and Geophysics provides the **Datum** for the World Geodetic System (WGS 1984).
+
+![](./figs/1_part/17_crs_for_db/spheroid.png){width=25%}
+
+
+
+
+## Spatial (coordinate) reference systems
+
+**Coordinate Reference System = Coordinate System + Datum**
+
+Spatial Reference System (SRS) and Coordinate Reference System (CRS) are two terms for the same concept: a CS that has been referenced to a **datum**.
+
+:::{.incremental}
+- This enables grounding (definition) and interpretation of numeric values of coordinates.
+- The numeric values are a representation, in certain **units**, of a position with respect to the **origin** and oriented **axes** of the SRS.
+- We need to know the parameters of the datum in which the coordinates are expressed.
+:::
+
+### Types of SRS
+
+![](./figs/1_part/17_crs_for_db/types-of-crs.png)
+
+### Latitude and height depend on the Datum
+
+- Latitude is defined as the angle between the normal to the local point, and the equator, along the meridian line. For this, we need a surface against which we can measure the angle;
+- Height is measured along the plumb line (gravity) or reduced to the idealised surface (mean sea level - geoid).
+
+![Measuring latitude. Figure by Richard Knippers, ITC](./figs/1_part/17_crs_for_db/latitude33.png){width=50%}
+
+### Geographical coordinate system
+
+Latitude and longitude
+
+- Used for global mapping applications (incl GPS systems)
+- Meridian lines pass through the poles of rotation;
+- The zero meridian passes through an agreed location on the Earth (e.g., Greenwich)
+- Parallels (lines of constant latitude) are always perpendicular to meridians (lines of constant longitude).
+- Height is measured as *normal* (orthogonal) to the spheroid.
+
+:::{.content-visible when-format="revealjs"}
+## {.unnumbered}
+:::
+
+![](./figs/1_part/17_crs_for_db/polar_coordinates.png){width="50%"}
+
+A GPS device has a model of the ellipsoid and reports the Ellipsoidical height.
+
+A survey-grade GPS device has a model of the WGS 84 geoid, and can report **orthometric height** (height from Geoid).
+
+
+## Computing with coordinates
+
+### Some conventions 
+
+:::{.callout-warning}
+This applies to spatial computing, not to geodetic data processing!
+:::
+
++ Positions expressed in geographical coordinates are *usually* specified in the order (Lon,Lat)
++ This **may** depend on the specific coordinate system, but in IT implementations (databases, programming libraries) this is the default (unspoken convention);
++ This may differ form the standard!
++ Read the documentation for your system, e.g., [https://wiki.osgeo.org/wiki/Axis_Order_Confusion](https://wiki.osgeo.org/wiki/Axis_Order_Confusion)
+
+### EPSG: a database of SRS parameters
+
+- SRS are identified by *identifiers*, issued by *authorities*;
+- **European Petroleum Survey Group - EPSG**, the standard authority for SRS database
+- **Example:**
+    - EPSG:4326: World Geodetic System 1984 (used by GPS).
+    - [http://epsg.io/4326](http://epsg.io/4326)
+    - This is what PostGIS considers as **Geography**, see [Practicals](./practicals/06_geometrical_queries.qmd)
+
+:::{.content-visible unless-format="revealjs"}
+
+
+### SRS parameters (in WKT)
+
+:::{.layout-ncol=2}
+![WKT](./figs/1_part/17_crs_for_db/srs_parameter.png){width="40%"}
+
+![WKT2](./figs/1_part/17_crs_for_db/wgs84_wkt2.png){width="40%"}
+:::
+
+:::
+
+:::{.content-visible when-format="revealjs"}
+
+### SRS parameters (in WKT)
+
+:::: {.columns}
+
+::: {.column width="40%"}
+![WKT](./figs/1_part/17_crs_for_db/srs_parameter.png){width="80%"}
+:::
+
+::: {.column width="60%"}
+![WKT2](./figs/1_part/17_crs_for_db/wgs84_wkt2.png){width="70%"}
+:::
+
+::::
+
+:::
+
+## Measuring spatial properties 
+
+### Triangles on planes
+
+:::: {.columns}
+
+::: {.column width="60%"}
+
+- Triangular inequality holds:
+        
+$$(a + b ≥ c) ∧ (b + c ≥ a) ∧ (c + a ≥ b)$$
+
+- Sum of internal angles
+    
+$$ 𝝰 + β + 𝜸 = 180 $$
+
+- Euclidean distance (Pythagoras Theorem): 
+
+$$a^2 + b^2 = c^2$$
+
+:::
+
+::: {.column width="40%"}
+
+![](./figs/1_part/17_crs_for_db/plane.png){width="30%"}
+:::
+::::
+
+
+### A spheroid is not flat
+
+**Never compute distances on geographic coordinates** (latitude and longitude) using the Pythagorean theorem! Euclidean distance is not defined on degrees! 
+
+![Red lines span the same difference in longitude and latitude, but are of different lengths](./figs/1_part/17_crs_for_db/meridian_convergence.png){width=30%}
+
+::: {.content-visible when-format="revealjs"}
+### A spheroid is not flat (cont.) {.unnumbered}
+:::
+
+- Spherical excess:
+$$ 𝝰 + β + 𝜸 - E = 180 $$
+
+![Spherical excess](./figs/1_part/17_crs_for_db/spheroid2x.png){width="25%"}
+
+::: {.content-visible when-format="revealjs"}
+### On a spheroid (cont.) {.unnumbered}
+:::
+
+- Shortest distance: Great Circle Distance/Orthodrome (e.g., Haversine formula):
+$$ \Delta \sigma = 2 arcsin \sqrt{sin^2 (\frac{\Delta \Phi }{2})+cos\Phi _{1}.cos\Phi _{2}.sin^2(\frac{\Delta \lambda }{2}).} $$
+
+Computing on a spheroid is computationally expensive (trigonometric functions)!
+
+### Consequences - Orthodrome
+
+![Great circle distance, http://www.greatcirclemapper.net](./figs/1_part/17_crs_for_db/orthodrome.png){width="60%"}
+
+### Consequences - Loxodrome/Rhumb line
+
+Line of **constant angle** with the meridians
+
+![Loxodromes converge on the poles](./figs/1_part/17_crs_for_db/loxodrome.png){width="40%"}
+
+
+## Computing with coordinates in PostGIS 
+
+There are two *vector* data types provided by PostGIS:
+
+- `geometry` -- uses planar arithmetic (Pythagoras, ...)
+- `geography` -- uses spheroidal arithmetic (haversine, ...)
+
+PostGIS will let you do nonsensical calculations -- be careful!
+
+::: {.content-visible when-format="revealjs"}
+## Assigning meaning to x,y pairs {.unnumbered}
+
+:::{.callout-tip}
+## Exercise
+
+How far is it from Melbourne to Sydney, as the crow flies?
+
+![](https://www.permaculturenews.org/wp-content/uploads/2022/08/little-raven.jpg)
+
+:::
+
+## ST_Distance in Postgres {.unnumbered}
+
+Let’s use PostGIS as a simple calculator, using lon,lat coordinates for Melbourne and Sydney in WGS 84, `EPSG:4326`:
+
+```sql
+SELECT ST_Distance(ST_Point(145.0, -37.8, srid:=4326), ST_Point(151.2, -33.9, srid:=4326)) AS dist;
+```
+This gives a weird result. What does this mean?
+
+## ST_Distance in Postgres {.unnumbered}
+
+```sql
+-- geography_cast_dist: casting centroids to geography, MEL in 4326 - automatically picks spheroid [OK]
+-- sphere_dist: explicit sphere computation via spheroid=false flag [approximate]
+-- pythagoras_dist: takes geometry points and computes on Euclidean plane [wrong!]
+-- geog2times_spheroid_dist: inputs cast to geography [OK]
+-- spheroid_dist_geom: explicit spheroid specification [OK]
+
+SELECT state,
+ST_Distance(ST_Centroid(geom)::geography, ST_GeomFromText('POINT(144 -37)', 4326)) AS geography_cast_dist, 
+ST_Distance(ST_Centroid(geom), ST_GeomFromText('POINT(144 -37)', 4326), false) AS sphere_dist, 
+ST_Distance(ST_Centroid(geom), ST_GeomFromText('POINT(144 -37)', 4326)) As pythagoras_dist, 
+ST_Distance(ST_Centroid(geom)::geography, ST_GeomFromText('POINT(144 -37)')::geography) AS geog2times_spheroid_dist, 
+ST_Distance(ST_Centroid(geom), ST_GeomFromText('POINT(144 -37)', 4326), true) AS spheroid_dist_geom FROM spatial.us_states;
+
+```
+
+### Casting vs Transformation
+:::
+
+:::{.incremental}
+- We can switch between these data types using the `::` casting operator
+    - For example, `geom::geography` or `ST_Point(144, -37, srid:=4326)::geography`
+    - Note, you can only cast *geographic* SRS to geography. This may mean you need to convert the coordinates using `ST_Transform` first (see next lecture);
+- This only affects how PostGIS *interprets* the coordinate values.
+- It **does not change** the values of the coordinates in any way.
+:::
+
+**Read**: [https://postgis.net/workshops/postgis-intro/geography.html](https://postgis.net/workshops/postgis-intro/geography.html)
+
+
+## Summary {background-color="lightPink"}
+
+- You understand that coordinates on their own are not interpretable – they are just a representation of a position relative to a coordinate system;
+- You appreciate why coordinate system is not interpretable without a Datum;
+- You understand why we cannot use planar equations ( e.g., Euclidean distance) on non-planar reference surfaces
+- You understand why computing on non-planar reference surfaces is computationally expensive;
+- You know how to identify the parameters of a geographic spatial reference system in the WKT format.
+
+## Resources {background-color="lightYellow"}
+
+A great resource on coordinate systems, reference surfaces, and transformations is by Richard Knippers from the ITC [https://kartoweb.itc.nl/geometrics/index.html](https://kartoweb.itc.nl/geometrics/index.html). I acknowledge this as the source of some of the drawings, too.
+
+<!-- end slides -->
+::: {.content-visible when-format="revealjs"}
+## Next: [Transformations](/16_srs_transformations.html)
+
+## References {background-color="lightYellow"}
+
+:::

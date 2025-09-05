@@ -1,0 +1,217 @@
+# [L5b] Spatial Reference Systems - Transformations and Projections
+
+::: {.content-visible when-format="revealjs"}
+## Learning objectives {background-color="lightPink"}
+
+- You understand and can decide when, and why to transform data between different SRS;
+- You appreciate the complexity of SRS transformations;
+- You understand the reasons for cartographic projections.
+:::
+
+## Why transformation matters
+
+Some computations are (1) more efficient in the plane (e.g., distance), or (2) only possible in the plane (e.g., buffer).
+
+Consider the need to compute the walking catchments in the example below. What computations are needed?
+
+![Aurin.org.au - walkability](./figs/1_part/18_spatial_reference_systems_part2/walkability.jpg)
+
+- Distance from seed point along roads
+- Buffer distance around roads (to get an area)
+
+## Coordinate operations 
+
+A change of coordinates, based on a 1:1 relationship, from one coordinate reference system (CRS) to another.
+
++ **Conversion:** coordinate operation where **both source and target CRS** are based on the **same datum**, e.g. change of coordinate units. 
+    - **Projection:** a coordinate **conversion** (mapping) from an ellipsoidal coordinate system to a planar CRS with the same datum. 
+    - **Others**: Axis swaps, Cartesian to Geodetic/geographic conversion, Unit conversion,...
++ **Transformation:** coordinate operation in which the source and target CRS are based on **different datums**, e.g. a change from a global reference frame to a regional (plate-fixed) frame.
+
+:::{.callout-note}
+**Note:** While projections are simply conversions according to the standard, they are treated as separate entities in the [PROJ.org](https://proj.org/) library [@proj_lib] as they make up the vast majority of operations in the library.
+:::
+
+### Transformation
+
+A conversion (mapping) of the values of coordinates from one reference system into another;
+
+The values of the output coordinates are **not only numerically** different;
+
+**Example:** Helmert transformation (7 parameters, `towgs84`):
+
+- Rotation (3 parameters – rotation around x, y and z)
+- Translation (in 3D – translation vector x,y,z)
+- Scaling (1 parameter)
+
+::: {.content-visible when-format="revealjs"}
+### Transformation {.unnumbered}
+:::
+
+![Helmert transformation (Source: Wikipedia)](./figs/1_part/18_spatial_reference_systems_part2/helmert7param.png){width="60%"}
+
+## Projections
+
+### Cartographic projections
+
+We represent a 3D world on a plane (screen, paper, tablet, phone)
+
+We must flatten the world! It can be proven (Gauss *Theorema Egregium*/Remarkable theorem) that we must distort the mapped features.
+
+![](./figs/1_part/18_spatial_reference_systems_part2/cartographic_projections1.jpg)
+
+### Cartographic projections {.unnumbered}
+
+![](./figs/1_part/18_spatial_reference_systems_part2/cartographic_projections2.png){width="80%"}
+
+[Bernhard Jenny Adaptive Map Projections site](https://berniejenny.info/demos/AdaptiveCompositeMapProjections/)
+
+
+### Choice of projection by purpose
+
+::: {.incremental}
+- **Area covered** (Polar regions vs Equatorial regions vs Middle latitudes, elongation of the area around meridian or parallel)
+- **Scale of representation** (World vs Hemisphere vs Continent vs Country vs State)
+- **Purpose** (i.e., what distortions we compromise on):
+    - *Equal area*: preserve area sizes, good for applications measuring/comparing areas
+    - *Conformal*: preserving *looks* of shapes by preserving local angles (surveying applications)
+    - *Gnomonic*: great circles display as straight lines (navigation)
+    - *Equidistant*: preserves proportions of distances and some distances along parallels
+:::
+
+### Tissot indicatrix to visualise distortions
+
+[Tissot indicatrix](https://www.esri.com/arcgis-blog/products/product/mapping/tissots-indicatrix-helps-illustrate-map-projection-distortion/) visualizes map distortions. Each circle has the same radius on Earth.
+
+::: {layout-ncol=2}
+![WGS84 - Plate Carree](./figs/1_part/18_spatial_reference_systems_part2/Tissots_WGS84.png){#fig-tissot_wgs84}  
+
+![Mercator projection](./figs/1_part/18_spatial_reference_systems_part2/Tissots_Mercator.png){#fig-tissot-mercator}
+:::
+
+## Specifying transformations
+
++ Defining parameters of many transformations for all meaningful pairs of CRS was *traditionally* impractical (m:n)
++ Transformation parameters therefore defined **from current SRS** **to WGS84**, and then apply the inverse parameters to target SRS.  
++ SRS transformations in PostGIS: `ST_Transform(geom, targetSRS)`
+
+## Transformation process
+
+:::: {.columns}
+
+::: {.column width="60%"}
+1. From geographical polar to 3D Earth centred cartesian, then datum change (if any)
+2. From 3D Earth centered to geographical (optional)
+3. From geographical to projected cartesian (Map projection)
+4. (if only re-projection) From projected to geographical, then back to other projected
+:::
+
+::::
+
+:::{.content-visible when-format="revealjs"}
+## Transformation process {.unnumbered}
+:::
+
+This approach is now increasingly considered insufficient, and direct mappings are available for accurate transformations.
+
+![Helmert transformation accuracy (Source: Wikipedia)](./figs/1_part/18_spatial_reference_systems_part2/helmert_accuracy.png){width="100%"}
+
+:::{.content-hidden when-format="revealjs"}
+See that the standard transformation parameters from WGS84 to GDA2020 are only good to approx 3m. These can include affine, or even kinematic datum transformations that are uneven, and capture tectonic plate shifts using grid shift information. For more information, see @proj_lib. PostGIS automatically uses the Proj library and picks the accurate transformations, if available (e.g., built with Grid Shifts).
+:::
+
+## Time and datums
+
+Is the corner of a building (captured in WGS84 a few years ago) still at the same coordinates today?
+
+![](./figs/1_part/18_spatial_reference_systems_part2/time_matters.png)
+
+### Time matters
+
+Everything in space (and on Earth) is in fluid motion.
+
+:::{.content-visible unless-format="pdf"}
+![https://ucmp.berkeley.edu/geology/anim1.html](./figs/1_part/18_spatial_reference_systems_part2/tecall1_4.gif)
+:::
+
+### Typology of CRS by Datum
+
++ **Earth fixed** (the CRS are fixed to the center of the Earth, rotating in space with the planet)
+    - Each measurement must include a timestamp, to evaluate the movement form the reference *epoch* of the datum;
+    - All measurements are immediately referenced to other global measurements.
+    - Australia: [ATRF 2014](https://icsm.gov.au/australian-terrestrial-reference-frame)
++ **Plate fixed** (reference frame moves with the tectonic plate)
+    - Relative coordinates on the tectonic plate (e.g., in Australia) do not change - very practical;
+    - Requires updates when using coordinates measured using GNSSS (e.g., GPS)
+    - Requires updates when the shift form the reference epoch becomes too large (GDA94 >> GDA2020, 1.6m)
+    - Australia: GDA2020
+
+
+![](./figs/1_part/18_spatial_reference_systems_part2/gda2020.png){width="70%"}
+
+https://www2.delwp.vic.gov.au/__data/assets/pdf_file/0018/82611/8b.-2017-08-03-vicmap-info-gda2020.pptx.pdf
+
+![](./figs/1_part/18_spatial_reference_systems_part2/gda2020_2.png)
+
+
+### Reading SRS parameters
+
+- What is the identifier of the SRS: authority and code?
+- What is this specifying: GEOGCS/PROJCS?
+- What is the Datum?
+- What are the units?
+- What is the nature of the applied projection?
+
+:::{.content-hidden unless-format="revealjs"}
+## SRS Parameters for Australia{.unnumbered}
+:::
+
+::: {#fig-epsg layout-ncol=2}
+
+![EPSG:7844, GDA2020](./figs/1_part/18_spatial_reference_systems_part2/epsg_gda2020.png){#fig-epsg_gda2020}
+
+![EPSG:7843, GDA2020 3D](./figs/1_part/18_spatial_reference_systems_part2/epsg_gda2020_3Dwkt2.png){#fig-epsg_gda2020_3D}
+
+Specification of SRS parameters in WKT
+:::
+
+:::{.content-hidden unless-format="revealjs"}
+## Parameters of Australian projected SRS {.unnumbered}
+:::
+
+::: {#fig-epsg layout-ncol=2}
+![EPSG:9473, GDA2020 Australia Albers ](./figs/1_part/18_spatial_reference_systems_part2/epsg_gda2020_AUAlbers9473.png){#fig-epsg_gda2020}
+
+![EPSG:7855, MGA 2020 Zone 55 (VIC)](./figs/1_part/18_spatial_reference_systems_part2/epsg_gda2020_MGAz55.png){#fig-epsg_gda2020}
+
+Projected systems
+:::
+
+
+## What to use in Victoria, now?
+
+Only use (at source) data in [GDA2020-based](https://www.land.vic.gov.au/surveying/geodesy/geocentric-datum-of-australia) systems. GDA2020 is based on the ITRF epoch of 1st of January 2020. If need be, you can still use data based on GDA94, but be cautious.
+
+If capturing data (e.g., using WGS84 and a GPS) - note the epoch, and transform.
+
+**EPSG codes:**
+
+- Geographic SRS for Australia: EPSG:7844 (2D) or EPSG:7843 (3D)
+- Projected SRS for Australia: EPSG:9473
+- Best fitting for Victoria: MGA Zone 54 and 55 (EPSG: 7854 and 7855, based on UTM), or Vicgrid (EPSG:7899, conformal conic)
+
+## Summary {background-color="lightPink"}
+
+- You have a comprehensive understanding of spatial reference systems;
+- You understand what EPSG codes are and how to interpret their WKT representation
+- You can interpret and convincingly reason about the parameters of a given SRS, the units of measurement and the nature of the coordinates expressed;
+- You understand the impacts time has on spatial measurements.
+
+
+<!-- end slides -->
+::: {.content-visible when-format="revealjs"}
+## Next: [Geometries](/17_geometries.html)
+
+## References {background-color="lightYellow"}
+
+:::

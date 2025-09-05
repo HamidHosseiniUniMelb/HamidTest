@@ -1,0 +1,79 @@
+# Ethical and Socially Responsible Data Management
+
+As engineers, we yield great power to change the world. We are responsible for the consequences of our design decisions and the impact the implementation of our designs will have on the world. 
+
+<!--
+- what is the right to use data?
+- legal, normative, etc
+- social licence
+- serene videos, position paper on data sovereignty
+- lovitja insitute toolkit for data sovereignty https://learning.lowitja.org.au/
+- https://www.lowitja.org.au/tools/indigenous-data-sovereignty-readiness-assessment-and-evaluation-toolkit/
+- IATSIS data sovereignty
+- Ancestral vs historical links (long time, familiar links, but no)
+- include into project proposal as marking element: craft a statement of ethical and data responsibility for this project
+- https://sssdln.org/sssdln-data-sovereignty-digital-equity-panel-discussion/
+-->
+
+
+
+
+## Learning objectives {background-color="lightPink"}
+- Understand the concept of *social responsibility*;
+- Reflect on the different communities impacted by our design decisions;
+- Be able to critically evaluate the inclusiveness and ethics of your design and design process;
+- Apply this thinking to your requirement gathering process.
+
+
+::: {.content-visible when-format="revealjs"}
+## {.unnumbered}
+:::{.callout-tip}
+## Exercise: Average height of people in this room {.unnumbered}
+
+Can you quickly find the average height of people in this room?
+
+:::
+:::  
+
+::: {.content-visible when-format="revealjs"}
+## Average height - what is the problem?
+
+::: {.incremental layout="[50,50]"}
+![Male](./figs/1_part/11_2_socially_responsible_eng/male.png)
+
+![Female](./figs/1_part/11_2_socially_responsible_eng/female.png)
+:::
+
+::: {.notes}
+Figures [source](https://www.firstinarchitecture.co.uk/metric-data-01-average-dimensions-of-person-standing/)
+:::
+
+:::
+
+## Representativeness of data and systems
+
+:::{.incremental}
+Data we analyse **may not be** *representative* of the population we **believe** we analyse;
+
+Systems we develop may not *serve* the population we **should** serve
+
+We may cause **harm** by neglecting to understand the representativeness of data/systems.
+:::
+
+
+## Recap {background-color="lightPink"}
+
+1. You have gained an appreciation for the complexities of requirements analysis;
+2. You appreciate the role that different sources of information can complement each other to identify project requirements;
+3. You have thought about particular spatial requirements that an information system or database may need to support.
+4. You now have tools at your disposal to undertake requirements analysis (see [Practical](/practicals/03_requirements_conceptual.qmd) )
+
+<!-- end slides -->
+
+::: {.content-visible when-format="revealjs"}
+
+## Next: [Conceptual modelling](/12_conceptual_model.html)
+
+## References {background-color="lightYellow"}
+
+:::

@@ -1,0 +1,35 @@
+#  Georefereencing and geocoding - From Human Place References to Geocodes
+
+
+How we (as humans) conceptualize the world **is not, and should not** be constrained by how we *can* represent things in computers. How we exchange infromation about places is not easy to handle in computers.
+
+
+## Georeferencing in Human Communication
+
+- **Verbal communication:** We talk and write *about* places;
+- We **exchange instructions** how to interact with space and objects in it: *wayfinding instructions* (aka route instructions), assembly instructions (think IKEA)
+- **Deixis:** We *point* to things ( think of augmented reality and eXtended reality)
+- **Sketching**: we sketch (and possibly model) more ellaborate arrangements and maps.
+
+We will focus on verbal instructions now. 
+To relate such information to a computer, we need to *geocode* it into a processable representation.
+
+## Requirements for working with place-based language
+
+*Geoparsing:*
+
+ - Detecting geographical references to place names;
+ - Place-name disambiguation to determine *which particular* instance of a name is intended (Melbourne, VIC, AU vs Melbourne, FL, USA);
+
+*Geocoding:*
+- Geometric interpretation of the footprint designated by the place name.
+
+Geocoding is done against a database (possibly API), and may include estimation of the uncertainty of the geocoding.
+
+<!-- end slides -->
+::: {.content-visible when-format="revealjs"}
+## Next: [Spatial Reference Systems](/15_spatial_ref_systems.html)
+
+## References {background-color="lightYellow"}
+
+:::

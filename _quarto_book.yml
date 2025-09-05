@@ -1,0 +1,141 @@
+project:
+  type: book
+  output-dir: docs
+  #resources: 
+  #  - "data/"
+  preview:
+    port: 4200
+book:
+  title: "Spatial Data Management"
+  subtitle: "Taming Spatial Data in Spatial Databases"
+  author: "Martin Tomko and Alan Thomas"
+  #affiliation-title: "The University of Melbourne"
+  description: "GEOM90008: Spatial Data Management, University of Melbourne"
+  date: today
+  date-format: DD/MM/YYYY
+  site-url: "https://tomkom.pages.gitlab.unimelb.edu.au/spatialdatamanagement"
+  #cover-image: figs/cover.png
+  #repo-url: https://github.com/tomko-lab/SpatialDataManagement
+  page-footer: 
+    left: "cc-by (2025) Martin Tomko and Alan Thomas, The University of Melbourne" 
+  downloads: "pdf"
+  license: "CC-BY"
+  output-file: "GEOM90008_Spatial_Data_Management_book"
+  #output-ext: "pdf"
+
+  chapters:
+    - index.qmd
+    #- intro.qmd
+    #- organisational_aspects.qmd
+    - part: "Data Modelling for Geospatial Applications"
+      chapters: 
+        - 10_spatial_data_modelling.qmd
+        - 11_requirements_analysis.qmd
+        #- 11_2_socially_responsible_engineering.qmd
+        #- 11_3_data_sovereignty.qmd
+        - 12_conceptual_model.qmd
+        - 12b_introduction_DBMS.qmd
+        - special_l3_project_briefing.qmd
+        - 13_logical_model.qmd
+        - 13c_physical_model.qmd
+        - 14_spatial_data_representation.qmd
+        - 15_spatial_ref_systems.qmd
+        - 16_srs_transformations.qmd
+    - part: "Querying and Analysing Spatial Data"
+      chapters:
+         - 17_geometries.qmd
+         #- 18_geocoding.qmd
+         - 20_querying_spatial_data.qmd       
+         - 21_geometrical_analysis.qmd
+         - 22_topological_analysis.qmd
+         - 23_network_analysis.qmd
+         - 24_raster_analysis.qmd
+    #     - 25_spatio_temporal_analysis.qmd
+    #     - 26_movingObjects
+    - part: "Efficient Data Access"
+      chapters: 
+         - 30_efficient_data_querying.qmd
+         - 31_space_driven_indexing.qmd
+         - 32_object_driven_indexing.qmd
+    #     - 33_query_selectivity.qmd
+    - part:  "Advances in Data Management"
+      chapters: 
+         - 40_advances_spatial_data_management.qmd
+         - 41_distributed_db.qmd
+    #     - 43_data_cleaning.qmd
+    #     - 44_mapping.qmd
+    - part: "Practicals"
+      chapters:
+        - practicals/01_connecting_to_DB.qmd
+        - practicals/01b_basic_SQL_interaction.qmd
+        - practicals/02_basic_GIS_interaction.qmd
+        - practicals/03_requirements_conceptual.qmd
+        - practicals/04_logical_design.qmd
+        - practicals/05_a2_work_session.qmd
+        - practicals/06_geometrical_queries.qmd
+        - practicals/07_topological_queries.qmd
+        - practicals/08_network_analysis.qmd
+        - practicals/09_raster_analysis.qmd
+        - practicals/10_data_cleaning_loading.qmd
+        - practicals/11_key_value_stores_OSM.qmd
+        - practicals/12_final_prac.qmd
+        - practicals/ex1_advanced_spatial_analysis.qmd
+        - practicals/ex2_performance_indexing.qmd
+      #-practicals/12_data_cleaning.qmd 
+    #   #  - practicals/04_sourcingdata.qmd
+    #   #  - practicals/06_ETL.qmd
+    - part: assignments/assignments.qmd
+      chapters:
+        - assignments/A1.qmd
+        - assignments/A2.qmd
+        - assignments/A3.qmd
+        - assignments/A5.qmd
+        - assignments/A6.qmd
+        - assignments/project_specification.qmd
+        - assignments/project_resources.qmd
+    - part: "Supplementary Materials"
+      chapters: 
+        - s00_intro_SQL.qmd
+    - references.qmd
+
+bibliography: references.bib
+
+#profile:
+#  group: 
+#    - [dev, prod]
+
+format:
+  html:
+    theme: [cosmo]
+    css: output_style.css
+    toc: true
+    toc-depth: 3
+    mermaid:
+        theme: neutral
+    navbar:
+      search: true
+      logo: "cover.png"
+    cookie-consent: false
+    logo: "cover.png"
+    number-sections: false
+  pdf:
+    prefer-html: false
+    documentclass: scrreprt
+    include-in-header: 
+      text: |
+        \usepackage{etoolbox}
+        \usepackage{titletoc} 
+    #include-before-body: 
+      #text: |   
+      #  \renewcommand{\thechapter}{\thepart.\arabic{chapter}}% Prefix chapter with part number |
+      #  \titlecontents{chapter}[1.75em]{\addvspace{1pc}\bfseries}{\contentslabel{2.75em}}{}{\titlerule*[0.3pc]{.}\contentspage}
+      #  \makeatletter |
+      #  \renewcommand{\l@section}{\bprot@dottedtocline{1}{2em}{3.5em}}% Increase number width and indent for section |
+      #  \renewcommand{\l@subsection}{\bprot@dottedtocline{2}{3.8em}{4.5em}}% Increase number width and indent for section |
+      #  \makeatother
+    toc: true
+    toc-depth: 3
+    logo: "cover.png"
+    mermaid:
+        theme: [neutral]
+    mermaid-format: png

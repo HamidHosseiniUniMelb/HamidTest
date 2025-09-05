@@ -1,0 +1,38 @@
+# Practicals
+
+## Project Scope
+
+### Learning objectives
+
+- Use 0-3D spatial data in a database (inout, modelling, output)
+- analyse data in a database
+- enforce constraints on data in a database
+- produce reports from a database, possibly as simple website.
+
+### Project ideas
+
+- powerline and heritage restriction zones
+- noise from road
+- indigneous heritage protection
+- 3D  building intersections
+
+
+## Timeline
+
+
+
+
+## Resources
+- Postgis [Isovists](https://abelvm.github.io/sql/isovists/)
+
+
+## Add to A3
+- make this as learning objectives
+- guide what to pay attention to in SQL queries - units, number of records, projections, naming of columns and order, 
+- how to progress -simple query, expand, start from the backj, prepare final table to get to a final select.
+
+
+
+
+
+

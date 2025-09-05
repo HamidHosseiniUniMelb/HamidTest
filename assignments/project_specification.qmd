@@ -1,0 +1,98 @@
+# Project specification: Geospatial support for the management of rail information for the Melbourne Metro. 
+
+## Project Brief
+
+[Metro Trains Melbourne](https://www.metrotrains.com.au/) (MTM) operates the electrified train network in the Melbourne metropolitan area, running 269 trains across 16 lines, covering 222 stations and 998 kilometers of track. Operating seven days a week through the effort of over 7000 employees, MTM is a major enabler of urban life in Melbourne. The reliability and status of tracks is heavily dependent on the operational interpretation of geospatial rail corridor data. 
+
+*Fault data* are a critically important source of operational information, some of which is collected by companies such as [Agonics](https://agonics.com/). MTM requires a database management system to store fault data, and analyze them for the support of maintenance teams and for operational tasks.
+
+<!--
+This is especially important when the specimens contain Indigenous Cultural Knowledge, which needs to be managed in line with principles of Indigenous Data Sovereignty, including the right of Indigenous peoples to govern the management of, access to and use of data about Indigenous knowledge and resources.
+
+However; the vagueness of the textual locality description provided with many older specimens – combined with the lack of an authoritative dataset enabling to identify rightful Traditional Owners for any place in Australia - makes it difficult to pinpoint their collecting locality and to reconcile specimens with their Aboriginal or Torres Strait Islander Country of origin. 
+-->
+
+## Supporting the operation of Metro trains
+
+MTM requires a relational database management system to store data about the operations of rail and rail corridors: to extract required information based on queries returning records of rail corridors, rail tracks, assets, and faults; to undertake summary searches for assets and faults (aggregate reports by type, based on textual, spatial and temporal aggregations); and relate the records to the content of other datasets. This is made complicated by:
+
+- The complexity of spatial referencing of assets and faults along rail infrastructure (mixture of linear and cartesian spatial referencing), and associated issues of uncertainty and imprecision;
+- The need for safe access to assets by maintenance crews, and the time-critical aspect of this access;
+
+Your task is to develop a database supporting MTM operations in performing the data storage and analysis tasks below. The database should be implemented in the Postgres/PostGIS database management system only, using PGAdmin (or equivalent SQL client) and possibly QGIS as clients to interact with the database and to visualize the results of database interactions. You should demonstrate the functionality on at least two distinct corridors, but can expand to the entire Melbourne Metro system, to demonstrate additional functionalities.
+
+## Required system functionality 
+
+**Recording capability**: Support the storage and maintenance of consistent MTM asset records and the recording of the provenance of these data:
+
+1. Provide MTM data managers with the ability to **record/store** asset and event data supporting the operational assessment of the rail infrastructure, in particular rail corridors, their respective tracks, stations, assets between stations, and events such as faults and hazards. Assets are usually stored/imported in bulk and occasionally updated. It should be possible to import them georeferenced by geographical coordinates (see below). Faults are typically reported using Linear referencing, and inserted individually, and ad-hoc. Faults are categorised as:
+   - Severe: Critical faults that require immediate intervention (e.g., track misalignments, broken rails, structural failure).
+   - Moderate: Issues that pose potential risks if left unaddressed (e.g., minor cracks, drainage blockages, electrical faults).
+   - Minor: Routine maintenance concerns that do not immediately impact safety (e.g., loose fastenings, worn signage, minor erosion).
+
+2. Provide the ability to store georeferenced and timestamped photographs of the assets (also see [project resources](project_resources.qmd)). You should support the use of photographs georeferenced using a GPS from a phone, i.e., in WGS84 coordinates (long/lat); 
+3. The system must always store the original georeference of any record to support provenance analysis. The system should always preserve information about the original source of the record. 
+4.	For all recorded assets and faults, support the ability to **convert** georeferencing recorded in a geographic or projected coordinate reference system from/to a linear referencing system within a specific track centerline and/or corridor. Enable the storing of the **uncertainty** of the georeferencing in the source system, and if possible, translate this into the target coordinate systems for interpretation by operators.  The system must handle transformation to a target coordinate system for querying or viewing by users.  
+5. Support the reporting and recording of hazards, and the source of hazard information, that may impact rail assets (e.g., fire, storms, accident). Allow the users to define a maximum distance threshold to track for the hazard recording. Note that hazards may have an areal extents.
+
+**Querying and analytical functionality**: facilitate effective search and analysis of MTM data:
+
+6. For any georeferenced assets/faults, identify the associated track centerline ID, the nearest train station (on the same track centerline), the Permanent Speed Restriction (PSR) valid on this segment of the track, the asset/fault offset (distance) to track centerline, and the linear reference kilometrage within the given track centerline.
+7. Retrieve assets, hazards or faults of a given type and generate summary reports (counts of assets by type, status, or other parameter) based on a track ID and a given linear reference interval range. Report their geographic coordinates (user defined target coordinate system GDA2020 or WGS84) and altitude;
+8. Identify assets/faults/hazard nearest to a given coordinate pair (in long/lat), or within a user-defined distance from a coordinate pair (long/lat), along with their LRS kilometrage.
+9.  Emergency response support - retrieve assets that may be at risk by being in proximity of a reported hazard. Similarly, identify train stations before and after the hazard, along a given rail corridor.
+10.  Given an asset fault along a specific track (given as a linear reference), enable maintenance crews to find the most appropriate road route to reach the fault location. For the most appropriate route, consider needs such as the ability to route the crew via a desired intermediate point (via...), or to avoid a given route segment (e.g., because of traffic jam). 
+11.	MTM requires capabilities to support track asset inspection. Track asset maintenance often focuses on groups of assets (e.g., signals, [points](https://en.wikipedia.org/wiki/Railroad_switch)) that may require maintenance together along a track. Enable planning of **maintenance trips**, identifying assets that require priority inspection. Enable to plan a route and compose a crew to undertake this, meeting criteria set below for inspection vehicles and available personnel. Consider the ability to identify locations of a given (set of) assets within a given area, along a track, or in a spatial cluster when planning the trip to prioritise maintenance. Identify the routes of road trips that enable to visit such (groups of) sites efficiently. For practicality, assume that the number of individual road trip *stops* (sites or their clusters) does not exceed 3 in a day. 
+
+**Operator and equipment management**:  MTM further wishes that the system has the ability to support employee workload and compliance management, as well as fieldwork management:
+
+12.	Each asset manager/crew member must be identifiable by their employee number and name, and the database should store their work email and phone contacts. A crew is a minimum of 2 and maximum of 4 personnel.
+13. The groundtruthing crew are required to undertake first aid refresher courses once a year. The system should be able to identify all employees required to undertake a training in the coming month (30 calendar days). If they have not undertaken a refresher, they cannot be part of a maintenance crew and trip.
+14. Identify the closest hospital(s) to the locations of assets/faults inspected on a maintenance trip, and provide the ability to find the shortest path to those hospitals from the asset/fault location. 
+15. Support the storage of the full history of planned and undertaken maintenance trips ( trips undertaken by maintenance crews, using vehicles on roads, accessing rail infrastructure). Assigned as well as derived (computed) characteristics of planned and undertaken trips should be available ( crew members, date, vehicle used, automatically identify a close-by named place, trip status -- planned or undertaken, nearest hospital, assets/faults inspected), the trip route itself and its characteristics (e.g., length of trip) should be computed on the fly. 
+
+
+**Note**: for planed trips, the system must ensure feasibility -- determine whether all employees/vehicle are able to undertake it ( an employee or vehicle cannot be part of multiple trips on the same day). 
+
+**Advanced functionality (bonus):**
+
+16.  Enable the identification of assets that are either on a downslope, or on an upslope if traveling along a track in a given direction, and find those on a downwards incline exceeding a user defined threshold along a track segment (these may require more maintenance);
+17. Identify the fastest route for emergency services to reach the (potential accident) points at asset locations, taking into account road network, demonstrating the ability to consider traffic patterns or disturbances. As a bonus capability, you may try to identify if, for a given location, it is better to drive a person to hospital or call an ambulance.
+
+
+**Out of scope**:  User/Database access management
+
+MTM envisages that a variety of database clients will be used for accessing this database. Yet, aspects of database user access management are out of implementation scope for this project, but should be discussed in the report, if applicable (i.e. you should not create and modify user access in your database, but discuss how you would do it in your report, if needed).
+
+## Implementation
+
+All capabilities should be demonstrated on realistic (but potentially minimal) data, based on SQL queries delivered with the report (in some cases, a sequence of queries may be needed, such as an INSERT and SELECT statement). You should select one (or multiple) sites in Melbourne to demonstrate the functionality. All Melbourne map data should stored in their original coordinate reference system (for Australian data, either GDA94 or GDA2020, or projected systems (MGA or VicGrid)). Asset locations are often provided in linear referencing systems. Typical facility locations outside of the management of MTM are often provided in WGS84 (long, lat, in decimal degrees) (hotels, restaurants, hospitals) for global compatibility. Re-projections should be handled on-the-fly, as noted above.
+
+The project team will be required to deliver a database in the Postgres/PostGIS database management system loaded with demonstration data, and demonstrated using basic SQL queries executed from PGAdmin and / or QGIS. The results of spatial queries can be visualized through a connection to QGIS.
+
+
+## Data 
+
+You must document all data you use/envisage to use in the project.
+
+Some commonly used data are available to all (Raster DEM, OSM street network) in the `spatial` schema. Those should not be duplicated in group schemas, nor substituted by other data. You also **must** provide some (spatial) data yourself -- you can use any data you decide, sourced from outside sources. You should carefully evaluate the data, and limit the size of the dataset to the minimal size required (i.e., extract only the subset of data required, reduce the attributes required, limit the data to the extent of the area of interest). 
+
+In this manner, you should demonstrate the ability to use data from **at least 3 distinct data sources** such as client-provided data (MTM/Agonics data), authoritative Victorian data, crowdsourced data (OSM), measured or user-provided source (e.g., newly installed asset or fault inputed by the database user). You should use data that include points, lines, and polygons (vector), and a raster dataset (the DEM provided in the subject database is sufficient). 
+
+
+Some of the data sources you should investigate for your project include:
+
+- [Track centerline data](https://discover.data.vic.gov.au/dataset/ptv-train-track-centreline)
+- [Vicmap](https://www.land.vic.gov.au/maps-and-spatial/spatial-data/vicmap-catalogue)
+- [Vicmap Lite](https://www.land.vic.gov.au/maps-and-spatial/spatial-data/vicmap-catalogue/vicmap-lite) a reduced, very useful subset of the Vicmap data to consider.
+- [Vic Open Data](https://www.data.vic.gov.au/)
+
+**Other datasets:**
+
+- OpenStreetMap - especially useful for amenities, see exports at [Geofabrik](https://www.geofabrik.de/data/download.html).
+
+
+## Useful references (papers may be available under Readings Online):
+
+- Paul Scarponcini. 1999. Generalized model for linear referencing. In Proceedings of the 7th ACM international symposium on Advances in geographic information systems (GIS '99). Association for Computing Machinery, New York, NY, USA, 53–59. https://doi.org/10.1145/320134.320149
+<!-- Scarponcini, Paul. "Generalized model for linear referencing in transportation." GeoInformatica 6.1 (2002): 35-55. -->

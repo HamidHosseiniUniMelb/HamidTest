@@ -1,0 +1,58 @@
+# [P3] Requirements analysis and conceptual design
+
+In this practical, you will get the chance to practice basic requirements analysis and conceptual database design from a simple scenario. You will then apply this to the project.
+
+## 1. A simple scenario
+
+A small consulting company requires a database to store human resources information. The company's accounts and human resources officers must be able to manage employee assignments, calculate employees' pay, and create simple invoices for clients based on the data in the database.
+
+The company is organized into departments. Each department has a name, number and an employee who manages the department. We keep track of the date the department manager started managing the department. A department can be spread over multiple locations.
+
+Each department controls a number of projects. Each project has a name, number, client and is located at a single location.
+
+We store each employee's ID, name, address, rate of pay (hourly), gender, and birth date. Each employee works for one department but may work on several projects. We keep track of the number of hours per week that an employee currently works on each project. We also keep track of the direct supervisor of each employee.
+
+Each employee may have a number of dependents (e.g. spouse/partner, children, aged parents, ...). For each dependent, we keep track of their name, gender, birthdate, and relationship to employee. The company believes that insurance companies may request this information in the future.
+
+### Requirements analysis
+
+::: {.callout-tip title="Your Turn"}
+Reading the above scenario:
+
+1. Identify all **nouns** in the text. 
+    a. Concepts (concrete or abstract) where information *about* individual instances of the concept may be required to be stored in a database (example: *employee*), could be classified as **entities**. Mark them using rectangles.
+    b. Concepts that seem to be subordinate to other concepts, or describe properties of other concepts (example: *name*), could be classified as **attributes**. Mark them using ovals.
+2. Identify all **verbs** in the text.
+    a. Verbs that describe a link between two concepts you identified as entities (example: employee *works for* department) could refer to **relationships**. Mark them using diamonds.
+3. Distinguish between requirements that must be satisfied, and others that would be desirable but are not critical. In general, you should always keep an eye on words such as *can*, *may*, *should* and *shall*, or even *must*. Can you reason why these words matter?
+4. Emphasize in your requirements analysis of the text (for instance, by using colours, or by using thicker outlines) elements that must always be satisfied.
+5. Consider the spatial aspect of the data. Are there any entities and/or attributes that are spatial in character? For each one, decide whether it is best represented as an object, field, network or event (see the characterisations of the world from [Lecture 1](/10_spatial_data_modelling.qmd)).
+:::
+
+In a more comprehensive requirements analysis, you would conclude by summarising the requirements in a simplified form of text, or in bullet points. Carefully think about any missing requirements, or logical inconsistencies between the requirements that are explicit in the text. 
+
+### Conceptual database design
+
+::: {.callout-tip title="Your Turn"}
+1. Draw an **entity-relationship diagram** using the notation specified below, and refer to @elmasri2016fundamentals (or the [lecture notes](/12_conceptual_model.qmd)). Alternatively, you can use the modeller in pgAdmin (this uses a different notation – in Assignment 2 you would need to explain the key in a legend).
+2. Think carefully about the **participation constraints** and **cardinality restrictions** of the relationships. 
+3. Think carefully about the **relationship attributes**. 
+:::
+
+![Suggested ER diagram notation, based on @elmasri2016fundamentals](/figs/practicals/p03_er_diagram_notation.png)
+
+## 2. The project
+
+This small model exercise has introduced you to an approach that you can apply to the specification of the [Project](/assignments/project_specification.qmd). 
+
+Perform a requirements analysis of the project. The specification is lengthy and this may take some time. Moreover, you and your group members may come up with differing results. Do you need to complement the specification with additional requirements? Are the requirements too vague, and can you make informed choices how to make them more specific? Do you need to search the Web, standards, and best practice documents for more constraints and requirements?
+
+Investigate any additional properties that you may want to identify, or relationships and constraints. Note them down, and reference carefully. You may also try to identify properties satisfied by existing similar database systems or software out there.
+
+Now undertake a conceptual design for your project. 
+
+1. You may want to identify additional entities or attributes and relationships, based on your interpretation of the requirements;
+2. Identify any entities that may have *spatial* attributes and *spatial* relationships you may need to handle.
+3. If you are starting to look for the right data to populate your database, consider evaluating how those data fit the attributes/values you need to capture. What are their data domains, and value ranges?
+4. Are there additional properties you would want to capture, say, about geometries and their coordinate reference systems? Are there any spatial constraints you would like to capture?
+

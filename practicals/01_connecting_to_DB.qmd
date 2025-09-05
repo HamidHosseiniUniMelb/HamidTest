@@ -1,0 +1,54 @@
+# [P1a] Connecting to the PostGIS server
+
+Here we cover the basics of connecting to the database, and will enable you to get an overview of the data available.
+
+## Connection details
+
+- **Name:** Wammawatcha
+- **Host:** wammawatcha.its.unimelb.edu.au
+- **Port:** 5432
+- **Database** / **Maintenance DB:** geom90008
+- **Username:** your UoM username
+- **Password:** your UoM password
+
+**Note**: You must be on campus, or using the [University VPN](https://studentit.unimelb.edu.au/vpn) to connect.
+
+## Clients
+
+You can use a number of clients to connect to the server. We recommend [PGAdmin IV](https://www.pgadmin.org/), a cross-platform client for Postgres. It also has a nice interface that can simply display spatial data for a quick overview.
+
+### Connecting to the DB Server
+
+1. Open PGAdmin 4 <!--(**Important** - on University lab computers, use *PGAdmin 4 v8*, not *PGAdmin 4*)--> 
+2. Choose **Object** → **Register**  →  **Server**
+3. Enter the details above to connect. You can save the connection details.
+
+![Adding a new server](/figs/practicals/01_connecting_to_DB/p01_pgadmin_newserver.png)
+
+You should end up seeing this:
+
+![PGadmin interface](/figs/practicals/01_connecting_to_DB/p01_pgadmin.png)
+
+You may use the same settings and a similar procedure to connect from different database clients. A good alternative SQL client is [DBeaver](https://dbeaver.io/). 
+Advanced users may also use Visual Studio Code (VSCode) with
+the PostgreSQL [extension](https://marketplace.visualstudio.com/items?itemName=ms-ossdata.vscode-pgsql) -- not recommended for this subject).
+
+After you have accessed the database called `geom90008`, you should be able to see several personal schemas (named after individual users with names identical to  `username`). You only have read and write access to your own schema. You also have read-only access (you are able to query) the `spatial` schema, which contains shared data (e.g., those used in the assignments).
+
+### First interactions with the PGAdmin IV Interface
+
+Each Postgres schema has a number of different objects (which we may explore later). The first and main one we will explore is `Tables`. You should be able to look at any tables that are included in the schema (or none, if none are present). 
+
+![PGadmin interface - tables](/figs/practicals/01_connecting_to_DB/p01_pgadmin_tables.png)
+
+You are also able to query the data, using the `Query tool`:
+
+![PGadmin interface - query tool](/figs/practicals/01_connecting_to_DB/p01_pgadmin_querytool.png)
+
+You will then be able to write queries, and execute them in the database.
+
+:::{.callout-note}
+We can only provide limited assistance with the installation of the client on your own computer. We are not in a position to assist all students across the many versions of different operating system with the installation. If you find yourself in trouble, first consult the internet, and your peers. You can also use PGAdmin installed on the lab computers.
+:::
+
+

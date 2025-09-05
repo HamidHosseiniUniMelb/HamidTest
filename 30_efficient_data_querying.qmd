@@ -1,0 +1,452 @@
+# [L10a] Effective Spatial Data Access
+
+::: {.content-visible when-format="revealjs"}
+
+## Learning objectives {background-color="lightPink"}
+
+- You will understand why spatial queries may be time consuming
+- You will understand the foundations of of indexing and of *spatial* indexing;
+- You will understand and be able to apply the strategy used during query processing assisted by an index, in the filter-refine approach.
+
+:::
+
+## Spatial query processing 
+
+### Spatial queries – finding matching records
+
+A spatial query process has to identify matching records in a table based on (spatial, i.e. topological, geometrical) filter operators applied to geometries
+
+```sql
+SELECT t.forestpolyid, f.name
+FROM forests f, roads r
+WHERE  st_intersects(f.geom, r.geom);
+```
+- The **query geometry** `r.geom` must be compared against **all** geometries of `f.geom` -- very costly!
+
+### Spatial queries – finding matching records
+
+Consider the complexity of all the geometries and the number of comparisons needed to identify all intersections!
+
+![Line segment intersecting Sydney regions](./figs/3_part/30_efficient_data_management/finding_maching_candidates.png){width="70%"}
+
+<!--
+::: {.callout-note}
+
+**Easter egg**: find something unusual above.
+:::
+-->
+
+### Spatial queries - execution complexity 
+
+- **Very slow** for large tables or large geometries: $M \times N$ comparisons
+- Geometry processing proportional to the number of vertices/edges of geometries!
+- Retrieval from **hard disk** is much *slower* than from **memory**.
+- We need a strategy to reduce **search space** and hence **search time**.
+
+## Indexing
+
+::: {.content-visible when-format="revealjs"}
+### Exercise: Largest city in 2005 {.unnumbered}
+
+::: {.callout-tip}
+Find the city with the largest population in 2005. We will time it.
+:::
+
+### Exercise: Largest city in 2005 {.unnumbered}
+
+![](./figs/3_part/30_efficient_data_management/exercise1.png){width="90%"}
+
+:::
+
+
+::: {.content-visible when-format="revealjs"}
+
+### Answer: Largest city in 2005 {.unnumbered}
+
+![](./figs/3_part/30_efficient_data_management/exercise1_2.png){width="90%"}
+
+:::
+
+
+::: {.content-visible when-format="revealjs"}
+### Exercise: Seventh largest city in 2005 {.unnumbered}
+::: {.callout-tip}
+- Find the city with the **seventh** largest population in 2005. We will time it.
+:::
+
+### Exercise: Seventh largest city in 2005 {.unnumbered}
+
+![](./figs/3_part/30_efficient_data_management/exercise2.png){width="90%"}
+
+:::
+
+
+::: {.content-visible when-format="revealjs"}
+### Answer: Seventh largest city in 2005 {.unnumbered}
+
+![](./figs/3_part/30_efficient_data_management/exercise2_2.png){width="90%"}
+
+:::
+
+::: {.content-visible when-format="revealjs"}
+### Exercise: Ninth largest city {.unnumbered}
+
+::: {.callout-tip}
+- Find the city with the **ninth** largest population in 2005. We will time it.
+:::
+
+### Exercise: Ninth largest city in 2005 {.unnumbered}
+
+![](./figs/3_part/30_efficient_data_management/exercise2ninth.png){width="90%"}
+
+:::
+
+::: {.content-visible when-format="revealjs"}
+### Answer: Ninth largest city in 2005 {.unnumbered}
+
+![](./figs/3_part/30_efficient_data_management/exercise2_2ninth.png){width="90%"}
+
+:::
+
+::: {.content-visible when-format="revealjs"}
+### Exercise: Eighth largest city in 1950 {.unnumbered}
+
+::: {.callout-tip}
+- Find the 8th largest city by population in **1950**
+:::
+
+### Exercise: Eighth largest city in 1950 {.unnumbered}
+
+![](./figs/3_part/30_efficient_data_management/exercise3.png){width="90%"}
+
+:::
+
+::: {.content-visible when-format="revealjs"}
+
+### Answer: Eighth largest city in 1950 {.unnumbered}
+
+![](./figs/3_part/30_efficient_data_management/exercise3_2.png){width="90%"}
+
+:::
+
+<!-- end exercise slides-->
+
+### What is an index?
+
+**Index**: a data structure of sorted (*key*) values with pointers to the original records that improves the speed of retrieval of data matching a query.
+
+Purposes:
+
+- **To enforce database constraints** (e.g., UNIQUE, PRIMARY KEY);
+- **To improve lookup on any column frequently used in** WHERE, ORDER BY, and JOIN **clauses**
+
+Examples:
+
+- **Book index** - an alphabetically-sorted list of concepts and page numbers
+- **Map index** - a spatially-sorted list of entries enabling to identify the map sheets by area of interest.
+
+::: {.content-visible when-format="revealjs"}
+### What is an index? {.unnumbered} 
+:::
+
+:::{layout-ncol="2"}
+
+![Book index](./figs/3_part/30_efficient_data_management/indexing_book.png){width="90%"}
+
+![Map index](./figs/3_part/30_efficient_data_management/vicmap-book-central.png){width="90%"}
+:::
+
+::: {.content-visible when-format="revealjs"}
+## Phonebook {.unnumbered}
+
+![Phonebook](./figs/3_part/30_efficient_data_management/indexing.png){width="60%"}
+
+:::
+
+### Index - Pros and cons
+
+*Index: sacrifice storage space, in favour of execution time.*
+
++ **Pros:**
+    - Effective search (i.e., *values in range*) and value presence identification (*value exists*)
+    - Enable sorting by multiple columns, or by values resulting from functions: [https://youtu.be/clrtT_4WBAw](https://youtu.be/clrtT_4WBAw)
+
+::: {.content-visible when-format="revealjs"}
+### Index - Pros and cons {.unnumbered}
+:::
+
+- **Cons:**
+    - Index takes additional storage space;
+    - Indexes have to be maintained (re-built). If a table changes frequently, this can be a large cost!
+    - For [some]{.red} combinations of queries and [record value distributions]{.red}, index search may be *inaccurate* or *slower*
+
+:::{.callout-tip .content-visible when-format="revealjs" .fragment}
+
+Can you guess when?
+:::
+
+
+## Indexes use
+
+### Index - physical realisation
+
+::: {.incremental}
++ **A DB table is stored in a sequence of pages (Postgres: 8 kB)**
+    - Header, ItemID with data pointers to the start of the row within the page.
+    - Identification of row at a given `pageid.itemid`
+- The index stores pointers to the page with the data item, i.e., a `key:value` store of `index:pageid.itemid`.
++ Speeds up the **identification of pages** (sets of records with close values) based on the ordering on a value of a **single** attribute;
+    - this ordering can be **logical** only, and then indexes on multiple columns are possible, or
+    - **Clustered index:** physical re-ordering of original records on disk (**only one possible per table**). Even more performant then a logical index
+:::
+
+
+### Filter–Refine strategy 
+
+- **Filter**: Coarse, approximate search and retrieval of a subset of data from disk (matching *page(s)*)
+- **Refine**: Detailed matching and checking for the exact values in the subset of records in memory
+
+Strategy applies equally in spatial and non-spatial contexts.
+
+::: {.content-visible when-format="revealjs"}
+### Filter–Refine strategy {.unnumbered}
+:::
+
+:::{layout-ncol="2"}
+
+![Without index](./figs/3_part/30_efficient_data_management/indexing_querying_noindex.png){width="50%"}
+
+![With index](./figs/3_part/30_efficient_data_management/indexing_querying_indexed.png){width="47%"}
+:::
+
+### Indexes – retrieval complexity
+
+- **Records with close values should be close together** in an index (close index values); 
+- In **clustered indexes,** they are also **stored** nearby (speed up!)
+- In tables, direct lookup (sequential scan) is of linear complexity, i.e. proportional to the number of records, $O(n)$ ;
+- Indexing reduces this to sub-linear time (e.g., $O(log(n))$ ).
+- Order in which you specify multi-column indexes on your composite index matters – search for `state|city|suburb` is different to `suburb|city|state`!
+
+### Indexes – DB query plan (PostGis)
+
+```sql
+SELECT c.county, r.name  
+FROM spatial.us_counties AS c
+JOIN spatial.us_rivers AS r 
+ON ST_Intersects(r.geom,c.geom);
+```
+
+![Query plan](./figs/3_part/30_efficient_data_management/postgis_query_plan.png){width="60%"}
+
+
+
+
+## Trees for index search
+
+::: {.content-visible when-format="revealjs"}
+
+### Recall exercise 2 {.unnumbered}
+
+::: {.callout-tip}
+- How would you find the cities with population around 520K in 1950 with least steps?
+:::
+
+### Recall exercise 2 {.unnumbered}
+
+![](./figs/3_part/30_efficient_data_management/recall_exercise02.png)
+
+:::
+
+
+::: {.content-visible when-format="revealjs"}
+### Recall exercise 2 {.unnumbered}
+
+![](./figs/3_part/30_efficient_data_management/recall_exercise2.png)
+
+:::
+
+
+### Tree data structures
+
+- A tree data structure supports the retrieval of data with logarithmic time complexity (see earlier);
+- Enables efficient **hierarchical** search, sequential access, insertion and deletion of data;
+- Has a natural mapping to sorted arrays that simplifies sequential search and reduce the storage of blank values in memory.
+
+### Tree
+
+- A **directed** acyclic rooted graph data structure
+- **Order** of tree: max number of children nodes (e.g., 2 for binary trees)
+
+**Note:** All following examples use the Binary tree (not B-Tree, do not confuse!)
+
+![](./figs/3_part/30_efficient_data_management/trees_terminology.png){width="80%"}
+
+### Trees: Properties
+
+- **Full binary tree**: every node has 0 (leaf nodes) or 2 children
+- **Complete binary tree**: all levels filled to maximum except possibly the last (deepest) level have the maximum number of children, filled from left to right
+- **Balanced tree**: the height of the left and right (sub) tree for any node do not differ by more than 1, and the left and right subtrees of those nodes is also balanced.
+
+::: {.content-visible when-format="revealjs"}
+### Trees: Properties
+:::
+
+
+![Full and complete, balanced tree](./figs/3_part/30_efficient_data_management/trees_properties.png){width="50%"}
+
+### Binary search trees (BST)
+
+- The subtrees contain only nodes with keys lesser/greater than current node’s key, and they are themselves BSTs.
+
+- Natural mapping between node and sequence (starting at 0 - root):
+    - Index of Left child: $2i+1$; Index of Right child: $2i+2$
+    - Index of parent: $(i-1)/2$
+
+::: {.content-visible when-format="revealjs"}
+### Binary search trees (BST)
+:::
+
+![Binary search tree with corresponding sorted array of with node values and cell index](./figs/3_part/30_efficient_data_management/bst_array_storage.png){width="60%"}
+
+::: {.content-visible when-format="revealjs"}
+### BST - Value lookup
+:::
+
+- benefit from BST properties for search and insertion of data
+
+![BST value lookup](./figs/3_part/30_efficient_data_management/bstree_lookup.png)
+
+::: {.content-visible when-format="revealjs"}
+### BST traversal – depth first search
+:::
+
+![BST traversal - Depth-first search](./figs/3_part/30_efficient_data_management/traversal_dfs.png){width=80%}
+
+::: {.content-visible when-format="revealjs"}
+### BST traversal – breadth first search
+:::
+
+![BST traversal - Breadth-first search](./figs/3_part/30_efficient_data_management/traversal_bfs.png){width=80%}
+
+:::{.content-hidden when-format="revealjs"}
+
+### BSTs: Traversal schemes
+
+![](./figs/3_part/30_efficient_data_management/bstree_traversal.png)
+
+<https://en.wikipedia.org/wiki/Tree_traversal>
+
+:::
+
+
+### B-Trees
+
+- A self-balancing tree data structure, generalisation of the binary search tree
+- Enabling for more children in each node (e.g., blocks of of entries/pages).
+- Many variants: $B^{+}$ Tree, $B^{*}$ Tree, BSP tree
+- Order of tree $m$ (num children):   
+    - **internal node:** $m/2 \leq children \leq m$, but min 2 (m sometimes also noted as $M$, or $b$, for branching)
+- Children can be leafs or internal nodes, leafs are at least half full ($m/2$)
+- Root has at least one key, non-root nodes at least $m/2$ subtrees
+- All leaves are sorted, map to disk space (page)
+- All leaves are at the same level
+- Internal node's keys act as separation indexes for children subtrees
+
+![](./figs/3_part/30_efficient_data_management/b_plus_tree.png)
+
+### B-Tree examples ($B^{+}$ variant shown)
+
+In the following, assume balanced trees with a branching factor $M=4$, $M-1$ search key values in internal nodes.
+
+the $B^{+}$ Tree variant stores pointers to leaf nodes in internal nodes, and keys and records in leaves.
+
+
+Insertion of  2, 3, 7, 9, 10, 13, 15 in the tree
+
+![B+-Tree](./figs/3_part/30_efficient_data_management/b_plus_tree2.png){width="60%"}
+
+::: {.content-visible when-format="revealjs"}
+### B-Tree examples (cont.)
+:::
+
+Insertion of 23 in the tree
+
+![B+-Tree](./figs/3_part/30_efficient_data_management/insertion_btree1.png){width="60%"}
+
+::: {.content-visible when-format="revealjs"}
+### B-Tree examples (cont.)
+:::
+
+Insertion of 16 in the tree
+
+![B+-Tree](./figs/3_part/30_efficient_data_management/insertion_btree2.png){width="70%"}
+
+
+## Spatial indexing
+
+- Generalisation of the previous ideas into 2+ dimensions
+- We need to **sort** things and number them in space, *somehow*.
+- We want **spatially close things** to be **close together in the index**;
+- No *natural* way to sort $x$ and $y$ coordinates!
+
+
+::: {.content-visible when-format="revealjs"}
+:::{layout-ncol="2"}
+
+![](./figs/3_part/31_space_driven_indexing/spatial_indexes.png){width="60%"}
+
+![](./figs/3_part/31_space_driven_indexing/spatial_indexes2.png){width="100%"}
+:::
+:::
+
+### Spatial indexing approaches
+
+- Space-driven indexing: space is *partitioned* into regions (cells) with an assigned index value.
+- Object (data, content) driven indexing: spatial distribution of geometries guides the index structure.
+
+### Spatial indexing challenges 
+
+- Multi-dimensional, varied geometries: points, lines, irregular polygons
+- Sizes and spatial distribution of objects can vary *hugely*
+- Application type: frequent *writes* or frequent *reads*?
+- Recent development: Is the DB partitioned?
+
+### Priorities guide compromises
+
+- What kind of searches (range, exact, …);
+- How often are new objects inserted;
+- How costly is the update of the index structure?
+
+::: {.content-visible when-format="revealjs"}
+![Index compromises](./figs/3_part/31_space_driven_indexing/spatial_indexes3.png){width="80%"}
+:::
+
+### Spatial indexes - common approaches
+
+- We *divide space* or *group objects* based on some criteria;
+- These spatial divisions or groups are somehow *ordered* and *numbered* (indexed);
+- The numbering is meaningful to support *sequential* search;
+
+- **Problem**: large objects, long objects, concave objects
+- **Solution**: hierarchical organisation
+
+
+
+::: {.content-visible when-format="revealjs"}
+
+## Summary {background-color="lightPink"}
+
+- You understand why we may need to speed up query execution;
+- You understand how indexing works in the filter-refine paradigm
+- You appreciate the computational tree structures that underpin sub-linear search effectiveness;
+- You appreciate the difficulties we have with sorting in space
+:::
+
+
+<!-- end slides -->
+::: {.content-visible when-format="revealjs"}
+## Next: [Spatial indexing - space-driven indexing](/31_space_driven_indexing.html)
+
+## References {background-color="lightYellow"}
+
+:::

@@ -1,0 +1,43 @@
+# [P11] OpenStreetMap and key-value attributes
+
+## Objectives
+You will understand the basics of working with key-value pair attributes, a skill highly useful for tidying and processing OSM data, one of the dominant sources of spatial data globally.
+
+## NoSQL data storage and key-value pairs
+
+Strongly  typed data structures, such as relational tables, do not adapt well to changes, and dynamically evolving storage of content that does not have a settled-upon structure, as is typically in social media and elsewhere where users are entering data via *tagging*. This is the case for many applications in the Volounteered Geographic Information space (VGI). OpenStreetMap is the most prominent example.
+
+The simplest type of database is a key-value store, storing an association between a key, and its value. Thus, an entity can have an very large number of tags: key-value pairs associated with it. This kind of storage is one kind of the NoSQL databases. To support crowdsourced applications, Postgres supports key-value pairs through the hstore attribute type.
+
+## Key-value attributes in OSM
+
+The newly imported OpenStreetMap (OSM) dataset of the Melbourne region available to you is the state downloaded from bbbike.org on 1 May 2019 using the [osm2pgsql](https://osm2pgsql.org/) tool. The data is stored into 7 tables whose names start with `melbourne_osm_` (`melbourne_osm_nodes`, `melbourne_osm_point`, `melbourne_osm_polygon`, `melbourne_osm_rels`, `melbourne_osm_roads`, `melbourne_osm_ways`), all of which are located in the schema `spatial`. It is advisable that you read about the OSM elements in order to understand how [OSM](https://wiki.openstreetmap.org/wiki/Elements) [models](https://labs.mapbox.com/mapping/osm-data-model/) real world objects with *nodes*, *ways*, and *relations*, and how it uses tags to record their attributes. Since tags are key-value pairs, they cannot be represented with the data types we have previously used in PostgreSQL (e.g. integer, varchar, or geometry). Instead, they can be stored into *hstore* data type, which is available as an extension to the PostgreSQL database. Hstore allows users to store multiple key-value pairs in a single column, and do some operations on them (examples of some operations are shown below, and you can see the whole list in the Postgres (*Note:* not PostGIS) hstore websites: [documentation](https://www.postgresql.org/docs/current/hstore.html) and [tutorial](https://www.postgresqltutorial.com/postgresql-tutorial/postgresql-hstore/). When working with these tables keep in mind the following:
+
+Nodes, ways, and rels tables are the direct representation of what is stored in the OSM databases. These tables are stored in our database without hstore columns for tags, and without geometry columns. You may still use these tables in your analysis if you want to.
+
+Point, line, polygon, and roads tables are abstracted from the data in the nodes, ways and rels tables by the osm2pgsql tool (there has been some processing done on these tables in order to adapt them and make them usable in a PostgreSQL database). These tables are stored in our database with hstore `tags` columns, and geometry `way` columns. Also keep in mind that these geometries are stored in the WGS 84 / Pseudo-Mercator (`EPSG:3857`).
+
+Here are some examples of how you can get familiar with the new OSM data:
+
+- **Access the geometries**, find their SRID (as usual):
+
+```sql
+SELECT ST_SRID(way) FROM spatial.melbourne_osm_point LIMIT 1;
+```
+
+- **Access all records that have a specific tag:**
+
+```sql
+SELECT tags->'building', way FROM spatial.melbourne_osm_polygon WHERE tags?'building';
+```
+
+- **Perform operations by grouping by values of a tag:**
+
+```sql
+SELECT tags->'building' as building, count(*) FROM spatial.melbourne_osm_polygon WHERE tags?'building' GROUP BY tags->'building' ORDER BY count DESC;
+```
+- **Access values of a specific tag:**
+
+```sql
+SELECT osm_id, (each(tags)).key, (each(tags)).value FROM spatial.melbourne_osm_polygon WHERE tags?'building' LIMIT 100;
+```

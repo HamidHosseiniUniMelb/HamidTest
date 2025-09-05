@@ -1,0 +1,85 @@
+# Project specification: Geospatial support for the management of locality information in the State Botanical Collection 
+
+## Project Brief
+
+The [National Herbarium of Victoria](https://www.rbg.vic.gov.au/science/herbarium/), part of the [Royal Botanic Gardens of Victoria](https://www.rbg.vic.gov.au/), was founded in 1853 and is the oldest scientific institution in Victoria. It houses the State Botanical Collection, one of Australia's most valuable biological research repositories. This collection is the largest herbarium collection in Oceania, comprising 1.562 million dried plant, algae and fungi specimens from Australia and overseas, across over 30,100 types, making it the largest repository of type materials in the Southern Hemisphere. The Herbarium collection is a sub-collection of the specimen records of the [Atlas of Living Australia](https://www.ala.org.au/).
+
+Herbarium specimens provide the primary, verifiable data that define our understanding of the diversity and distribution of the world’s plants, algae and fungi. To optimise their scientific value, herbarium specimens require good quality georeferencing data about the location at which each sample has been collected. 
+Accurate georeferencing data is also necessary to connect specimens in the Herbarium with the Traditional Owners of the Country on which they were collected; this is especially important when the specimens contain Indigenous Cultural Knowledge, which needs to be managed in line with principles of Indigenous Data Sovereignty, including the right of Indigenous peoples to govern the management of, access to and use of data about Indigenous knowledge and resources.
+
+However; the vagueness of the textual locality description provided with many older specimens – combined with the lack of an authoritative dataset enabling to identify rightful Traditional Owners for any place in Australia - makes it difficult to pinpoint their collecting locality and to reconcile specimens with their Aboriginal or Torres Strait Islander Country of origin. 
+
+
+## Supporting the operation of the Herbarium
+
+The Herbarium uses a relational collections management system to store data about the specimens; to extract required information based on queries returning records of individual specimens; to undertake summary searches (aggregates of multiple specimens, based on textual, spatial and temporal aggregations); and relate the records to the content of other datasets. This is made complicated by:
+
+- Differences in the provenance and quality of the collecting data associated with each specimen, and their multilingual origins;
+- Variations in spatial georeferencing, including by coordinates and textual descriptions, and associated vagueness, uncertainty and imprecision;
+- Cultural and scientific sensitivity of certain records, where access needs to be managed by authorisation.
+
+Your task is to develop a database supporting the operations of the herbarium in the detailed activities and aspects noted below. The database should be implemented in the Postgres/PostGIS database management system only, using PGAdmin (or equivalent SQL client) and possibly QGIS as clients to interact with the database and to visualise the results of database interactions. You will demonstrate the functionality on data for Victoria at the minimum, but you can also demonstrate additional functionalities on limited data for the rest of the world.
+
+## Required system functionality 
+
+**Recording capability**: Support the storage and maintenance of consistent specimen records and the recording of the provenance of these data:
+
+1.	Provide collection custodians with the ability to record all specimen location attributes covered by the Darwin Core standard in order to facilitate export and exchange of data with national and international aggregators (e.g. Atlas of Living Australia). 
+2.	Support the ability to convert between location descriptions (e.g. geocode text descriptions of locations return WGS84 coordinates of the location). If possible, quantify the uncertainty of the georeferencing.
+3.	Support data quality managers of the collection with the ability to verify curator-derived geocodes of specimen that are annotated with elevation information using elevation (or altitudinal range) information derived from current digital elevation models. For records where no latitude and longitude is provided, attempt geocoding or improvement of georeferencing.
+4.	Provide data quality managers and end users with clear information on the geocode source and protocol. It must be possible to identify the provenance of a geocode (e.g., noted by specimen collector vs derived by a herbarium worker, or automatically converted using a service). The recording of the geocode acquisition method should be standardised (e.g., GPS, manual mapping, coordinate transformation).
+5.	Maintain the context of the specimen data, i.e., provide the ability to identify all records collected during the same collecting expedition, or by the same contributor.
+6.	Enable the identification of Indigenous Knowledge holder groups and the retrieval and listing of specimen records that contain Indigenous Cultural Knowledge by what Country they were collected on, supporting the identification of parties to be consulted when upholding principles of Indigenous Data Sovereignty while managing this data.
+
+**Search/retrieval functionality**: facilitate effective search and analysis of the specimen data at different geographic scales:
+
+7.	Given a species taxonomic or common name, support searching for all the locations where specimens of this species have been recorded over a chosen time period;
+8.	Support environmental modellers and scientists analysing the suitable climatic envelope for species (here, limited to elevation, aspect and slope). For instance, consider species that occur on mountain tops, and the need to predict how the available habitat for those species might change (i.e. be restricted) under changing climate. Note that only precise data (e.g. with maximum uncertainty radius of 1000 m) should be used for such analyses. Consider change scenarios defined as distribution change manifested by change in habitat elevation range. 
+9.	Support scientists and biodiversity managers in their need to efficiently plan surveys of rare and endangered Victorian plants (e.g. to re-visit the sites and collect seeds for the Victorian Conservation Seedbank as insurance against extinction).  This requires the identification of all locations of a given (set of) species within a given broad area, and the planning of efficient shortest-path routes between them. 
+10.	Support public users (citizen naturalists) with the ability to extract comprehensive lists of species identified at locations of interest (e.g. in the local flora reserve or national park).
+
+**Operator and Equipment Management**: The Herbarium further wishes that the system demonstrates the ability to support employee workload and compliance management, as well as fieldwork management:
+
+11.	Each collection manager/user must be identifiable by their employee number and name, and the database should store their work email and phone contacts.
+12.	Based on example searches for specimen (see 9. above), identify a ground-truthing (field) trip that enables to visit the sites efficiently. Support the storage of parameters of this trip. 
+13.	Identify the 3 closest hotels to the location of the ground truthing trip, for staff accommodation close to remote specimen sites.
+14.	Provide staff with the shortest path to the closest hospital/emergency location, from a location along the trip.
+15.	Support tracking of what ground-truthing trips have been undertaken by which employee, and tracking of the history of all trips undertaken (name of a close-by named place, date of ground truthing trip, operator identifiers and contact information).
+16.	Given a ground-truthing trip, determine which employees are able to undertake it. Ideally, the system would spread the workload evenly.
+17.	The ground-truthing crew are required to undertake first aid refresher courses once a year. The system should be able to identify all employees required to undertake a training in the coming month (30 calendar days).
+
+**Out of scope**:  User/Database access management
+
+18.	The University envisages that a variety of database clients will be used for accessing this database. Yet, aspects of database user access management are out of implementation scope for this project, but should be discussed in the report, if applicable (i.e. you should not create and modify user access in your database, but discuss how you would do it in your report, if needed).
+
+## Implementation
+
+All capabilities should be demonstrated on realistic (but potentially minimal) data, based on SQL queries delivered with the report (in some cases, a sequence of queries may be needed, such as an INSERT and SELECT statement). You should select one (or multiple) sites in Victoria, but outside of Melbourne, to demonstrate the functionality. All Australian map data other than the herbarium records should stored in either GDA94 or GDA2020. Specimen locations are to be stored/accessible in WGS84 (lon, lat, in decimal degrees), for global compatibility, but must also preserve the verbatim original contributed georeference to support provenance analysis. The database should handle reprojecting dynamically between datasets. 
+
+The project team will be required to deliver a database in the Postgres/PostGIS database management system loaded with demonstration data, and demonstrated using basic SQL queries executed from PGAdmin and / or QGIS. The results of spatial queries can be visualised through a connection to QGIS.
+
+
+## Data 
+
+You must document all data you use/envisage to use in the project.
+
+In your project, you should use data from **at least 3 data sources** (e.g., authoritative source incl. Herbarium-provided data, crowdsourced source (OSM), measured or user provided source (e.g., flight path)). You should use data that include points, lines, and polygons (vector), and a raster dataset (the DEM provided in the subject database is sufficient). 
+
+You can use datasets from the `spatial` schema, but you **must** also provide some (spatial)data yourself. You can use any data you decide, sourced from outside sources. You should carefully evaluate the data, and limit the size of the dataset to the minimal size required (i.e., extract only the subset of data required, reduce the attributes required, limit the data to the extent of the area of interest - we recommend to pick an entire LGA or a few distinct LGAs). 
+
+The subject team will also make a set of commonly used data available to all (Raster DEM, street network). Those should not be duplicated in group schemas, nor substituted by other data.
+
+Some of the data sources you should investigate for your project include:
+
+- Subset of National Herbarium of Victoria’s specimen data, including a range of contemporary and historical records from Victoria, Australia and overseas (will be provided)
+- [Vicmap](https://www.land.vic.gov.au/maps-and-spatial/spatial-data/vicmap-catalogue)
+- [Vicmap Lite](https://www.land.vic.gov.au/maps-and-spatial/spatial-data/vicmap-catalogue/vicmap-lite) a reduced, very useful subset of the Vicmap data to consider.
+- [Vic Open Data](https://www.data.vic.gov.au/)
+- OpenStreetMap - especially useful for amenities, see exports at [Geofabrik](https://www.geofabrik.de/data/download.html).
+- Overture maps data [Overture](https://github.com/OvertureMaps/data/blob/main/README.md#how-to-access-overture-maps-data) (Advanced)
+- Geonames and similar global geocoding datasets, potentially GNAF Geocoding dataset for Australia (an easier to use version is https://github.com/minus34/gnaf-loader). Consult with us if you intend to use this (large dataset). 
+
+## References:
+-	[Darwin Core](https://dwc.tdwg.org/list/#dcterms_Location) (a vocabulary standard for transmitting information about biodiversity) and in particular its location terms. These are adopted from the [Dublin Core Metadata standard](https://www.dublincore.org/specifications/dublin-core/dcmi-terms/#Location)  
+-	[AIATSIS](https://aiatsis.gov.au/) [Map of Indigenous Australia](https://aiatsis.gov.au/explore/map-indigenous-australia) (beware, cannot be used without approval from AIATSIS). Also note their *Whose Country am I on?* [guide](https://aiatsis.gov.au/whose-country);
+-	In Victoria, Registered Aboriginal Parties and their areas are documented here: https://www.aboriginalheritagecouncil.vic.gov.au/victoria-registered-aboriginal-parties

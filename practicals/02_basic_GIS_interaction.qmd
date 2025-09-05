@@ -1,0 +1,53 @@
+# [P2] GIS and Databases
+
+## Using a GIS as a client for the database
+
+A spatial DBMS like PostGIS has no spatial data viewing capabilities. Indeed, one of the reasons why spatial DBMS are such powerful systems is that, unlike GIS software packages, a spatial DBMS treats the storage, querying, and management of spatial data as completely separate functions from viewing that data. 
+
+However, when learning about any spatial database, it is often helpful to be able to display the data you are using graphically. There are many different ways that you can view data in a spatial database, including linking it to GIS software packages like QGIS (an open-source desktop GIS) or ArcGIS.
+
+1. **Connect to the database:** To view any spatial data, QGIS first requires information about the connection to a spatial DBMS server. 
+    - The **Browser** panel should already be open in the top-left corner of the QGIS window – if not, go to **View** > **Panels** > **Browser Panel**.
+    - In the **Browser** panel, right-click on **PostgreSQL** and click **New Connection**. Use the settings you used in the previous [practical](01_connecting_to_DB.qmd). (**Note:** You are not required to enter your username and password at this stage. QGIS will prompt you for them every time you connect.)
+    - Click **Test Connection** to make sure your settings are correct. 
+    - Don't forget to connect to the University VPN first! 
+2.  **Select data to view:** The available tables should appear in the **PostgreSQL** section of the **Browser** panel. 
+    - Make sure you have added the built-in QGIS **OpenStreetMap** layer as discussed in the QGIS training module. 
+    - Then drag a table from the `spatial` schema into your project. It is not your own schema, and you can only read those data. 
+3.  **Explore the data:** Panning, zooming, changing the representation, and even some analysis functions are all available in QGIS. 
+    - Have a look around the software and familiarize yourself with its GIS and database functions. 
+    - I suggest you start by exploring tables containing US data from the Digital Chart of the World dataset, such as `us_cities`, `us_counties` and `us_restaurants`. Inspect properties of the data - right-click on a layer and select **Properties**, and explore the **Information** tab. You should see information about coordinate systems, if set on the tables.
+
+These steps are also outlined in some detail in this online tutorial: <https://mapscaping.com/connecting-qgis-with-postgis/>. This outlines the steps we will be taking throughout this course.
+
+QGIS can act as a fully-fledged client for PostGIS. On top of a client that allows you to only display alphanumeric results to SQL queries, PostGIS also displays the geometries. This is a great combination, leveraging the benefits of a database, and a visual GIS tool, and a major focus of this course. Remember, QGIS is always there for you to allow you to graphically view, explore, and perform simple queries on data if you wish so.
+
+### Examining spatial data using QGIS
+
+Consider the following question:
+
+> Which interstate highway runs across the US state of Nebraska from its western to its eastern border?
+
+Even though we have `us_interstates` and `us_states` tables in Wammawatcha, this question is difficult to answer using pgAdmin alone. Even if you know how to write spatial SQL queries (which we will cover later in the subject) this is still a challenging question.
+
+If only we could look at our data visually!
+
+::: {.callout-tip title="Your Turn"}
+- Drag the `us_states` and `us_interstates` layers from the Wammawatcha `spatial` schema onto the QGIS map.
+- Looking at the **Layers** panel (bottom-left), make sure `us_interstates` is above `us_states`.
+- Use the **Layer Styling** panel (F7 key) to change the colour scheme of each layer so you can clearly see the interstates (roads) on top of the states.
+- Turn on labelling for the `us_states` layer - right-click on the layer in the **Layers** panel and select **Show Labels**.
+- Now use the **Identify** tool (blue circled "i" on main toolbar) to answer the question above. **HINT:** Make sure the  `us_interstates` layer is highlighted in your **Layers** panel when using the **Identify** tool.
+:::
+
+## Assignment 1 work session
+
+Now is the time to complete the **Geographic Information Systems (GIS) For Engineers: QGIS Module** on Canvas. You need to first [enrol](https://catalog.lms.unimelb.edu.au/browse/communities/courses/geographic-information-systems-gis-for-engineers--qgis-module) into this module. The materials for the module are then available in Canvas: [https://canvas.lms.unimelb.edu.au/courses/143983](https://canvas.lms.unimelb.edu.au/courses/143983).
+
+## Group formation
+
+Group sign-up is now open on Canvas under the **People** page. Please form a group of four and register in the LMS. 
+
+## Resources
+
+- QGIS and PostGIS tutorial: <https://mapscaping.com/connecting-qgis-with-postgis/>

@@ -1,0 +1,67 @@
+project:
+  preview:
+    port: 4200
+  output-dir: slides
+  render:
+    - index.qmd
+    - organisational_aspects.qmd
+    - 10_spatial_data_modelling.qmd
+    - 11_requirements_analysis.qmd
+    - 11_requirements_analysis_short.qmd
+    - 11s_projectbrief_reqssummary_slides.qmd
+    - 11_2_socially_responsible_engineering.qmd
+    - 11_3_data_sovereignty.qmd
+    - 12_conceptual_model.qmd
+    - 12_conceptual_model_short.qmd
+    - 12b_introduction_DBMS.qmd
+    - 12b_introduction_DBMS_short.qmd
+    - 13_logical_model.qmd
+    - 13b_maintaining_integrity.qmd
+    - 13_logical_model.qmd
+    - 13_logical_model_short.qmd
+    - 13b_maintaining_integrity.qmd
+    - 13b_maintaining_integrity_short.qmd
+    - 13c_physical_model.qmd
+    - 14_spatial_data_representation.qmd
+    - 15_spatial_ref_systems.qmd
+    - 16_srs_transformations.qmd
+    - 17_geometries.qmd
+    - 20_querying_spatial_data.qmd       
+    - 21_geometrical_analysis.qmd
+    - 21_geometrical_analysis_short.qmd
+    - 22_topological_analysis.qmd
+    - 22_topological_analysis_short.qmd
+    - 23_network_analysis.qmd
+    - 24_raster_analysis.qmd
+    - 30_efficient_data_querying.qmd
+    - 31_space_driven_indexing.qmd
+    - 32_object_driven_indexing.qmd
+    - 40_advances_spatial_data_management.qmd
+    - 41_distributed_db.qmd
+    - references.qmd
+title: "Spatial Data Management"
+author: "Martin Tomko"
+email: "tomkom@unimelb.edu.au"
+institute: "The University of Melbourne"
+date: today
+logo: "cover.png"
+bibliography: references.bib
+csl: harvard.csl
+format: 
+  revealjs:
+    auto-stretch: false
+    toc: false
+    scrollable: true
+    logo: ./figs/general/PRIMARY_A_Vertical_Housed_RGB.png
+    footer: "cc-by (2025) Martin Tomko and Alan Thomas, The University of Melbourne"
+    slide-level: 4
+    slide-number: true
+    show-slide-number: all
+    reference-location: document
+    width: 1280
+    height: 720
+    preview-links: auto
+    fig-cap-location: bottom
+    fig-cap-align: center
+    theme: [default, uom.scss]
+    css: output_style.css

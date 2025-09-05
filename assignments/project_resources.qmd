@@ -1,0 +1,53 @@
+# Project resources
+
+This page contains additional resources that may help you with delivering the project. These resources will be added as we go, for the benefit of all.
+
+## Requirements analysis 
+
+There are many ways how a requirements analysis may be presented. There is no single way how its content may be specified.
+
+Some resources, note most of these capture requirements for much larger systems. Do not buy any templates. You should adapt, and modify the structures to suit what is within the scope of our project ( and your knowledge at this stage of submission). There is no need to cover aspects of DBMS software deployment, but you should mention the DMBS server version and any extensions you intend to use - if known by this stage. Remember, this is a proposal, and you will refine  this in the final documentation in A6.
+
+- [Sample template](https://www.softwaredevelopmenttemplates.com/templates/database-design-document-template/) **no need to buy -- just zoom on screen**
+- [Database requirements template](https://www.gretaforag.com/backend-database-requirement-specification-template/)
+- [Another example DB Documentation](https://www.sdlcforms.com/PDFClientsDownload/Database_Design_Document.pdf)
+- [Asana template](https://asana.com/resources/software-requirement-document-template)
+- [SQL server requirements](https://www.mssqltips.com/sqlservertip/1456/sql-server-database-requirements/)
+
+
+## Postgis
+
+## Working with Group schemas
+
+In the project, you will be working in group schemas, where only your group members and teaching staff will be able to see the data (e.g., `group01`). This is also an opportunity to learn about the way Postgres/PostGIS handles access rights.
+
+You will notice that is a group member `user1` creates a table in the schema, e.g. `group_01.mytable`, then **only** `user1` would have, by default, access to it. This is easily verifiable, by e.g., `user2` trying to inspect the content: `SELECT * from group_01.mytable;`
+
+While it is possible for us to `GRANT` more privileges on all currently existing tables, this is an action that needs to be repeated for all newly created tables.
+
+It is therefore recommended that for any table you create (e..g, whichever member of the group) you `GRANT` the right privileges:
+
+```sql
+ALTER TABLE groupXX.tablename OWNER TO groupXX;
+```
+
+## Additional reading
+
+### Linear Referencing Systems (LRS)
+
+A Linear reference system (LRS) is a method to geographically position data (records about assets, faults, events) using relative positions along a measured linear feature without the need to explicitly use cartesian coordinates, such as Geographic coordinates (longitude and latitude), or projected coordinates (Easting, Northing). 
+
+**Important notes**
+
+- **Origin/Datum:** In Melbourne, the Souther Cross Station is used as the datum for the origin of the LRS for MTM (for kilometrage references).
+- You may encounter distinct datasets discuss in resources or in open data, originating from different organizations, each using different data collection techniques:
+    - **MTM Metrolocate LRS**: Based on tracks centerlines, 0 point is at Southern Cross Station, with values such as *‘From 1.976 (NME) to 18.904 (UFD)’* for *Track code: 713000*. The unique code for LRS here is *Track code*
+    - **DTP (Dept. Transport and Planning) LRS**: based on Rail corridors,  0 point is at Southern Cross Station, with an  unique code for LRS most likely Corridor name.
+
+### Importing data based on georeferenced photographs
+
+For this project, it is enough to demonstrate this functionality by processing and importing data generated using the *ImportPhotos* plugin in QGIS.
+
+### Online Resources
+
+- [VicSig](https://vicsig.net/index.php?page=infrastructure) - Website about Victorian trains, including interesting information about infrastructure and signaling.

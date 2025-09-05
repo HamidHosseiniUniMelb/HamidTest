@@ -1,0 +1,25 @@
+# Assignments 
+
+## Overview
+
+This subject consists of six assessment tasks.
+
+_Assignment 1 (A1)_ is a non-assessed, hurdle requirement. It will require you to familiarise yourself with a GIS system (QGIS), if you have not done so in the past. Further, if you have not yet used any database management system, it will ask you to interact with a non-spatial database in Postgres.
+
+_Assignment 2, 5 and 6_ all relate together, and are guiding you through one, single project, and are all executed in groups.
+
+_Assignment 3_ is a mid-semester individual task, to get you to practice with the spatial database before you engage in the main part of the project, and to make sure you gain proficiency with spatial SQL queries.
+
+_Assignment 4_ is a mid-semester class-based exam (Quiz), to check that you comprehended the theoretical foundations of spatial data management and analysis that support the correct execution of the queries you are writing in A3. This will support your aboility to design your datasbe well for the final project.
+
+
+
+| Assignment   | Timing                | Marks      |
+|--------------|-----------------------|------------|
+| [Assignment 1](/assignments/A1.qmd) | Week 4                | 0 (hurdle) |
+| [Assignment 2](/assignments/A2.qmd) | Week 6                | 25         |
+| [Assignment 3](/assignments/A3.qmd) | Week 9                | 10         |
+| Assignment 4 | Week 9                | 10         |
+| [Assignment 5](/assignments/A5.qmd) | Week 12               | 10         |
+| [Assignment 6](/assignments/A6.qmd) | Week 1 of exam period | 45         |
+

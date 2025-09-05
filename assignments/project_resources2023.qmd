@@ -1,0 +1,50 @@
+# Project resources
+
+This page contains additional resources that may help you with delivering the project. These resources will be added as we go, for the benefit of all.
+
+## Requirements analysis 
+
+There are many ways how a requirements analysis may be presented. There is no single way how its content may be specified.
+
+Some resources, note most of these capture requirements for much larger systems:
+
+- [Sample template](https://www.softwaredevelopmenttemplates.com/templates/database-design-document-template/)
+- [Asana template](https://asana.com/resources/software-requirement-document-template)
+- [SQL server requirements](https://www.mssqltips.com/sqlservertip/1456/sql-server-database-requirements/)
+- [Jama software requirements](https://www.jamasoftware.com/requirements-management-guide/writing-requirements/how-to-write-system-requirement-specification-srs-documents)
+
+## Postgis
+
+### DEM functions
+
+- Line of sight: [https://davidrowley.blogspot.com/2013/08/calculating-line-of-sight-with-postgis.html](https://davidrowley.blogspot.com/2013/08/calculating-line-of-sight-with-postgis.html)
+
+## Flight plans
+
+- You can make the flight plans by hand, use a number of apps ( typically have a free trial period). It is a good idea to see what flight plans look like. These may be just planned manually, e.g., by clicking on a map to create a path, or planned to optimise for the properties of the sensors. While path planning is out of scope of this project, you can get a good idea by looking at the resources for instance [here](https://www.aerosci.info/flightplanner/) or [here](https://www.djiflightplanner.com/) for examples of commercial path planning tools and videos of their use.
+
+A number of free tools to generate flight paths exist too:
+
+- [Ardupilot Mission Planner](https://ardupilot.org/planner/) (Windows only)
+- [QGroundcontrol](http://qgroundcontrol.com/)
+- Flight planner [QGIS plugin](https://github.com/JMG30/flight_planner).
+
+If yo so desire, you can use some of these tools to generate example paths, but you will need to import the reslting paths to the database, when/if needed to demonstrate the desired functionality.
+
+## Flight speeds
+
+- You may be interested in determining the optimal flight speed for a drone, for instance using the [Fligth speed calculator](https://www.hammermissions.com/post/how-to-calculate-the-optimal-flight-speed-in-drone-missions)
+
+## Working with Group schemas
+
+In the project, you will be working in group schemas, where only your group members and teaching staff will be able to see the data (e.g., `group_01`). This is also an opportunity to learn about the way Postgres/PostGIS handles access rights.
+
+You will notice that is a group member `user1` creates a table in the scheam, e.g. `group_01.mytable`, then **only** `user1` would havem by default, access to it. This is easily verifiable, by e.g., `user2` trying to inspect the content: `SELECT * from group_01.mytable;`
+
+While it is possible for us to `GRANT` more privileges on all currently existing tables, this is an action that needs to be repeated for all newly created tables.
+
+It is therefore recommended that for any table you create (e..g, whichever member of the group) you `GRANT` the right privileges:
+
+```sql
+ALTER TABLE groupXX.tablename OWNER TO groupXX;
+```

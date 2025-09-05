@@ -1,0 +1,551 @@
+# Relational algebra and SQL - Quickstart
+
+SQL (Structured Query Language) is an international standard for the interaction with relational databases. While there are many dialects, the core of the language is the same, and applies across DBMS. Here we recap core aspects of SQL. You can refer to this part of the book throughout the subject.
+
+This is an extension of the core material presented in the core part of [material](./13_logical_model.qmd)
+
+## Learning objectives
+
+- Review relational algebra (operations on relations);
+- Recap on the basic syntax of SQL and its subsets;
+- Relate the relational algebra to the implementation in SQL and highlight differences (terminological, formal).
+
+
+## Relational algebra
+
+## Algebras
+
+- **Algebra**: set of elements along with a set of operations on this set.
+- **Properties of algebras:**
+- Closure: the results of all operations on elements of the set are themselves elements of the set;
+- Binary operations: Commutativity
+    $a \cdot b = b \cdot a$
+- Binary operations: Associativity 
+    $a \cdot (b \cdot c) = (a \cdot b) \cdot c$
+
+:::{.callout-note}
+## Example: **Addition** (binary operation) on the set of all **integers** forms an algebra . Addition is *closed* (e.g. 5 + 6 = 11), *commutative* (e.g., 5 + 6 = 6 + 5), and *associative* (e.g., 5 + (6 + 7) = (5 + 6) + 7 ). 
+:::
+
+## Relational algebra -- Operators
+
+**Relational algebra** is set based, closed, and generally non-associative and non-commutative**
+
+Basic **relational operators:**
+
+- **Union:** binary, set-based
+- **Difference:** binary, set-based
+- **Product:** binary, set-based
+- **Project:** unary, purely relational, requires a set of attributes
+- **Restrict:** unary, purely relational, requires a *restrict condition*
+
+Derived operators -- combinations of the basic operators:
+
+- **Intersection**: binary, set based
+- **Divide**: binary, set based  (note: rarely used)
+- **Join**: binary, relational
+
+### Relational operators: Union
+
+- $A \cup B$ has all the tuples from $A$ and $B$
+- Duplicate tuples are coalesced (only a unique one is returned) 
+- To be *well formed*, $A$ and $B$ must be *union compatible* (same set of attributes with the same value domains)
+- Union is *associative* and *commutative*
+
+![Union](./figs/00_intro_SQL/relational_operators_union.png)
+
+### Relational operators: Difference
+
+- $A - B$ has all the tuples from relation $A$ that are *not* present in $B$
+- $A$ and $B$ must be *union compatible* 
+- Difference is *neither* associate *nor* commutative 
+
+![Difference](./figs/00_intro_SQL/relational_operators_difference.png)
+
+### Relational operators: Product
+
+- $A \times B$ (Cartesian product) has the union of attributes of $A$ and $B$, and every tuple of $A$ is *concatenated* with every tuple in $B$$
+- The *degree* of $A ⨯ B$ is the *degree* of $A$ plus the degree of $B$ 
+- The cardinality of $A ⨯ B$ is the cardinality of $A$ multiplied by the cardinality of $B$ 
+- $A$ and $B$ *need not* be union compatible
+- Cartesian product is associative and commutative
+- Cartesian product is computationally intensive!
+
+![Cartesian product](./figs/00_intro_SQL/relational_operators_product.png)
+
+### Relational operators: Project
+
+- Project operator is *unary* $\pi_{<attribute\_set>}(A)$
+- Project outputs a relation that has a subset of attributes specified by the *attribute list*
+- Identical tuples in the output relation are coalesced 
+
+:::{.callout-note}
+*Note*: To achieve the theoretical result of the project operator in SQL, you must include the `DISTINCT` keyword into the SELECT query.
+:::
+
+![Project](./figs/00_intro_SQL/relational_operators_project.png){width="80%"}
+
+### Relational operators: Restrict
+
+- Restrict operator is unary $\sigma_{<condition>}(A)$
+- Restrict outputs a relation that has a subset of tuples of $A$ specified by the condition 
+
+![Restrict](./figs/00_intro_SQL/relational_operators_restrict.png)
+
+### Derived operators: Intersection
+
+- $A \cap B$ has all the tuples from $A$ that are also present in $B$ 
+- $A$ and $B$ must be union compatible 
+- Intersection is associative and commutative
+
+![Intersection](./figs/00_intro_SQL/derived_operators_intersection.png)
+
+### Derived operators: Join
+
+- **Natural join**: $\Join_{<attribute\_set>} (A,B)$ outputs the combined relation where input tuples match on a value of specified attribute(s)
+- Natural join is associative and commutative
+- Natural join is a combination of a cartesian product and a restrict operator  
+- Joins are computationally intensive (due to the cartesian product)
+
+![Join](./figs/00_intro_SQL/derived_operators_join.png)
+
+![Join as cartesian product and restriction](./figs/00_intro_SQL/derived_operators_join2.png)
+
+## Structured Query Language
+
+### SQL: Structured Query Language
+
++ International standard (ISO since 1987, many revisions)
++ Characteristics:
+    - Ad-Hoc formulation: statements, not entire programs;
+    - Descriptive: *what*, not *how* (highly readable);
+    - Set-oriented: applies on collections of records (all tuples in a relation);
+    - Isolation: each statement executes on its own;
+    - Closure: Results of a statement can directly be inputs to another statement;
+    - Efficiency: describe what, query optimiser decides how;
+    - Safety: guarantees that syntactically correct queries do not result in infinite loops and will terminate in finite time.
+
+### Subsets of SQL
+
+Support the entire data lifecycle: 
+- Data definition – Data Definition Language (DDL)
+- Data manipulation – Data Manipulation Language (DML) 
+- Data querying – Data Query Language (DQL )
+- Data control (permission) - Data Control Language (DCL)
+- Data transactions – Data Transaction Language (TCL)
+
+![](./figs/00_intro_SQL/sql.png)
+
+### Syntax patterns:
+
+1. **VERB** (command)
+    `SELECT`, `UPDATE`, `CREATE`,…
+2. **What (attributes, incl arithmetic operators and aggregation functions):**
+    `qualified attribute names`, `operator(qualified attribute name)`, e.g., `t.state_abrv`, `2*t.popCount`, or `*` for all
+3. **FROM {tables}**
+    `FROM schema.table_name(s)` (qualified names)
+4. **WHERE (condition)**
+    'attribute operator value/attribute' e.g., `t.city = 'New York'`
+5. **Additional commands** `ORDER BY _attrib_ ASC`, `GROUP BY ...`
+6. **Terminate** statement with a ';'
+
+### SQL Operators
+
+- Logical: `NOT`, `OR`, `AND`
+- Comparison: `=`, `>`, `<`, `<=`, `>=`, `<>`, `LIKE`,...
+- Arithmetic: `+`, `-`, `*`, `/`, ...
+
+## SQL: Data Definition Language 
+
+- Part of the SQL language to define storage structures (database, schema, table, ...)
+- We will focus on operations on tables within a schema: `CREATE`, `ALTER`, `DROP`
+
+### CREATE table
+
+Used to define the structure of a table (equivalent to relation schema)
+
+```sql
+CREATE TABLE 'publishers' (
+    'id' integer NOT NULL,
+    'name' text,
+    'address' text 
+);
+```
+
+- Creates a table in the *current* schema, or a fully qualified name `schema.table_name`
+- Specifies **attributes** and their **data types** and **constraints**
+
+### SQL: Comparison of (non-spatial) data types
+
+![Data types](./figs/00_intro_SQL/03_non_spat_datatype.png)
+
+Consult your resources and DBMS documentation.
+
+Base syntax:
+
+```sql
+CREATE TABLE schema.publishers (
+    'id' integer NOT NULL,
+    'name' text,
+    'address' text 
+);
+```
+
+### Table constraints
+
+- `NOT NULL` – the attribute must have a value specified
+- `UNIQUE` – each value of attribute can occur only once in the table
+- `PRIMARY KEY` – the attribute is a **Primary key**, implies `NOT NULL` & `UNIQUE` (may apply across multiple attributes for composite keys). Entity integrity assured by an index on PK
+- `CHECK` – with another boolean expression (`>`, `=`,`<>`) assures that the values meet additional criteria
+- `REFERENCES` – specifies a **Foreign key** and points to another table where it is a PK. Used often in conjunction with: 
+    - `ON DELETE CASCADE`: if the record referenced is deleted, *this* record is also deleted
+    - `ON DELETE RESTRICT`: if the record referenced is to be deleted elsewhere, this will prevent it.
+
+[Postgres documentation - Constraints](https://www.postgresql.org/docs/current/ddl-constraints.html)
+
+Base syntax:
+
+```sql
+"id" integer NOT NULL UNIQUE CHECK (id>0),
+```
+**Note**: constraints can be named, for easy identification (e.g., in error messages), referencing, and alteration
+
+```sql
+"id" integer CONSTRAINT positiveUnique NOT NULL UNIQUE
+```
+**Primary key (may include multiple attributes):
+
+```sql
+Constraint "publishers_pkey" Primary Key ("id")
+```
+
+**Foreign key (may incl. multiple attributes):
+
+```sql
+"state_id" integer REFERENCES "states" ("id"),
+```
+
+Alternative notation:
+
+```sql
+Constraint publishers_state_fk FOREIGN KEY (state_id) references "states" ("id")
+```
+
+### ALTER table
+
+Alters the definition of the table schema
+
+**Add/delete a column:**
+
+```sql
+ALTER TABLE distributors ADD COLUMN address varchar(30);
+```
+
+**Change column definition** (rename, incl table, change data type):
+
+```sql
+ALTER TABLE distributors RENAME COLUMN address TO city;
+```
+
+**Add/remove constraints:**
+
+```sql
+ALTER TABLE distributors ALTER COLUMN street SET NOT NULL;
+```
+
+[Postgres documentation - ALTER](https://www.postgresql.org/docs/current/ddl-alter.html)
+
+
+### DROP table
+
+Permanently deletes a table - content *and* the structure itself.
+
+```sql
+    DROP TABLE publishers;
+```
+
+- When executed, removes all indexes, constraints, triggers associated with the table
+- If constraints are specified, this may fail (if the table is referenced by a FK) = `RESTRICT` (default).
+- If `CASCADE` is specified, it will remove the FK constraint from the referencing table, but not `DROP` the referencing table
+
+```sql
+    DROP TABLE state CASCADE;
+```
+   
+### SQL: Data Manipulation Language
+
+Allows the modification of data in the table
+
+- `INSERT`
+- `UPDATE`
+- `DELETE`
+
+### INSERT data
+
+- Used to input data into the table
+
+```sql
+INSERT INTO states (id, name, abbreviation) VALUES (2, 'Canada', 'CA');
+```
+
+- During insertion, constraints and triggers are checked for;
+- Check the documentation for various variations of this command;
+- You may also explore the `COPY` command.
+
+### UPDATE data
+
+- Used to update the values of specified attributes of the records in the table
+- The key is to specify correctly what rows you are altering:
+
+```sql
+UPDATE "states" SET name = 'New Jersey' where id = 32;
+```
+
+You should check what is returned by a SELECT statement with the same condition first.
+
+### DELETE data
+
+- Used to delete records meeting a condition from table (not the storage structure itself)
+- Again, the key is to specify correctly what rows you are deleting:
+
+```sql
+DELETE from "states" WHERE id = 32;
+```
+
+It is recommended to check what is returned by a `SELECT` statement with the same condition first (replace `DELETE` >> `SELECT`).
+
+::: {.content-visible when-format="revealjs"}
+
+**Demo 3.1**
+
+- SQL – demonstrate the sequence of 
+    - CREATE TABLE
+    - DESCRIBE THE TABLE
+    - INSERT DATA
+    - DROP/RE_CREATE or ALTER TABLE
+    - INSERT DATA
+    - DELETE DATA
+    - (SIMPLE) SELECT DATA
+:::
+
+## SQL: Data Query Language
+
+- The most used part – this is why you are creating a database!
+
+```sql
+SELECT <projection> FROM <table> WHERE <restriction>;
+```
+
+:::{.callout-note}
+**Note:** see how it relates to the Projection and Restriction of relational algebra!
+:::
+
+### SELECT-FROM-WHERE 
+
+`*` wildcard – selects all columns
+	
+```sql
+SELECT * FROM <table>;
+```
+
+We specify the projection attributes by naming the columns
+    
+```sql
+SELECT <column_names> FROM states;
+```
+
+We specify the restriction on the required rows: 
+
+```sql
+SELECT <column_names> FROM states WHERE <column_name comparison_operator value>;
+```
+
+[SQL comparison operators](https://www.postgresql.org/docs/current/functions-comparison.html)
+
+
+
+| PERSNR | NAME | FIRSTNAME |POSTCODE|
+|------|------|------|------|
+| 1    | Winter    | Reto    | 3000    |
+| 2    | Tomko    | Christian    | 6330    |
+| 3    | Jiang    | Silvia    | 6330    |
+| 4    | Ginzler    | Christian    | 9000    |
+| 6    | Suter    | Christoph    | 8051    |
+
+:Person
+
+
+```sql
+SELECT NAME, FIRSTNAME FROM PERSON WHERE POSTCODE = 3000
+
+```
+<!--::: {#tbl-panel layout-ncol=2}-->
+|NAME|FRSTNAME|
+|----|--------|
+|Winter|Reto|
+
+:Query Result
+
+
+### SELECT modifiers
+
+- `SELECT DISTINCT` returns unique values for a given select statement (proper relation in terms of relational algebra) 
+- Restriction by string pattern matching: `LIKE <pattern>`
+- Restriction by checking for membership in a *set* of values
+    - `IN` (`WHERE name IN (SELECT * FROM names…)`)
+    - `BETWEEN val1 AND val2` (for intervals of scalar values)
+- The result of a select operation can be used as a relation for another select operation! (*closure*)
+
+### Arithmetic and aggregate functions
+
+**Basic arithmetic: **
+
+`SELECT (5*(salary)+500) as bonus FROM EMPLOYEE WHERE name = ‘Martin’;`
+
+**Aggregate functions** (`AVG`, `MEAN`,…) require the specification of *groups*:
+
+```sql
+    SELECT AVG(salary) AS avgsal from employee
+    WHERE employee.age > 30
+    GROUP BY location
+    HAVING AVG(salary) > 30000;
+```
+
+### JOIN operators
+
+Linking two tables into a new, virtual table, to bring related attribute values from different relations together
+
+
+
+**JOINS (Product + Restrict)**
+
+Specifying multiple tables returns their cartesian product
+
+```sql
+SELECT * FROM table1,table2;
+```
+
+We can restrict this to specified values of given columns. Column names must be qualified.
+
+```sql
+SELECT * FROM table1,table2 WHERE 	
+table1.col1 = table2.col2;
+```
+
+An equivalent, and preferred (for legibility) syntax is to use `JOIN`:
+
+```sql
+SELECT * FROM table1 
+JOIN table2 ON table1.col1 = table2.col2;
+```
+
+enabling to bring multiple joins together (and effectively iterate on the solution by commenting out a line in the script)
+
+```sql
+SELECT * FROM table1 
+JOIN table2 ON table1.col1 = table2.col2
+JOIN table3 ON table1.col2 = table3.col3…
+WHERE name LIKE ‘Martin’;
+```
+
+:::{.content-visible when-format="revealjs"}
+## 
+
+![http://angriestprogrammer.com/comic/sql_vaudeville](./figs/00_intro_SQL/sql_comic.png)
+
+:::
+
+
+
+| PERSNR | NAME | FRSTNAME |PLZ||
+|------|------|------|
+|1    | Becker    | Reto    | 3000    |
+| 2    | Stofer    | Christian    | 6330    |
+| 3    | Stofer    | Silvia    | 6330    |
+| 4    | Ginzler    | Christian    | 9000    |
+| 5    | Burghardt    | Dirk    | 8001    |
+
+: PROJECT Operator = Selection of Attributes {#tbl-first}
+
+| PLZ| ORTSCHAFT | 
+|------|------|
+| 6330    | Cham    | 
+| 9000    | St. Gallen    | 
+| 8002    | Zürich    | 
+|6300|Zug|
+|8400|Winterthur|
+|8003|Zürich|
+|3000|Bern|
+|8001|Zürich|
+|8051|Zürich|
+
+: SELECT Operator = Selection of Tuples {#tbl-second}
+
+
+| PERSNR | NAME | FRSTNAME |PLZ|PLZ|ORTSCHAFT|
+|------|------|------|-----|------|------|
+|1    | Becker    | Reto    | 3000    |3000|Bern|
+| 2    | Stofer    | Christian    | 6330    |6330|Cham|
+| 3    | Stofer    | Silvia    | 6330    |6330|Cham|
+| 5    | Burghardt    | Dirk    | 8001    |8001|Zürich|
+| 4    | Ginzler    | Christian    | 9000    |9000|St. Gallen |
+
+:Join of @tbl-first and @tbl-second {#tbl-third}
+
+
+### JOIN Types
+
+Beyond natural (inner) joins: `LEFT`/`RIGHT`/`OUTER`/`INNER`: 
+
+![https://www.codeproject.com/Articles/33052/Visual-Representation-of-SQL-Joins](./figs/00_intro_SQL/sql_joins.png)
+
+`LEFT JOIN`: `FULL OUTER JOIN` + exclude the records we don't want from the right side via a `WHERE` clause. 
+
+We execute first the product (FULL OUTER JOIN), then WHERE
+
+### VIEWS
+
+Often, we do not want the joins to be saved int oa table and thus save static (stale?) copies of data. We compute them on the fly, and create views:
+
+```sql
+CREATE VIEW myview AS (SELECT * FROM table1 
+JOIN table2 ON table1.col1 = table2.col2
+JOIN table3 ON table1.col2 = table3.col3…
+WHERE name LIKE ‘John’);
+```
+
+### Union of tables
+
+Allows to concatenate two union compatible relations
+
+```sql
+(SELECT name, age FROM employee) UNION (SELECT name, age FROM manager);
+```
+
+## SQL: Data Control Language
+
+- `GRANT` & `REVOKE`: Grants/revoke different levels of read/write access to tables and schemas;
+
+```sql
+CREATE SCHEMA public
+    AUTHORIZATION postgres;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO public; 
+```
+
+## SQL: Data Transaction Language
+
+Starts and ends a transaction;
+In Postgres, transactions are automatically committed after successful (syntactically and logically correct) statements;
+You can manually force this by enclosing the transaction in a block.
+    
+```sql
+START 
+    
+    INSERT/UPDATE/DELETE statements
+    
+COMMIT;
+```
+
+
+

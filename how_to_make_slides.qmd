@@ -1,0 +1,117 @@
+# Requirements Analysis
+
+Requirements analysis is a structured process of distilling what matters in a project and separating it from what is not necessary.
+
+
+::: {.content-visible when-format="revealjs"}
+## Learning objectives -- Requirements Analysis
+- Appreciate the complexity of requirements gathering
+- llala
+- Understand the impact of scope creep
+- Undertake requirements analysis based on a document.
+::: 
+
+
+
+::: {.content-hidden when-format="revealjs"}
+## Requirements Analysis -- detail
+More extensive details
+::: 
+
+## Motivating example
+
+:::{.callout-tip}
+## Activity: Draw a sketch of a plane
+
+Draw as faithfully as you can.
+
+Compare your sketch with your colleagues. Discuss the similarities and differences you see. Besides artistic skills, what could have caused these?
+:::
+
+::: {.content-visible when-format="revealjs"}
+## Motivating example: Illustration
+
+::: {.incremental layout="[[25,25,25,25], [100]]"}
+![Paper Plane](./figs/1_part/11_requirements_analysis/paper_plane.png)
+
+![Paper plane model](./figs/1_part/11_requirements_analysis/paper_plane_model.png)
+
+![Hydroplane](./figs/1_part/11_requirements_analysis/hydroplane.png)
+
+![Passenger plane](./figs/1_part/11_requirements_analysis/passenger_plane.png)
+:::
+
+![Principle](./figs/1_part/11_requirements_analysis/airfoil.png){fig-align="center"}
+
+::: {.notes}
+Speaker notes go here.
+:::
+:::
+
+## Requirements analysis - defining the scope
+
+### From Documentation
+
+- [Electrical](https://esv.vic.gov.au/technical-information/electrical-installations-and-infrastructure/no-go-zones/)
+- [Casa - Drone licence](https://www.casa.gov.au/knowyourdrone/drone-rules)
+
+::: {.content-visible when-format="revealjs"}
+## Casa - Drone Rules
+
+::: {.incremental layout="[[15,15,15,15],[15,15,15,15],[15,15,15,15]]"}
+![](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_icons_height_ceiling.svg)
+
+![](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_icons_30m_away.svg)
+
+![](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_one_drone_at_a_time.svg)
+
+![](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_line_of_sight.svg)
+
+![](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_not_over_people.svg)
+
+![](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_privacy.svg)
+
+![](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_5.5k_from_aerodrome.svg)
+
+![](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_icons_no_hazard.svg)
+
+![](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_daytime.svg)
+
+![](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_icons_not_near_an_emergency.svg)
+
+![](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_5.5km_avoid_traffic.svg)
+
+![](./figs/1_part/11_requirements_analysis/casa_rules/droneflyer_non_commercial.svg)
+
+[Drone rules](https://www.casa.gov.au/knowyourdrone/drone-rules)
+:::
+
+::: {.notes}
+
+:::
+:::
+
+:::{.callout-tip}
+## Activity: Examples of spatial codebooks
+
+Can you give another example of codified rules that may have a spatial component?
+
+Discuss the spatial components of your example with a colleague. Which of those may need to be implemented in a spatially-enabled information system?
+
+- Would you know how to implement these in a GIS? 
+
+. . .
+
+- What may be the problems with using a GIS for implementing these rules?
+:::
+
+## Requirements Analysis - Scope Creep
+
+[Scope Creep](https://softwarehut.com/blog/it-project-management/changing-the-project-scope-in-it-projects)
+
+
+## Requirements analysis  -- Project Management
+
+- Agile
+- Waterfall
+
